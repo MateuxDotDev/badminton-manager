@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - ./public:/var/www/html
+    environment:
+      - XDEBUG_MODE=debug
+      - XDEBUG_CONFIG=client_host=host.docker.internal
+      - XDEBUG_CONFIG=client_port=9003
+      - XDEBUG_CONFIG=start_with_request=yes
+      - XDEBUG_CONFIG=log=/var/www/html/xdebug.log
