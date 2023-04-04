@@ -67,3 +67,9 @@ Para parar e remover os contêineres Docker, execute o seguinte comando no mesmo
 ```bash
 docker-compose down
 ```
+
+## Configuração do arquivo .env
+
+1. Crie um arquivo chamado `.env` na raiz do projeto.
+
+2. Adicione as com base no arquivo `example.env`.

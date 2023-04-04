@@ -3,7 +3,9 @@ FROM php:8.1-apache
 
 # Atualiza os pacotes e instala as dependências necessárias
 RUN apt-get update && apt-get upgrade -y \
-    && apt-get install -y git zip unzip
+    && apt-get install -y git zip unzip libpq-dev \
+    && docker-php-ext-install pdo_pgsql \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Habilita o mod_rewrite do Apache
 RUN a2enmod rewrite
