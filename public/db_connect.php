@@ -1,18 +1,12 @@
 <?
 
-function _getenv($s): string|array {
-  $x = getenv($s);
-  if ($x === false) {
-    die("Falta $s no .env");
-  }
-  return $x;
-} 
+require_once('util/env.php');
 
-$_host = _getenv('POSTGRES_HOST');
-$_port = _getenv('POSTGRES_PORT');
-$_name = _getenv('POSTGRES_DB');
-$_user = _getenv('POSTGRES_USER');
-$_password = _getenv('POSTGRES_PASSWORD');
+$_host = $GLOBALS['env']['postgres']['host'];
+$_port = $GLOBALS['env']['postgres']['port'];
+$_name = $GLOBALS['env']['postgres']['name'];
+$_user = $GLOBALS['env']['postgres']['user'];
+$_password = $GLOBALS['env']['postgres']['password'];
 
 $_dsn = "pgsql:host=$_host;port=$_port;dbname=$_name;user=$_user;password=$_password";
 
