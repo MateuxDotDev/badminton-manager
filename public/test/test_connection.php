@@ -1,10 +1,7 @@
 <?php
 
-require_once 'db_config.php';
-
 try {
-    $dsn = "pgsql:host={$db_host};port={$db_port};dbname={$db_name};user={$db_user};password={$db_password}";
-    $conn = new PDO($dsn);
+    $conn = require '../db_connect.php';
 
     if ($conn) {
         echo "Conexão com o banco de dados bem-sucedida!";
