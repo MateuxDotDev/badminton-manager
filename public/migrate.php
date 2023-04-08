@@ -23,12 +23,22 @@ $pdo = new PDO($config->dsn());
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $pdo->exec("set time zone -3");
 
+$nomeMigration = '';
+$force         = false;
+
+foreach ($argv as $arg) {
+  if ($arg === 'force') {
+    $force = true;
+  } else if (str_starts_with($arg, 'migration')) {
+    [,$nomeMigration] = explode('=', $arg);
+  }
+}
+
 migrationLog("Executando migrations...");
 
-if (isset($_GET['migration'])) {
-  $nomeMigration = $_GET['migration'];
+if ($nomeMigration !== '') {
   $diretorio = "migrations/$nomeMigration.sql";
-  if (isset($_GET['force']) || !migrationJaFoiExecutada($pdo, $nomeMigration)) {
+  if ($force || !migrationJaFoiExecutada($pdo, $nomeMigration)) {
     executarMigration($pdo, $diretorio);
   }
 }
@@ -58,7 +68,7 @@ migrationLog("Fim");
 
 function migrationLog(string $s): void {
   $datahora = date('d/m/Y H:i:s');
-  echo "<pre>[$datahora] => $s</pre>";
+  echo "[$datahora] => $s\n\n";
 }
 
 function migrationJaFoiExecutada(PDO $pdo, string $nomeMigration): bool {
