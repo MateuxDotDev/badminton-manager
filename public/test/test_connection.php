@@ -1,8 +1,7 @@
 <?php
 
 try {
-    $config = require '../db_config.php';
-    $conn = new PDO($config->dsn());
+    $conn = require '../db_connect.php';
 
     if ($conn) {
         echo "Conexão com o banco de dados bem-sucedida!";
