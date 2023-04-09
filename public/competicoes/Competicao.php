@@ -27,4 +27,12 @@ class Competicao {
   public function passouPrazo(DateTimeImmutable $data) {
     return $data->getTimestamp() >= $this->prazo->getTimestamp();
   }
+
+  public function toJson(): array {
+    return [
+      'id' => $this->id,
+      'nome' => $this->nome,
+      'prazo' => $this->prazo->format('Y-m-d')
+    ];
+  }
 }

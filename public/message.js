@@ -26,7 +26,7 @@ const $message = {
     confirmButtonColor: '#0d6efd'
   }),
 
-  confirm: (message, title = 'Tem certeza?') => Swal.fire({
+  confirmRemove: (message, title = 'Tem certeza?') => Swal.fire({
     title: title,
     text: message,
     icon: 'warning',

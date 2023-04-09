@@ -11,7 +11,7 @@ $req = getJson();
 retornarResponse(loginAdminController($pdo, $req));
 
 function loginAdminController(PDO $pdo, array $req): Response {
-  $acao = $req['acao'];
+  $acao = array_key_exists('acao', $req) ? $req['acao'] : '';
   return match ($acao) {
     'login' => acaoLogin($pdo, $req),
     default => Response::erro('Ação inválida', ['acao' => $acao])
@@ -32,7 +32,7 @@ function acaoLogin(PDO $pdo, array $req): Response {
     }
     return $ret;
   } catch (Exception $e) {
-    return Response::erro('Erro inesperado', ['exception' => $e]);
+    return Response::erroException($e);
   }
 }
 
