@@ -7,6 +7,10 @@ class Response {
     private readonly array $dados = [],
   ) {}
 
+  public static function justOk(): Response {
+    return new Response(200);
+  }
+
   public static function erro(string $mensagem='', array $dados=[]) {
     return new Response(400, $mensagem, $dados);
   }

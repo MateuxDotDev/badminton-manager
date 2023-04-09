@@ -1,6 +1,6 @@
 <? require '../pagina.php' ?>
 
-<? htmlHeader('Login - Administrador') ?>
+<? htmlHeader('..', 'Login - Administrador') ?>
 
 <div class="m-auto mt-5 card" style="width: 50%">
   <form name="form_entrar_admin">
@@ -40,12 +40,8 @@ htmlScripts('..') ?>
       const texto = await response.text();
       const json = JSON.parse(texto);
 
-      console.log('retorno', json)
       if (response.ok) {
-        // placeholder
-        // guardar token...
-        // redirecionar...
-        $message.success(json.mensagem)
+        location.assign('/competicoes');
       } else {
         $message.error(json.mensagem)
       }
