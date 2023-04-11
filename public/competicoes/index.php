@@ -188,22 +188,23 @@ foreach ($competicoes as $competicao) {
     try {
       const { mensagem } = JSON.parse(texto);
       if (response.ok) {
-        // TODO agendarAlerta (salvar na sessão, dar reload na página, e ter um script global que vai mostrar esse alerta)
-        $message.success(mensagem);
-        setTimeout(() => {
-          location.reload()
-        }, 2000)
+        location.reload();
+        agendarAlertaSucesso(mensagem);
       } else {
-        $message.error(mensagem);
+        Toast.fire({
+          icon: 'error',
+          text: mensagem,
+        });
       }
     } catch (err) {
-      console.error('retorno', texo, 'err', err);
+      console.error('retorno', texto, 'err', err);
     }
   }
 
   async function confirmarExcluirCompeticao(id) {
-    const result = await $message.confirmRemove(`A competição "${competicoes[id].nome}" será excluída`);
-    if (result.isConfirmed) {
+    const msg = `A competição "${competicoes[id].nome}" será excluída`;
+    const remover = await confirmarExclusao(msg)
+    if (remover) {
       excluirCompeticao(id);
     }
   }
@@ -220,13 +221,14 @@ foreach ($competicoes as $competicao) {
     const texto = await response.text();
     try {
       if (response.ok) {
-        $message.success('Competição excluída com sucesso');
-        setTimeout(() => {
-          location.reload();
-        }, 2000)
+        location.reload();
+        agendarAlertaSucesso('Competição excluída com sucesso');
       } else {
         const { mensagem } = JSON.parse(texto);
-        $message.error(mensagem);
+        Toast.fire({
+          icon: 'error',
+          text: mensagem,
+        });
       }
     } catch (err) {
       console.error('retorno', texto, 'err', err)
@@ -272,10 +274,13 @@ foreach ($competicoes as $competicao) {
     try {
       const {mensagem} = JSON.parse(texto);
       if (response.ok) {
-        $message.success(mensagem);
-        setTimeout(() => location.reload(), 2000);
+        location.reload();
+        agendarAlertaSucesso(mensagem);
       } else {
-        $message.error(mensagem);
+        Toast.fire({
+          icon: 'error',
+          text: mensagem,
+        })
       }
     } catch (err) {
       console.error('RETORNO', texto, 'ERRO', err)
