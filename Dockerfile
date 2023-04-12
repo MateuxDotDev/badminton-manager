@@ -33,6 +33,9 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Cria um novo usuário 'composeruser'
 RUN useradd --create-home --shell /bin/bash composeruser
 
+# Altera as permissões do diretório /var/www/html
+RUN chown -R composeruser:composeruser /var/www/html
+
 # Muda para o usuário 'composeruser'
 USER composeruser
 
