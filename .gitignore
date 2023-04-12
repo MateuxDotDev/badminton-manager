@@ -1,3 +1,5 @@
 .vscode
 xdebug.log
 .env
+.src
+vendor

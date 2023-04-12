@@ -9,7 +9,6 @@ Este projeto utiliza Docker, PHP 8.1 e Xdebug para facilitar o desenvolvimento. 
 ## Pré-requisitos
 
 - Docker: https://docs.docker.com/get-docker/
-- Docker Compose: https://docs.docker.com/compose/install/
 - Visual Studio Code (opcional): https://code.visualstudio.com/
 
 ## Configuração do ambiente
@@ -19,7 +18,7 @@ Este projeto utiliza Docker, PHP 8.1 e Xdebug para facilitar o desenvolvimento. 
 2. Construa a imagem Docker e inicie os contêineres com o seguinte comando:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 O ambiente de desenvolvimento agora deve estar acessível através do endereço http://localhost:8080 no seu navegador.
@@ -65,7 +64,7 @@ Se você deseja usar o Xdebug com o Visual Studio Code, siga estas instruções:
 Para parar e remover os contêineres Docker, execute o seguinte comando no mesmo diretório do arquivo docker-compose.yml:
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ## Configuração do arquivo .env
@@ -73,3 +72,12 @@ docker-compose down
 1. Crie um arquivo chamado `.env` na raiz do projeto.
 
 2. Adicione as com base no arquivo `example.env`.
+
+
+## "Importar" a pasta vendor (caso necessite)
+
+Ao final da execução do comando `docker compose up` é necessário importar a pasta vendor para o root do projeto utilizando o seguinte comando:
+
+```bash
+docker cp badminton-web:/var/www/html/vendor ./vendor
+```

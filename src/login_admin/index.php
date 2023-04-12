@@ -43,7 +43,10 @@ htmlScripts('..') ?>
       if (response.ok) {
         location.assign('/competicoes');
       } else {
-        $message.error(json.mensagem)
+        Toast.fire({
+          icon: 'error',
+          text: json.mensagem,
+        });
       }
     } catch (err) {
       console.error(err);

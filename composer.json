@@ -1,0 +1,37 @@
+{
+  "name": "udesc/badminton-manager",
+  "description": "Aplicação para gerenciamento de duplas para campeonatos de badminton",
+  "type": "project",
+  "license": "GPL-3.0",
+  "authors": [
+    {
+      "name": "Mateus Lucas Cruz Brandt",
+      "email": "mateus.brandt@edu.udesc.br"
+    }
+  ],
+  "require": {
+    "php": "^8.1"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "public/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "App\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "platform": {
+      "php": "8.1.0"
+    }
+  },
+  "scripts": {
+    "test": "phpunit --colors=always"
+  }
+}
