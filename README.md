@@ -1,6 +1,6 @@
 # Gerenciador de Badminton
 
-...
+Aqui está presente o código fonte do projeto MatchPoint, um sistema responsável por gerenciar duplas de competições de badminton. 
 
 # Desenvolvimento
 
@@ -73,11 +73,33 @@ docker compose down
 
 2. Adicione as com base no arquivo `example.env`.
 
+## Configurando o Composer
 
-## "Importar" a pasta vendor (caso necessite)
+### Como executar o Composer
 
-Ao final da execução do comando `docker compose up` é necessário importar a pasta vendor para o root do projeto utilizando o seguinte comando:
+Este projeto utiliza o composer como gerenciador de pacotes. Entretanto ele está disponível apenas via Docker.
+Para que possa utilizar os comandos disponíveis do mesmo, basta se conectar ao container da aplicação após sua inicalização com o comando a seguir:
 
 ```bash
-docker cp badminton-web:/var/www/html/vendor ./vendor
+docker exec -it --user composeruser badminton-web /bin/sh
+```
+
+Para mais informações, acesse a documentação do Composer disponível em: https://getcomposer.org/doc/01-basic-usage.md
+
+### Instalando as dependências do projeto
+
+Para instalar as dependências do projeto, basta se conectar com o contâiner conforme descrito na etapa acima, e posteriormente executar o comando: 
+
+```bash
+composer install
+```
+
+Qualquer outro comnado executado com o Composer, precisará ser feito via docker.
+
+### Atualizando o `composer.lock`
+
+Caso altere o `composer.lock` no contâiner, para importar ele novamente para o root do projeto, basta executar:
+
+```bash
+docker cp badminton-web:/var/www/html/composer.lock ./composer.lock
 ```

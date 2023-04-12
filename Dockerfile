@@ -36,18 +36,6 @@ RUN useradd --create-home --shell /bin/bash composeruser
 # Altera as permissões do diretório /var/www/html
 RUN chown -R composeruser:composeruser /var/www/html
 
-# Muda para o usuário 'composeruser'
-USER composeruser
-
-# Define o diretório de trabalho
-WORKDIR /var/www/html
-
-# Instala as dependências do projeto usando o Composer
-RUN composer install --no-interaction
-
-# Volta para o usuário root
-USER root
-
 # Reativa o Xdebug
 RUN sed -i 's/xdebug.mode=off/xdebug.mode=debug/g' /usr/local/etc/php/conf.d/xdebug.ini
 
