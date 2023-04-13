@@ -15,4 +15,8 @@ class Sessao {
   public static function isAdmin(): bool {
     return array_key_exists('tipo', $_SESSION) && $_SESSION['tipo'] === 'admin';
   }
+
+  public static function destruir(): void {
+    session_destroy();
+  }
 }

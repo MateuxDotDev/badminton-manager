@@ -78,4 +78,31 @@ class Pagina {
     $this->footer();
     die;
   }
+
+  public function navAdmin(string $abaSelecionada) {
+    $active = function($s) use ($abaSelecionada) {
+      return $s == $abaSelecionada ? 'active' : '';
+    }
+    ?>
+    <nav class="navbar navbar-expand bg-light">
+      <div class="container-fluid">
+        <span class="navbar-brand">MatchPoint</span>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-admin">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="nav-admin">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a href="/competicoes" class="nav-link <?= $active('competicoes') ?>">
+                Competições
+              </a>
+            </li>
+          </ul>
+          <a href="/sair" class="ms-auto nav-link">
+            Sair
+          </a>
+        </div>
+      </div>
+    </nav>
+  <? }
 }

@@ -1,4 +1,5 @@
 <?
+use App\AbaNavAdmin;
 use App\Competicoes\CompeticaoRepository;
 use App\Conexao;
 use App\Pagina;
@@ -14,12 +15,11 @@ $pag->header('Competições - Administrador');
 if (!Sessao::isAdmin()) {
   $pag->naoAutorizado();
 }
+$pag->navAdmin('competicoes');
 
 $pdo = Conexao::criar();
 $repo = new CompeticaoRepository($pdo);
 $competicoes = $repo->todasAsCompeticoes();
-
-// TODO fazer menu/nav
 ?>
 
 <main class="container">
