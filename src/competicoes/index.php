@@ -1,13 +1,10 @@
 <?
+use App\Conexao;
+use App\Pagina;
 
 require_once('../../vendor/autoload.php');
 
-// jdd($_SERVER);
-
-use App\Pagina;
-
 require '../session.php';
-
 $sessionOk = validaSessaoAdmin();
 
 $pag = new Pagina('..');
@@ -18,7 +15,7 @@ if (!$sessionOk) {
 }
 
 require 'model.php';
-$pdo = require '../db_connect.php';
+$pdo = Conexao::criar();
 $competicoes = buscarCompeticoes($pdo);
 
 // TODO fazer menu/nav

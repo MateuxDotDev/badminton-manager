@@ -1,12 +1,16 @@
 <?
 
-require '../request.php';
+require('../../vendor/autoload.php');
+
+use App\Response;
+use App\RequestUtils;
+
 require '../session.php';
 
 $pdo = require '../db_connect.php';
-$req = getJson();
+$req = RequestUtils::getJson();
 
-retornarResponse(competicaoController($pdo, $req));
+competicaoController($pdo, $req)->enviar();
 
 function competicaoController(PDO $pdo, array $req): Response {
   if (!validaSessaoAdmin()) {
@@ -23,7 +27,7 @@ function competicaoController(PDO $pdo, array $req): Response {
 }
 
 function criarCompeticao(PDO $pdo, array $req): Response {
-  if ($resp = validarCamposPresentes($req, ['nome', 'prazo'])) {
+  if ($resp = RequestUtils::validarCamposPresentes($req, ['nome', 'prazo'])) {
     return $resp;
   }
   $nome = $req['nome'];
@@ -52,7 +56,7 @@ function criarCompeticao(PDO $pdo, array $req): Response {
 }
 
 function excluirCompeticao(PDO $pdo, array $req): Response {
-  if ($resp = validarCamposPresentes($req, ['id'])) {
+  if ($resp = RequestUtils::validarCamposPresentes($req, ['id'])) {
     return $resp;
   }
 
@@ -74,7 +78,7 @@ function excluirCompeticao(PDO $pdo, array $req): Response {
 }
 
 function alterarCompeticao(PDO $pdo, array $req): Response {
-  if ($resp = validarCamposPresentes($req, ['id', 'nome', 'prazo'])) {
+  if ($resp = RequestUtils::validarCamposPresentes($req, ['id', 'nome', 'prazo'])) {
     return $resp;
   }
   $id = $req['id'];

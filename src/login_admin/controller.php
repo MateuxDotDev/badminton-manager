@@ -1,14 +1,15 @@
 <?
+use App\Conexao;
+use App\Response;
+use App\RequestUtils;
 
-declare(strict_types=1);
+require('../../vendor/autoload.php');
 
-// TODO usar autoload pra esses arquivos? intellisense vai relacionar?
 require "../session.php";
-require "../request.php";
-$pdo = require "../db_connect.php";
-$req = getJson();
+$pdo = Conexao::criar();
+$req = RequestUtils::getJson();
 
-retornarResponse(loginAdminController($pdo, $req));
+loginAdminController($pdo, $req)->enviar();
 
 function loginAdminController(PDO $pdo, array $req): Response {
   $acao = array_key_exists('acao', $req) ? $req['acao'] : '';

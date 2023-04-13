@@ -1,5 +1,9 @@
 <?
 
+namespace App;
+
+use \Exception;
+
 class Response {
   public function __construct(
     private readonly int $code = 200,
@@ -53,28 +57,13 @@ class Response {
     }
     return $a;
   }
-}
 
-function getJson(): array {
-  $json = file_get_contents('php://input');
-  if ($json === false) die('Erro ao ler JSON da request');
-  return json_decode($json, true);
-}
-
-function retornarResponse(Response $r): void {
-  http_response_code($r->statusCode());
-  header('Content-Type: application/json');
-  die(json_encode(
-    $r->array(),
-    JSON_PRETTY_PRINT
-  ));
-}
-
-function validarCamposPresentes(array $req, array $camposRequeridos): Response|false {
-  foreach ($camposRequeridos as $campo) {
-    if (!array_key_exists($campo, $req)) {
-      return Response::erro("Campo faltando na requisição", ['campo' => $campo]);
-    }
+  public function enviar(): never {
+    http_response_code($this->statusCode());
+    header('Content-Type: application/json');
+    die(json_encode(
+      $this->array(),
+      JSON_PRETTY_PRINT
+    ));
   }
-  return false;
 }
