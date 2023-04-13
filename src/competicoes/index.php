@@ -1,4 +1,5 @@
 <?
+use App\Competicoes\CompeticaoRepository;
 use App\Conexao;
 use App\Pagina;
 use App\Sessao;
@@ -14,9 +15,9 @@ if (!Sessao::isAdmin()) {
   $pag->naoAutorizado();
 }
 
-require 'model.php';
 $pdo = Conexao::criar();
-$competicoes = buscarCompeticoes($pdo);
+$repo = new CompeticaoRepository($pdo);
+$competicoes = $repo->todasAsCompeticoes();
 
 // TODO fazer menu/nav
 ?>

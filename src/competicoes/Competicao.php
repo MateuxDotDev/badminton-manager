@@ -3,6 +3,7 @@
 namespace App\Competicoes;
 
 use \DateTimeInterface;
+use \DateTimeImmutable;
 
 class Competicao {
   private int $id;
@@ -28,7 +29,8 @@ class Competicao {
   public function nome(): string { return $this->nome; }
   public function prazo(): DateTimeInterface { return $this->prazo; }
 
-  public function passouPrazo(DateTimeInterface $data) {
+  public function prazoPassou(?DateTimeInterface $data=null) {
+    $data ??= new DateTimeImmutable('now');
     return $data->getTimestamp() >= $this->prazo->getTimestamp();
   }
 

@@ -3,6 +3,8 @@ use App\Response;
 use App\RequestUtils;
 use App\Sessao;
 use App\Conexao;
+use App\Competicoes\Competicao;
+use App\Competicoes\CompeticaoRepository;
 
 require('../../vendor/autoload.php');
 
@@ -35,21 +37,14 @@ function criarCompeticao(PDO $pdo, array $req): Response {
   if ($prazo === false) {
     return Response::erro("Prazo inválido");
   }
-  if ($prazo->getTimestamp() < time()) {
+  $competicao = (new Competicao)->setNome($nome)->setPrazo($prazo);
+  if ($competicao->prazoPassou()) {
     return Response::erro("Prazo deve ser no futuro");
   }
   try {
-    $stmt = $pdo->prepare("INSERT INTO competicao (nome, prazo) VALUES (:nome, :prazo)");
-    $ok = $stmt->execute([
-      'nome' => $nome,
-      'prazo' => $prazo->format('Y-m-d'),
-    ]);
-    if ($ok) {
-      $id = $pdo->lastInsertId();
-      return Response::ok('Competição criada com sucesso', ['id' => $id]);
-    } else {
-      return Response::erro('Erro ao salvar a competição');
-    }
+    $repo = new CompeticaoRepository($pdo);
+    $id = $repo->criarCompeticao($competicao);
+    return Response::ok('Competição criada com sucesso', ['id' => $id]);
   } catch (Exception $e) {
     return Response::erroException($e);
   }
@@ -65,13 +60,9 @@ function excluirCompeticao(PDO $pdo, array $req): Response {
 
   $id = $req['id'];
   try {
-    $stmt = $pdo->prepare("DELETE FROM competicao WHERE id = :id");
-    $ok = $stmt->execute(['id' => $id]);
-    if ($ok) {
-      return Response::okExcluido();
-    } else {
-      return Response::erro('Erro ao excluir a competição');
-    }
+    $repo = new CompeticaoRepository($pdo);
+    $repo->excluirCompeticao($id);
+    return Response::okExcluido();
   } catch (Exception $e) {
     return Response::erroException($e);
   }
@@ -83,26 +74,25 @@ function alterarCompeticao(PDO $pdo, array $req): Response {
   }
   $id = $req['id'];
   $nome = $req['nome'];
-
   $prazo = DateTimeImmutable::createFromFormat('Y-m-d', $req['prazo']);
   if ($prazo === false) {
     return Response::erro("Prazo inválido");
   }
-  if ($prazo->getTimestamp() < time()) {
+
+  $competicao = (new Competicao)
+    ->setId($id)
+    ->setNome($nome)
+    ->setPrazo($prazo);
+  if ($competicao->prazoPassou()) {
     return Response::erro("Prazo deve ser no futuro");
   }
 
   try {
-    $stmt = $pdo->prepare("UPDATE competicao SET nome = :nome, prazo = :prazo WHERE id = :id");
-    $stmt->execute([
-      'id' => $id,
-      'nome' => $nome,
-      'prazo' => $prazo->format('Y-m-d')
-    ]);
-    if ($stmt->rowCount() == 0) {
-      return Response::notFound();
-    } else {
+    $repo = new CompeticaoRepository($pdo);
+    if ($repo->alterarCompeticao($competicao)) {
       return Response::ok('Competição alterada com sucesso');
+    } else {
+      return Response::notFound();
     }
   } catch (Exception $e) {
     return Response::erroException($e);
