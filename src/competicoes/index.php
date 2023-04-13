@@ -8,7 +8,7 @@ require_once('../../vendor/autoload.php');
 
 Sessao::iniciar();
 
-$pag = new Pagina('..');
+$pag = new Pagina();
 
 $pag->header('Competições - Administrador');
 if (!Sessao::isAdmin()) {

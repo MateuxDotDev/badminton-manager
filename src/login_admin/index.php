@@ -1,7 +1,9 @@
 <?
-require_once('../../vendor/autoload.php');
 use App\Pagina;
-$pag = new Pagina('..');
+
+require_once('../../vendor/autoload.php');
+
+$pag = new Pagina();
 ?>
 
 <? $pag->header('Login - Administrador') ?>

@@ -4,24 +4,24 @@ namespace App;
 
 class Pagina {
 
-  private readonly string $root;
+  private readonly string $dir;
 
-  public function __construct(string $root) {
-    $this->root = $root;
+  public function __construct() {
+    $this->dir = $_SERVER['DOCUMENT_ROOT'];
   }
 
   public function loadScript(string $script): void {
-    $root = $this->root;
-    $path = "$root/js/$script";
-    $time = filemtime($path);
-    echo "<script src='$path?t=$time'></script>";
+    $scriptFile = $this->dir . '/js/' . $script;
+    $scriptUrl  = '/js/' . $script;
+    $t          = filemtime($scriptFile);
+    echo "<script type='text/javascript' src='$scriptUrl?t=$t'></script>";
   }
 
   function loadStyle(string $style): void {
-    $root = $this->root;
-    $path = "$root/css/$style";
-    $time = filemtime($path);
-    echo "<link rel='stylesheet' href='$path?t=$time'>";
+    $styleFile = $this->dir . '/css/' . $style;
+    $styleUrl  = '/css/' . $style;
+    $t         = filemtime($styleFile);
+    echo "<link rel='stylesheet' href='$styleUrl?t=$t'/>";
   }
 
 

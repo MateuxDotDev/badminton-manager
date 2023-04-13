@@ -1,8 +1,6 @@
 <?php
-use PhpParser\PrettyPrinterAbstract;
-
 // dump and die
-function dd(mixed $s): void {
+function dd(mixed $s): never {
   echo '<pre>';
   var_dump($s);
   echo '</pre>';
@@ -10,7 +8,7 @@ function dd(mixed $s): void {
 }
 
 // dump and die versão json (mais fácil de ler pra objetos)
-function jdd(mixed $s): void {
+function jdd(mixed $s): never {
   echo '<pre>';
   echo json_encode($s, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
   echo '</pre>';
