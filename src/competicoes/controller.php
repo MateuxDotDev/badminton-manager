@@ -1,19 +1,19 @@
 <?
+use App\Response;
+use App\RequestUtils;
+use App\Sessao;
+use App\Conexao;
 
 require('../../vendor/autoload.php');
 
-use App\Response;
-use App\RequestUtils;
-
-require '../session.php';
-
-$pdo = require '../db_connect.php';
+$pdo = Conexao::criar();
 $req = RequestUtils::getJson();
 
+Sessao::iniciar();
 competicaoController($pdo, $req)->enviar();
 
 function competicaoController(PDO $pdo, array $req): Response {
-  if (!validaSessaoAdmin()) {
+  if (!Sessao::isAdmin()) {
     return Response::erroNaoAutorizado();
   }
   $acao = array_key_exists('acao', $req) ? $req['acao'] : '';
@@ -83,13 +83,21 @@ function alterarCompeticao(PDO $pdo, array $req): Response {
   }
   $id = $req['id'];
   $nome = $req['nome'];
-  $prazo = $req['prazo'];
+
+  $prazo = DateTimeImmutable::createFromFormat('Y-m-d', $req['prazo']);
+  if ($prazo === false) {
+    return Response::erro("Prazo inválido");
+  }
+  if ($prazo->getTimestamp() < time()) {
+    return Response::erro("Prazo deve ser no futuro");
+  }
+
   try {
     $stmt = $pdo->prepare("UPDATE competicao SET nome = :nome, prazo = :prazo WHERE id = :id");
     $stmt->execute([
       'id' => $id,
       'nome' => $nome,
-      'prazo' => $prazo
+      'prazo' => $prazo->format('Y-m-d')
     ]);
     if ($stmt->rowCount() == 0) {
       return Response::notFound();

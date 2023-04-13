@@ -2,10 +2,10 @@
 use App\Conexao;
 use App\Response;
 use App\RequestUtils;
+use App\Sessao;
 
 require('../../vendor/autoload.php');
 
-require "../session.php";
 $pdo = Conexao::criar();
 $req = RequestUtils::getJson();
 
@@ -28,7 +28,8 @@ function acaoLogin(PDO $pdo, array $req): Response {
       $hash = $linha['hash_senha'];
       if (password_verify($senha, $hash)) {
         $ret = Response::justOk();
-        criarSessaoAdmin();
+        Sessao::iniciar();
+        Sessao::setAdmin();
       }
     }
     return $ret;

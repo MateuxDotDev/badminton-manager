@@ -23,8 +23,7 @@ $pag = new Pagina('..');
   </form>
 </div>
 
-<?
-$pag->scripts() ?>
+<?  $pag->scripts() ?>
 
 <script>
   const form       = document.forms["form_entrar_admin"];
@@ -41,6 +40,7 @@ $pag->scripts() ?>
         })
       });
       const texto = await response.text();
+      console.log('texto', texto)
       const json = JSON.parse(texto);
 
       if (response.ok) {
@@ -53,7 +53,10 @@ $pag->scripts() ?>
       }
     } catch (err) {
       console.error(err);
-      $message.error('Ocorreu um erro ao realizar o login');
+      Toast.fire({
+        icon: 'error',
+        text: 'Ocorreu um erro ao realizar o login',
+      })
     }
   });
 </script>

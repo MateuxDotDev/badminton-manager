@@ -1,16 +1,16 @@
 <?
 use App\Conexao;
 use App\Pagina;
+use App\Sessao;
 
 require_once('../../vendor/autoload.php');
 
-require '../session.php';
-$sessionOk = validaSessaoAdmin();
+Sessao::iniciar();
 
 $pag = new Pagina('..');
 
 $pag->header('Competições - Administrador');
-if (!$sessionOk) {
+if (!Sessao::isAdmin()) {
   $pag->naoAutorizado();
 }
 
@@ -105,7 +105,7 @@ $competicoes = buscarCompeticoes($pdo);
       <input type="hidden" name="id">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Nova competição</h5>
+          <h5 class="modal-title">Alterar competição</h5>
           <button class="btn-close" data-bs-dismiss="modal" type="button"></button>
         </div>
         <div class="modal-body">
