@@ -1,6 +1,6 @@
 <?
 
-require 'Competicao.php';
+use App\Competicoes\Competicao;
 
 function buscarCompeticoes(PDO $pdo): array {
   $sql = "SELECT id, nome, prazo FROM competicao ORDER BY prazo DESC";

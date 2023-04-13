@@ -1,9 +1,13 @@
 <?
 
+namespace App\Competicoes;
+
+use \DateTimeInterface;
+
 class Competicao {
   private int $id;
   private string $nome;
-  private DateTimeImmutable $prazo;
+  private DateTimeInterface $prazo;
 
   public function setId(int $id): Competicao {
     $this->id = $id;
@@ -15,16 +19,16 @@ class Competicao {
     return $this;
   }
 
-  public function setPrazo(DateTimeImmutable $prazo): Competicao {
+  public function setPrazo(DateTimeInterface $prazo): Competicao {
     $this->prazo = $prazo;
     return $this;
   }
 
   public function id(): int { return $this->id; }
   public function nome(): string { return $this->nome; }
-  public function prazo(): DateTimeImmutable { return $this->prazo; }
+  public function prazo(): DateTimeInterface { return $this->prazo; }
 
-  public function passouPrazo(DateTimeImmutable $data) {
+  public function passouPrazo(DateTimeInterface $data) {
     return $data->getTimestamp() >= $this->prazo->getTimestamp();
   }
 

@@ -1,12 +1,20 @@
 <?
+
+require_once('../../vendor/autoload.php');
+
+// jdd($_SERVER);
+
+use App\Pagina;
+
 require '../session.php';
-require '../pagina.php';
 
 $sessionOk = validaSessaoAdmin();
 
-htmlHeader('..', 'Competições - Administrador');
+$pag = new Pagina('..');
+
+$pag->header('Competições - Administrador');
 if (!$sessionOk) {
-  htmlNaoAutorizado();
+  $pag->naoAutorizado();
 }
 
 require 'model.php';
@@ -122,7 +130,7 @@ $competicoes = buscarCompeticoes($pdo);
   </div>
 </div>
 
-<? htmlScripts('..') ?>
+<? $pag->scripts() ?>
 
 <?
 $competicoesJson = [];
@@ -288,4 +296,4 @@ foreach ($competicoes as $competicao) {
   }
 </script>
 
-<? htmlFooter() ?>
+<? $pag->footer() ?>

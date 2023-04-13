@@ -1,6 +1,10 @@
-<? require '../pagina.php' ?>
+<?
+require_once('../../vendor/autoload.php');
+use App\Pagina;
+$pag = new Pagina('..');
+?>
 
-<? htmlHeader('..', 'Login - Administrador') ?>
+<? $pag->header('Login - Administrador') ?>
 
 <div class="m-auto mt-5 card" style="width: 50%">
   <form name="form_entrar_admin">
@@ -20,8 +24,7 @@
 </div>
 
 <?
-// podia ser algo do $_SERVER tb
-htmlScripts('..') ?>
+$pag->scripts() ?>
 
 <script>
   const form       = document.forms["form_entrar_admin"];
@@ -55,4 +58,4 @@ htmlScripts('..') ?>
   });
 </script>
 
-<? htmlFooter() ?>
+<? $pag->footer() ?>
