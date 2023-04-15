@@ -1,9 +1,12 @@
 # Imagem base oficial do PHP 8.1 com Apache
 FROM php:8.1-apache
 
+# Criar um grupo e usuário nonroot
+RUN groupadd -r nonroot && useradd -r -g nonroot nonroot
+
 # Atualiza os pacotes e instala as dependências necessárias
 RUN apt-get update && apt-get upgrade -y \
-    && apt-get install -y git zip unzip libpq-dev \
+    && apt-get install -y libpq-dev \
     && docker-php-ext-install pdo_pgsql \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -23,19 +26,16 @@ COPY ./Docker/dev/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 RUN sed -i 's/xdebug.mode=debug/xdebug.mode=off/g' /usr/local/etc/php/conf.d/xdebug.ini
 
 # Copia os arquivos do projeto para o container
-COPY ./composer.json /var/www/html/
-COPY ./composer.lock /var/www/html/
-COPY ./tests /var/www/html/tests
-COPY ./.env /var/www/html/
+COPY --chown=nonroot:nonroot ./composer.json /var/www/html/
+COPY --chown=nonroot:nonroot ./composer.lock /var/www/html/
+COPY --chown=nonroot:nonroot ./tests /var/www/html/tests
+COPY --chown=nonroot:nonroot ./.env /var/www/html/
 
 # Instala o Composer globalmente
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Cria um novo usuário 'composeruser'
-RUN useradd --create-home --shell /bin/bash composeruser
-
 # Altera as permissões do diretório /var/www/html
-RUN chown -R composeruser:composeruser /var/www/html
+RUN chown -R nonroot:nonroot /var/www/html
 
 # Reativa o Xdebug
 RUN sed -i 's/xdebug.mode=off/xdebug.mode=debug/g' /usr/local/etc/php/conf.d/xdebug.ini
@@ -48,3 +48,6 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 
 # Expõe a porta 80 para acesso externo
 EXPOSE 80
+
+# Muda para o usuário nonroot
+USER nonroot
