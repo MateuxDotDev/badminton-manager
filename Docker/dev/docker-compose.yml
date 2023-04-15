@@ -2,19 +2,16 @@ version: '3.9'
 
 services:
   web:
-    build: .
+    build:
+      context: ../..
+      dockerfile: Docker/dev/Dockerfile
     container_name: badminton-web
     ports:
       - "8080:80"
     volumes:
-      - ./src:/var/www/html/public
-      - ./vendor:/var/www/html/vendor
+      - ../../src:/var/www/html/src
+      - ../../vendor:/var/www/html/vendor
     environment:
-      - XDEBUG_MODE=debug
-      - XDEBUG_CONFIG=client_host=host.docker.internal
-      - XDEBUG_CONFIG=client_port=9003
-      - XDEBUG_CONFIG=start_with_request=yes
-      - XDEBUG_CONFIG=log=/var/www/html/xdebug.log
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
