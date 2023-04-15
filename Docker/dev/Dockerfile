@@ -23,7 +23,8 @@ COPY ./Docker/dev/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 RUN sed -i 's/xdebug.mode=debug/xdebug.mode=off/g' /usr/local/etc/php/conf.d/xdebug.ini
 
 # Copia os arquivos do projeto para o container
-COPY ./composer.* /var/www/html/
+COPY ./composer.json /var/www/html/
+COPY ./composer.lock /var/www/html/
 COPY ./tests /var/www/html/tests
 COPY ./.env /var/www/html/
 
