@@ -1,5 +1,3 @@
-# Observação. Este arquivo deve estar na raiz do projeto. E serve apenas para ambiente de desenvolvimento.
-
 # Imagem base oficial do PHP 8.1 com Apache
 FROM php:8.1-apache
 
@@ -19,13 +17,13 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN pecl install xdebug && docker-php-ext-enable xdebug
 
 # Configura o Xdebug
-COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+COPY ../../xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 # Desativa o Xdebug temporariamente
 RUN sed -i 's/xdebug.mode=debug/xdebug.mode=off/g' /usr/local/etc/php/conf.d/xdebug.ini
 
 # Copia os arquivos do projeto para o container
-COPY . /var/www/html
+COPY ../.. /var/www/html
 
 # Instala o Composer globalmente
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer

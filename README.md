@@ -18,7 +18,44 @@ Este projeto utiliza Docker, PHP 8.1 e Xdebug para facilitar o desenvolvimento. 
 2. Construa a imagem Docker e inicie os contêineres com o seguinte comando:
 
 ```bash
-docker compose up -d
+docker compose --file Docker/dev/docker-compose.yml --env-file .env up -d 
+```
+
+Caso queira parar os contêineres, execute o seguinte comando:
+
+```bash
+docker compose --file Docker/dev/docker-compose.yml --env-file .env down
+```
+
+## Configurando o Composer
+
+### Como executar o Composer
+
+Este projeto utiliza o composer como gerenciador de pacotes. Entretanto ele está disponível apenas via Docker.
+Para que possa utilizar os comandos disponíveis do mesmo, basta se conectar ao container da aplicação após sua inicalização com o comando a seguir:
+
+```bash
+docker exec -it --user composeruser badminton-web /bin/sh
+```
+
+Para mais informações, acesse a documentação do Composer disponível em: https://getcomposer.org/doc/01-basic-usage.md
+
+### Instalando as dependências do projeto
+
+Para instalar as dependências do projeto, basta se conectar com o contâiner conforme descrito na etapa acima, e posteriormente executar o comando:
+
+```bash
+composer install
+```
+
+Qualquer outro comnado executado com o Composer, precisará ser feito via docker.
+
+### Atualizando o `composer.lock`
+
+Caso altere o `composer.lock` no contâiner, para importar ele novamente para o root do projeto, basta executar:
+
+```bash
+docker cp badminton-web:/var/www/html/composer.lock ./composer.lock
 ```
 
 O ambiente de desenvolvimento agora deve estar acessível através do endereço http://localhost:8080 no seu navegador.
@@ -73,33 +110,16 @@ docker compose down
 
 2. Adicione as com base no arquivo `example.env`.
 
-## Configurando o Composer
+## Realizar build de Produção
 
-### Como executar o Composer
-
-Este projeto utiliza o composer como gerenciador de pacotes. Entretanto ele está disponível apenas via Docker.
-Para que possa utilizar os comandos disponíveis do mesmo, basta se conectar ao container da aplicação após sua inicalização com o comando a seguir:
+Para realizar o build de produção e verificar que tudo está funcionando corretamente, execute o seguinte comando:
 
 ```bash
-docker exec -it --user composeruser badminton-web /bin/sh
+docker build -t mateuxlucax/badminton-manager -f Docker/prod/Dockerfile . 
 ```
 
-Para mais informações, acesse a documentação do Composer disponível em: https://getcomposer.org/doc/01-basic-usage.md
-
-### Instalando as dependências do projeto
-
-Para instalar as dependências do projeto, basta se conectar com o contâiner conforme descrito na etapa acima, e posteriormente executar o comando: 
+E para executar o container:
 
 ```bash
-composer install
-```
-
-Qualquer outro comnado executado com o Composer, precisará ser feito via docker.
-
-### Atualizando o `composer.lock`
-
-Caso altere o `composer.lock` no contâiner, para importar ele novamente para o root do projeto, basta executar:
-
-```bash
-docker cp badminton-web:/var/www/html/composer.lock ./composer.lock
+docker run -d -p 8080:80 --name badminton-manager mateuxlucax/badminton-manager
 ```
