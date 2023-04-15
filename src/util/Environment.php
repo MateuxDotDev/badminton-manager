@@ -11,7 +11,7 @@ class Environment
     private static function initialize(): void
     {
         if (!self::$initialized) {
-            $dotenv = Dotenv::createImmutable(__DIR__ . '/../..'); // Ajuste o caminho de acordo com a estrutura do seu projeto
+            $dotenv = Dotenv::createImmutable(__DIR__ . '/../..');
             $dotenv->load();
             self::$initialized = true;
         }

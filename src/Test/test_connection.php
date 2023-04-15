@@ -1,7 +1,14 @@
 <?php
 
+namespace App\Test;
+
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use App\Database\Connection;
+use PDOException;
+
 try {
-    $conn = require '../db_connect.php';
+    $conn = Connection::getInstance();
 
     if ($conn) {
         echo "Conexão com o banco de dados bem-sucedida!";
