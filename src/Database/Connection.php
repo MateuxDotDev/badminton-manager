@@ -5,14 +5,18 @@ namespace App\Database;
 use App\Util\Environment;
 use PDO;
 
-class Connection {
+class Connection
+{
     private static ?PDO $instance = null;
 
-    private function __construct() {}
+    private function __construct() {
+        // This method is private to prevent the creation of new instances of this class
+    }
 
     public static function getInstance(): ?PDO
     {
-        if (self::$instance === null) {
+        if (self::$instance === null)
+        {
             $host = Environment::getPostgresHost();
             $port = Environment::getPostgresPort();
             $name = Environment::getPostgresDb();
