@@ -17,13 +17,15 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 RUN pecl install xdebug && docker-php-ext-enable xdebug
 
 # Configura o Xdebug
-COPY ../../xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+COPY ./Docker/dev/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 # Desativa o Xdebug temporariamente
 RUN sed -i 's/xdebug.mode=debug/xdebug.mode=off/g' /usr/local/etc/php/conf.d/xdebug.ini
 
 # Copia os arquivos do projeto para o container
-COPY ../.. /var/www/html
+COPY ./composer.* /var/www/html/
+COPY ./tests /var/www/html/tests
+COPY ./.env /var/www/html/
 
 # Instala o Composer globalmente
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
@@ -38,7 +40,7 @@ RUN chown -R composeruser:composeruser /var/www/html
 RUN sed -i 's/xdebug.mode=off/xdebug.mode=debug/g' /usr/local/etc/php/conf.d/xdebug.ini
 
 # Define a pasta /var/www como a raiz do Apache
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+ENV APACHE_DOCUMENT_ROOT /var/www/html/src
 
 # Altera o DocumentRoot do Apache
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf

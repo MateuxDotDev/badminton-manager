@@ -1,12 +1,14 @@
 <?php
 
-require_once('util/env.php');
+require_once __DIR__ . '/../vendor/autoload.php';
 
-$_host = $GLOBALS['env']['postgres']['host'];
-$_port = $GLOBALS['env']['postgres']['port'];
-$_name = $GLOBALS['env']['postgres']['name'];
-$_user = $GLOBALS['env']['postgres']['user'];
-$_password = $GLOBALS['env']['postgres']['password'];
+use App\util\Environment;
+
+$_host = Environment::getPostgresHost();
+$_port = Environment::getPostgresPort();
+$_name = Environment::getPostgresDb();
+$_user = Environment::getPostgresUser();
+$_password = Environment::getPostgresPassword();
 
 $_dsn = "pgsql:host=$_host;port=$_port;dbname=$_name;user=$_user;password=$_password";
 
