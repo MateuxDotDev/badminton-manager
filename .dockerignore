@@ -1,5 +1,6 @@
 .vscode
+.idea
 .git
 LICENSE
+README.md
 example.env
-src

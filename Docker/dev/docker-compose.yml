@@ -7,8 +7,8 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./src:/var/www/html/public
-      - ./vendor:/var/www/html/vendor
+      - ../../src:/var/www/html/public
+      - ../../vendor:/var/www/html/vendor
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
