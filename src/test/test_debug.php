@@ -8,3 +8,5 @@ function sum($a, $b) {
 }
 
 var_dump(sum($a, $b));
+
+?>
