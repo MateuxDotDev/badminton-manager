@@ -1,7 +1,6 @@
 <?
-use App\AbaNavAdmin;
 use App\Competicoes\CompeticaoRepository;
-use App\Conexao;
+use App\Database\Connection;
 use App\Pagina;
 use App\Sessao;
 
@@ -17,9 +16,11 @@ if (!Sessao::isAdmin()) {
 }
 $pag->navAdmin('competicoes');
 
-$pdo = Conexao::criar();
+$pdo = Connection::getInstance();
 $repo = new CompeticaoRepository($pdo);
 $competicoes = $repo->todasAsCompeticoes();
+
+jdump($competicoes);
 ?>
 
 <main class="container">

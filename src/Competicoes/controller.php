@@ -2,13 +2,13 @@
 use App\Response;
 use App\RequestUtils;
 use App\Sessao;
-use App\Conexao;
+use App\Database\Connection;
 use App\Competicoes\Competicao;
 use App\Competicoes\CompeticaoRepository;
 
 require('../../vendor/autoload.php');
 
-$pdo = Conexao::criar();
+$pdo = Connection::getInstance();
 $req = RequestUtils::getJson();
 
 Sessao::iniciar();
