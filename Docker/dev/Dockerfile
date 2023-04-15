@@ -6,7 +6,7 @@ RUN groupadd -r nonroot && useradd -r -g nonroot nonroot
 
 # Atualiza os pacotes e instala as dependências necessárias
 RUN apt-get update && apt-get upgrade -y \
-    && apt-get install -y libpq-dev \
+    && apt-get install -y --no-install-recommends libpq-dev \
     && docker-php-ext-install pdo_pgsql \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
