@@ -1,4 +1,4 @@
-<?
+<?php
 use App\Response;
 use App\RequestUtils;
 use App\Sessao;

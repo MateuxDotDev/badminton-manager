@@ -1,12 +1,13 @@
-<?
-use App\Conexao;
+<?php
+
+use App\Database\Connection;
 use App\Response;
 use App\RequestUtils;
 use App\Sessao;
 
 require('../../vendor/autoload.php');
 
-$pdo = Conexao::criar();
+$pdo = Connection::getInstance();
 $req = RequestUtils::getJson();
 
 loginAdminController($pdo, $req)->enviar();

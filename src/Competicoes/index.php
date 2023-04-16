@@ -1,4 +1,4 @@
-<?
+<?php
 use App\Competicoes\CompeticaoRepository;
 use App\Database\Connection;
 use App\Pagina;
@@ -29,7 +29,7 @@ jdump($competicoes);
     <i class="bi bi-plus-circle"></i>&nbsp;
     Nova competição
   </button>
-  <? if (!empty($competicoes)): ?>
+  <?php if (!empty($competicoes)): ?>
     <table id="tabela-competicoes" class="table">
       <thead>
         <tr>
@@ -41,7 +41,7 @@ jdump($competicoes);
         </tr>
       </thead>
       <tbody>
-        <? foreach ($competicoes as $competicao): ?>
+      <?php foreach ($competicoes as $competicao): ?>
           <tr>
             <td><?= $competicao->id() ?></td>
             <td><?= $competicao->nome() ?></td>
@@ -64,14 +64,14 @@ jdump($competicoes);
             </td>
             <td></td>
           </tr>
-        <? endforeach; ?>
+      <?php endforeach; ?>
       </tbody>
     </table>
-  <? else: ?>
+  <?php else: ?>
     <div class="alert alert-info">
       Nenhuma competição cadastrada
     </div>
-  <? endif; ?>
+  <?php endif; ?>
 </main>
 
 <div id="modal-nova-competicao" class="modal">
@@ -129,9 +129,9 @@ jdump($competicoes);
   </div>
 </div>
 
-<? $pag->scripts() ?>
+<?php $pag->scripts() ?>
 
-<?
+<?php
 $competicoesJson = [];
 foreach ($competicoes as $competicao) {
   $competicoesJson[$competicao->id()] = $competicao->toJson();
@@ -153,7 +153,7 @@ foreach ($competicoes as $competicao) {
   })
   console.log('alterar', alterar)
 
-  formNovaCompeticao.addEventListener('submit', async (event) => {
+  formNovaCompeticao.addEventListener('submit', (event) => {
     event.preventDefault();
     const form = formNovaCompeticao;
     criarCompeticao(form.nome.value, form.prazo.value);
@@ -295,4 +295,4 @@ foreach ($competicoes as $competicao) {
   }
 </script>
 
-<? $pag->footer() ?>
+<?php $pag->footer() ?>
