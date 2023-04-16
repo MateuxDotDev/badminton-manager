@@ -10,7 +10,7 @@ on:
 
 jobs:
   build-and-push-docker:
-    name: Build and Push Docker Image
+    name: Build, Push Docker Image and Deploy on Server
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
@@ -37,3 +37,20 @@ jobs:
           file: Docker/prod/Dockerfile
           push: true
           tags: mateuxlucax/badminton-manager:latest
+
+      - name: Call deploy endpoint
+        env:
+          DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+            "$DEPLOY_URL" \
+            -H 'Content-Type: application/json' \
+            -d '{
+              "token": "'"$DEPLOY_TOKEN"'"
+            }')
+
+          if [ "$status_code" -ne 200 ]; then
+            echo "Error: Request to deploy endpoint returned status code $status_code"
+            exit 1
+          fi
