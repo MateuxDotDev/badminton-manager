@@ -2,7 +2,7 @@
 
 namespace App\Database;
 
-use App\Util\Environment;
+use App\Util\Environment\Environment;
 use PDO;
 
 class Connection implements ConnectionInterface

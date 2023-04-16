@@ -2,8 +2,8 @@
 
 namespace Tests\Util;
 
-use App\Util\Environment;
-use App\Util\EnvironmentAdapterInterface;
+use App\Util\Environment\Environment;
+use App\Util\Environment\EnvironmentAdapterInterface;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
