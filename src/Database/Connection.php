@@ -9,33 +9,42 @@ class Connection implements ConnectionInterface
 {
     private static ?PDO $instance = null;
 
-    private function __construct()
+    public function __construct()
     {
-        // This method is private to prevent the creation of new instances of this class
+        // This class is a singleton, so it should not be instantiated.
     }
 
-    public static function getInstance(): ?PDO
+    public static function getInstance(): PDO
     {
         if (self::$instance === null) {
-            $host = Environment::getPostgresHost();
-            $port = Environment::getPostgresPort();
-            $name = Environment::getPostgresDb();
-            $user = Environment::getPostgresUser();
-            $password = Environment::getPostgresPassword();
+            $dsn = sprintf(
+                'pgsql:host=%s;port=%d;dbname=%s',
+                Environment::getPostgresHost(),
+                Environment::getPostgresPort(),
+                Environment::getPostgresDb()
+            );
 
-            $dsn = "pgsql:host=$host;port=$port;dbname=$name;user=$user;password=$password";
+            $pdo = new PDO(
+                $dsn,
+                Environment::getPostgresUser(),
+                Environment::getPostgresPassword(),
+                [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                    PDO::ATTR_EMULATE_PREPARES => false,
+                ]            
+            );
 
-            $pdo = new PDO($dsn);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $pdo->exec("set time zone -3");
 
-            self::$instance = $pdo;
+            return $pdo;
         }
 
         return self::$instance;
     }
 
-    public static function setInstance(?PDO $instance): void
+    public function setInstance(PDO $instance): void
     {
         self::$instance = $instance;
     }

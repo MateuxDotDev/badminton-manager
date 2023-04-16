@@ -3,7 +3,7 @@
 namespace Test\Util;
 
 use App\Util\Environment;
-use App\Util\EnvironmentInterface;
+use App\Util\EnvironmentAdapterInterface;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
@@ -14,7 +14,7 @@ class EnvironmentTest extends TestCase
      */
     protected function setUp(): void
     {
-        $environmentMock = $this->createMock(EnvironmentInterface::class);
+        $environmentMock = $this->createMock(EnvironmentAdapterInterface::class);
         $environmentMock->method('get')->willReturnMap([
             ['POSTGRES_USER', 'mock_user'],
             ['POSTGRES_PASSWORD', 'mock_password'],

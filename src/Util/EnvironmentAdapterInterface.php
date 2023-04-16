@@ -2,7 +2,7 @@
 
 namespace App\Util;
 
-interface EnvironmentInterface
+interface EnvironmentAdapterInterface
 {
     public function get(string $name);
 }
