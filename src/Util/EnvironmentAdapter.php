@@ -4,7 +4,7 @@ namespace App\Util;
 
 use Dotenv\Dotenv;
 
-class EnvironmentAdapterAdapter implements EnvironmentAdapterInterface
+class EnvironmentAdapter implements EnvironmentAdapterInterface
 {
     public function __construct()
     {

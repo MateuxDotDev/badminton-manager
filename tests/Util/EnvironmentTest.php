@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\Util;
+namespace Tests\Util;
 
 use App\Util\Environment;
 use App\Util\EnvironmentAdapterInterface;

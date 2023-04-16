@@ -14,7 +14,7 @@ class Environment
     public static function getEnvironmentAdapter(): EnvironmentAdapterInterface
     {
         if (self::$environmentAdapter === null) {
-            self::$environmentAdapter = new EnvironmentAdapterAdapter();
+            self::$environmentAdapter = new EnvironmentAdapter();
         }
 
         return self::$environmentAdapter;

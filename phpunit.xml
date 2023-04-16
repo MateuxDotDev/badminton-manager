@@ -3,7 +3,7 @@
     <coverage/>
     <testsuites>
         <testsuite name="Project Test Suite">
-            <directory>test</directory>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
     <source>
