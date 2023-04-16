@@ -3,6 +3,7 @@ use App\Competicoes\CompeticaoRepository;
 use App\Database\Connection;
 use App\Pagina;
 use App\Sessao;
+use App\Util\Dump;
 
 require_once('../../vendor/autoload.php');
 
@@ -19,8 +20,6 @@ $pag->navAdmin('competicoes');
 $pdo = Connection::getInstance();
 $repo = new CompeticaoRepository($pdo);
 $competicoes = $repo->todasAsCompeticoes();
-
-jdump($competicoes);
 ?>
 
 <main class="container">
@@ -151,7 +150,6 @@ foreach ($competicoes as $competicao) {
     modal: new bootstrap.Modal(alterar.elemento),
     botaoSubmit: alterar.form.querySelector('#btn-alterar-competicao'),
   })
-  console.log('alterar', alterar)
 
   formNovaCompeticao.addEventListener('submit', (event) => {
     event.preventDefault();
