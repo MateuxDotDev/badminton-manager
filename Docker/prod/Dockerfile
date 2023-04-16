@@ -21,7 +21,7 @@ RUN mkdir -p /run/nginx \
 COPY --chown=nonroot:nonroot ../../composer.json /var/www/html/
 COPY --chown=nonroot:nonroot ../../composer.lock /var/www/html/
 COPY --chown=nonroot:nonroot ../../src /var/www/html/src
-COPY --chown=nonroot:nonroot ../../.env /var/www/html/
+COPY --chown=nonroot:nonroot .env /var/www/html/
 
 # Define a pasta /var/www/html como a raiz do Nginx
 ENV NGINX_DOCUMENT_ROOT /var/www/html/src
