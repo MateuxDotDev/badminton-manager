@@ -1,13 +1,16 @@
 name: Tests & Quality Check
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
 
 jobs:
-  tests:
-    name: Tests
+  tests-and-quality-check:
+    name: Tests & Quality Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
