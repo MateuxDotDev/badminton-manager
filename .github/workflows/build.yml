@@ -1,6 +1,10 @@
 name: Build
 
 on:
+  workflow_run:
+    workflows: [ Tests & Quality Check ]
+    types:
+      - completed
   push:
     branches:
       - main
