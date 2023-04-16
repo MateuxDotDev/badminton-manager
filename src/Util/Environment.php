@@ -11,7 +11,7 @@ class Environment
 
     private static function initialize(): void
     {
-        if (!self::$initialized) {
+        if (!self::$initialized && file_exists(__DIR__ . '/../../.env')) {
             $dotenv = Dotenv::createImmutable(__DIR__ . '/../..');
             $dotenv->load();
             self::$initialized = true;

@@ -14,6 +14,8 @@ services:
       - ../../vendor:/var/www/html/vendor
       - ../../composer.json:/var/www/html/composer.json
       - ../../composer.json:/var/www/html/composer.lock
+      - ../../phpunit.xml:/var/www/html/phpunit.xml
+      - ../../.env:/var/www/html/.env
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}

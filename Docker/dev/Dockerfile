@@ -25,10 +25,6 @@ COPY ./Docker/dev/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 # Desativa o Xdebug temporariamente
 RUN sed -i 's/xdebug.mode=debug/xdebug.mode=off/g' /usr/local/etc/php/conf.d/xdebug.ini
 
-# Copia os arquivos do projeto para o container
-COPY --chown=nonroot:nonroot ./phpunit.xml /var/www/html/
-COPY --chown=nonroot:nonroot ./.env /var/www/html/
-
 # Instala o Composer globalmente
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
