@@ -109,17 +109,3 @@ docker compose down
 1. Crie um arquivo chamado `.env` na raiz do projeto.
 
 2. Adicione as com base no arquivo `example.env`.
-
-## Realizar build de Produção
-
-Para realizar o build de produção e verificar que tudo está funcionando corretamente, execute o seguinte comando:
-
-```bash
-docker build -t mateuxlucax/badminton-manager -f Docker/prod/Dockerfile . 
-```
-
-E para executar o container:
-
-```bash
-docker run -d -p 8080:80 --name badminton-manager mateuxlucax/badminton-manager
-```
