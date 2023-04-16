@@ -18,7 +18,7 @@ RUN mkdir -p /run/nginx \
     && chown -R nonroot:nonroot /var/lib/nginx
 
 # Copia os arquivos do projeto para o container
-COPY --chown=nonroot:nonroot ../../composer.jsom /var/www/html/
+COPY --chown=nonroot:nonroot ../../composer.json /var/www/html/
 COPY --chown=nonroot:nonroot ../../composer.lock /var/www/html/
 COPY --chown=nonroot:nonroot ../../src /var/www/html/src
 COPY --chown=nonroot:nonroot ../../.env /var/www/html/
