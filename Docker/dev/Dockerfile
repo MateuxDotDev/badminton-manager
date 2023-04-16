@@ -6,7 +6,7 @@ RUN groupadd -r nonroot && useradd -r -g nonroot nonroot
 
 # Atualiza os pacotes e instala as dependências necessárias
 RUN apt-get update && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends libpq-dev \
+    && apt-get install -y --no-install-recommends libpq-dev git zip unzip \
     && docker-php-ext-install pdo_pgsql \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -26,16 +26,14 @@ COPY ./Docker/dev/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 RUN sed -i 's/xdebug.mode=debug/xdebug.mode=off/g' /usr/local/etc/php/conf.d/xdebug.ini
 
 # Copia os arquivos do projeto para o container
-COPY --chown=nonroot:nonroot ./composer.json /var/www/html/
-COPY --chown=nonroot:nonroot ./composer.lock /var/www/html/
-COPY --chown=nonroot:nonroot ./tests /var/www/html/tests
+COPY --chown=nonroot:nonroot ./phpunit.xml /var/www/html/
 COPY --chown=nonroot:nonroot ./.env /var/www/html/
 
 # Instala o Composer globalmente
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Altera as permissões do diretório /var/www/html
-RUN chown -R nonroot:nonroot /var/www/html
+RUN chmod -R ug+rwx /var/www/html
 
 # Reativa o Xdebug
 RUN sed -i 's/xdebug.mode=off/xdebug.mode=debug/g' /usr/local/etc/php/conf.d/xdebug.ini
