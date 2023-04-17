@@ -50,16 +50,6 @@ composer install
 
 Qualquer outro comnado executado com o Composer, precisará ser feito via docker.
 
-### Atualizando o `composer.lock`
-
-Caso altere o `composer.lock` no contâiner, para importar ele novamente para o root do projeto, basta executar:
-
-```bash
-docker cp badminton-web:/var/www/html/composer.lock ./composer.lock
-```
-
-O ambiente de desenvolvimento agora deve estar acessível através do endereço http://localhost:8080 no seu navegador.
-
 ## Configurar Xdebug no Visual Studio Code (opcional)
 
 Se você deseja usar o Xdebug com o Visual Studio Code, siga estas instruções:
