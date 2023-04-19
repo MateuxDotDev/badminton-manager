@@ -4,7 +4,7 @@ Aqui está presente o código fonte do projeto MatchPoint, um sistema responsáv
 
 # Desenvolvimento
 
-Este projeto utiliza Docker, PHP 8.1 e Xdebug para facilitar o desenvolvimento. Siga as instruções abaixo para configurar o ambiente e começar a desenvolver.
+Este projeto utiliza Docker, PHP 8.2 e Xdebug para facilitar o desenvolvimento. Siga as instruções abaixo para configurar o ambiente e começar a desenvolver.
 
 ## Pré-requisitos
 

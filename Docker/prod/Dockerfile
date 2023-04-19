@@ -1,5 +1,5 @@
 # Imagem base do PHP 8.1 com FPM Alpine
-FROM php:8.1-fpm-alpine
+FROM php:8.2-fpm-alpine
 
 # Criar um grupo e usuário nonroot
 RUN addgroup -S nonroot \

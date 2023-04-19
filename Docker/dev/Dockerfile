@@ -1,5 +1,5 @@
 # Imagem base oficial do PHP 8.1 com Apache
-FROM php:8.1-apache
+FROM php:8.2-apache
 
 # Criar um grupo e usuário nonroot
 RUN groupadd -r nonroot && useradd -r -g nonroot nonroot
