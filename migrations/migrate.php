@@ -23,13 +23,7 @@
  *    - If a migration fails, the script will stop and won't execute the remaining migrations.
  */
 
-
 declare(strict_types=1);
-
-require_once '../vendor/autoload.php';
-
-$dotenv = Dotenv\Dotenv::createImmutable('../');
-$dotenv->load();
 
 $pdo = initPdo();
 $migrationName = '';
@@ -87,7 +81,7 @@ function runLatestMigration(): void
     });
 
     $latestFile = end($files);
-    runMigrations(pathinfo($latestFile, PATHINFO_FILENAME), false);
+    runMigrations($latestFile, false);
 }
 
 function runMigrations(string $migrationName, bool $force): void
@@ -137,6 +131,14 @@ function executeMigration(PDO $pdo, string $directory): bool
     // Splits commands by lines containing only --
     // Spaces before and after are allowed
     $commands = preg_split("/\n\s*--\s*\n/", $content);
+
+    $commands = array_filter($commands, function ($command) {
+        return trim($command) !== '';
+    });
+
+    if (empty($commands)) {
+        die("No commands found in migration '$directory'");
+    }
 
     $pdo->beginTransaction();
     try {
