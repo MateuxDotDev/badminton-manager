@@ -30,6 +30,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 # Altera as permissões do diretório /var/www/html
 RUN chmod -R ug+rwx /var/www/html
+RUN chown -R nonroot:nonroot /var/www/html
 
 # Reativa o Xdebug
 RUN sed -i 's/xdebug.mode=off/xdebug.mode=debug/g' /usr/local/etc/php/conf.d/xdebug.ini
