@@ -1,39 +1,22 @@
 # Imagem base oficial do PHP 8.1 com Apache
 FROM php:8.2-apache
 
-# Criar um grupo e usuário nonroot
-RUN groupadd -r nonroot && useradd -r -g nonroot nonroot
-
-# Atualiza os pacotes e instala as dependências necessárias
-RUN apt-get update && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends libpq-dev git zip unzip \
+# Criar um grupo e usuário nonroot e instala as dependências necessárias
+RUN groupadd -r nonroot && useradd -r -g nonroot -m nonroot \
+    && apt-get update && apt-get upgrade -y \
+    && apt-get install -y --no-install-recommends libpq-dev git zip unzip fish \
     && docker-php-ext-install pdo_pgsql \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Habilita o mod_rewrite do Apache
-RUN a2enmod rewrite
-
-# Configura o 'ServerName' no arquivo de configuração do Apache
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
-
-# Instala o Xdebug e habilita-o
-RUN pecl install xdebug && docker-php-ext-enable xdebug
+    && apt-get clean && rm -rf /var/lib/apt/lists/* \
+    && a2enmod rewrite \
+    && echo "ServerName localhost" >> /etc/apache2/apache2.conf \
+    && pecl install xdebug && docker-php-ext-enable xdebug \
+    && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+    && chmod -R ug+rwx /var/www/html \
+    && chown -R nonroot:nonroot /var/www/html \
+    && chsh -s /usr/bin/fish nonroot
 
 # Configura o Xdebug
 COPY ./Docker/dev/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
-
-# Desativa o Xdebug temporariamente
-RUN sed -i 's/xdebug.mode=debug/xdebug.mode=off/g' /usr/local/etc/php/conf.d/xdebug.ini
-
-# Instala o Composer globalmente
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Altera as permissões do diretório /var/www/html
-RUN chmod -R ug+rwx /var/www/html
-RUN chown -R nonroot:nonroot /var/www/html
-
-# Reativa o Xdebug
-RUN sed -i 's/xdebug.mode=off/xdebug.mode=debug/g' /usr/local/etc/php/conf.d/xdebug.ini
 
 # Define a pasta /var/www como a raiz do Apache
 ENV APACHE_DOCUMENT_ROOT /var/www/html/src

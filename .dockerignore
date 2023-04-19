@@ -1,6 +1,9 @@
 .vscode
 .idea
 .git
+migrations
+Docker/database/data
+Docker/dev/data
 LICENSE
 README.md
 example.env

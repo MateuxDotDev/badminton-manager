@@ -35,7 +35,7 @@ Este projeto utiliza o composer como gerenciador de pacotes. Entretanto ele est�
 Para que possa utilizar os comandos disponíveis do mesmo, basta se conectar ao container da aplicação após sua inicalização com o comando a seguir:
 
 ```bash
-docker exec -it --user nonroot badminton-web /bin/sh
+docker exec -it --user nonroot badminton-web /usr/bin/fish
 ```
 
 Para mais informações, acesse a documentação do Composer disponível em: https://getcomposer.org/doc/01-basic-usage.md
