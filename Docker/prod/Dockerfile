@@ -1,4 +1,4 @@
-# Imagem base do PHP 8.1 com FPM Alpine
+# Imagem base do PHP 8.2 com FPM Alpine
 FROM php:8.2-fpm-alpine
 
 # Criar um grupo e usuário nonroot
@@ -7,8 +7,15 @@ RUN addgroup -S nonroot \
 
 # Instalar as dependências necessárias
 RUN apk update && apk upgrade \
-    && apk add --no-cache nginx git zip unzip postgresql-dev libpq \
-    && docker-php-ext-install pdo_pgsql
+    && apk add --no-cache \
+        nginx \
+        git \
+        zip \
+        unzip \
+        postgresql-dev \
+        libpq \
+    && docker-php-ext-install pdo_pgsql \
+    && rm -rf /var/cache/apk/*
 
 # Configurar os diretórios e permissões do Nginx
 RUN mkdir -p /run/nginx \
@@ -18,25 +25,23 @@ RUN mkdir -p /run/nginx \
     && chown -R nonroot:nonroot /var/lib/nginx
 
 # Copia os arquivos do projeto para o container
-COPY --chown=nonroot:nonroot ../../composer.json /var/www/html/
-COPY --chown=nonroot:nonroot ../../composer.lock /var/www/html/
-COPY --chown=nonroot:nonroot ../../src /var/www/html/src
-COPY --chown=nonroot:nonroot .env /var/www/html/
+WORKDIR /var/www/html
+COPY --chown=nonroot:nonroot ../../composer.json ./
+COPY --chown=nonroot:nonroot ../../composer.lock ./
+COPY --chown=nonroot:nonroot ../../src ./src
+COPY --chown=nonroot:nonroot .env ./
 
-# Define a pasta /var/www/html como a raiz do Nginx
-ENV NGINX_DOCUMENT_ROOT /var/www/html/src
+# Define a pasta /var/www/html/src como a raiz do Nginx e PHP-FPM
+ENV NGINX_DOCUMENT_ROOT=/var/www/html/src \
+    PHP_FPM_DOCUMENT_ROOT=/var/www/html/src
 
 # Instala o Composer globalmente
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Instala as dependências do projeto
-RUN composer install --no-dev --optimize-autoloader
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
+    && composer install --no-dev --optimize-autoloader \
+    && composer clear-cache
 
 # Configura o Nginx
 COPY --chown=nonroot:nonroot Docker/prod/nginx.conf /etc/nginx/nginx.conf
-
-# Define a pasta /var/www/html como a raiz do PHP-FPM
-ENV PHP_FPM_DOCUMENT_ROOT /var/www/html/src
 
 # Altera as permissões do diretório /var/www/html
 RUN chown -R nonroot:nonroot /var/www/html

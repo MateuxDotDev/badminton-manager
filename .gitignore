@@ -1,6 +1,8 @@
-.vscode
+.vscode/
 xdebug.log
 .env
 .src
-vendor
-.idea
+vendor/
+.idea/
+.DS_Store
+Docker/**/data/
