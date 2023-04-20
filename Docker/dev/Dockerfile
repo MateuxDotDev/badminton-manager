@@ -19,10 +19,16 @@ RUN groupadd -r nonroot && useradd -r -g nonroot -m nonroot \
 COPY ./Docker/dev/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 # Define a pasta /var/www como a raiz do Apache
-ENV APACHE_DOCUMENT_ROOT /var/www/html/src
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 
 # Altera o DocumentRoot do Apache
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
+
+# Habilita JIT no PHP
+# RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini \
+#     && echo "opcache.enable_cli=1" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini \
+#     && echo "opcache.jit_buffer_size=100M" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini \
+#     && echo "opcache.jit=1255" >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
 
 # Expõe a porta 80 para acesso externo
 EXPOSE 80
