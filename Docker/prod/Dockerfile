@@ -17,6 +17,13 @@ RUN apk update && apk upgrade \
     && docker-php-ext-install pdo_pgsql \
     && rm -rf /var/cache/apk/*
 
+# Habilita o JIT para PHP
+RUN echo 'opcache.enable=1' >> /usr/local/etc/php/php.ini \
+    && echo 'opcache.enable_cli=1' >> /usr/local/etc/php/php.ini \
+    && echo 'opcache.jit_buffer_size=128M' >> /usr/local/etc/php/php.ini \
+    && echo 'opcache.jit=tracing' >> /usr/local/etc/php/php.ini \
+    && docker-php-ext-enable opcache
+
 # Configurar os diretórios e permissões do Nginx
 RUN mkdir -p /run/nginx \
     && mkdir -p /var/lib/nginx/logs \

@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Home;
+namespace App\General\Home;
+
+use App\Util\Template\Template;
 
 class UserView
 {
@@ -21,9 +23,11 @@ class UserView
         $name = $this->user->getName();
         $email = $this->user->getEmail();
 
-        ob_start();
-        include 'userProfileTemplate.php';
+        $pagina = new Template('userProfileTemplate');
 
-        return ob_get_clean();
+        Template::put($html, 'name', $name);
+        Template::put($html, 'email', $email);
+
+        return $html;
     }
 }

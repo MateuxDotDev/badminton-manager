@@ -1,13 +1,14 @@
-CREATE TABLE IF NOT EXISTS admin_passwords (
-    password_hash TEXT NOT NULL,
-    password_salt TEXT NOT NULL
+CREATE TABLE IF NOT EXISTS admin (
+    "user" TEXT PRIMARY KEY,
+    hash_senha TEXT NOT NULL,
+    salt_senha TEXT NOT NULL
 );
 
 -- Commands should be split by --
 --
 
-CREATE TABLE IF NOT EXISTS tournament (
+CREATE TABLE IF NOT EXISTS competicao (
     id    SERIAL PRIMARY KEY,
-    name  TEXT NOT NULL,
-    deadline DATE NOT NULl
+    nome  TEXT NOT NULL,
+    prazo DATE NOT NULl
 );

@@ -1,9 +1,9 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once '/../vendor/autoload.php';
 
-use App\Home\User;
-use App\Home\UserView;
+use App\General\Home\User;
+use App\General\Home\UserView;
 
 $user = new User();
 $user->setName('John Doe');

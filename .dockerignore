@@ -7,3 +7,5 @@ Docker/dev/data
 LICENSE
 README.md
 example.env
+sonar-project.properties
+.github
