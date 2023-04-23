@@ -8,12 +8,21 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
+  <style>
+    .td-botao {
+      width: 0.1%;
+      white-space: nowrap;
+    }
+  </style>
 </head>
+
+
 
 <body class="bg-light">
 
   <div class="container">
     <h4>Consultar atletas da competição</h4>
+    <p class="text-danger">Design final não deve ficar assim, a tabela é ruim de visualizar no mobile. A ideia é só validar se são esses as informações que serão mostradas. Poderíamos mostrar as informações mais "verticalmente" (tipo num card) ou ainda numa tabela mas condensando melhor – aí teria que ver quais informações são as mais prioritárias.</p>
     <div class="card mb-3">
       <div class="card-body">
         <h5 class="card-title">Filtros</h5>
@@ -26,7 +35,7 @@
           <input class="form-control" type="text">
         </div>
         <div class="row mb-3">
-          <div class="col-12 col-md-6 mb-3 mb-sm-0">
+          <div class="col-12 col-md-6 mb-3 mb-md-0">
             <label class="form-label">Idade</label>
             <div class="input-group">
               <div class="input-group-text">
@@ -51,27 +60,51 @@
         <div class="row mb-3">
           <div class="col">
             <label class="form-label">Categorias</label>
-            <select class="form-control" multiple>
-              <option>Sub11</option>
-              <option>Sub13</option>
-              <option>Sub15</option>
-              <option>Sub17</option>
-              <option>Principal</option>
-            </select>
+            <div class="form-check">
+              <input checked class="form-check-input" type="checkbox" id="categoria-sub11"/>
+              <label for="categoria-sub11" class="form-check-label">Sub11</label>
+            </div>
+            <div class="form-check">
+              <input checked class="form-check-input" type="checkbox" id="categoria-sub13"/>
+              <label for="categoria-sub13" class="form-check-label">Sub13</label>
+            </div>
+            <div class="form-check">
+              <input checked class="form-check-input" type="checkbox" id="categoria-sub15"/>
+              <label for="categoria-sub15" class="form-check-label">Sub15</label>
+            </div>
+            <div class="form-check">
+              <input checked class="form-check-input" type="checkbox" id="categoria-sub17"/>
+              <label for="categoria-sub17" class="form-check-label">Sub17</label>
+            </div>
+            <div class="form-check">
+              <input checked class="form-check-input" type="checkbox" id="categoria-sub19"/>
+              <label for="categoria-sub19" class="form-check-label">Sub19</label>
+            </div>
+            <div class="form-check">
+              <input checked class="form-check-input" type="checkbox" id="categoria-principal"/>
+              <label for="categoria-principal" class="form-check-label">Principal</label>
+            </div>
           </div>
           <div class="col">
             <div class="form-label">Tipo de dupla</div>
-            <select class="form-control" multiple>
-              <option>Feminina</option>
-              <option>Masculina</option>
-              <option>Mista</option>
-            </select>
+            <div class="form-check">
+              <input checked type="checkbox" class="form-check-input" id="dupla-mista"/>
+              <label for="dupla-mista" class="form-check-label">Mista</label>
+            </div>
+            <div class="form-check">
+              <input checked type="checkbox" class="form-check-input" id="dupla-masculina"/>
+              <label for="dupla-masculina" class="form-check-label">Masculina</label>
+            </div>
+            <div class="form-check">
+              <input checked type="checkbox" class="form-check-input" id="dupla-feminina"/>
+              <label for="dupla-feminina" class="form-check-label">Feminina</label>
+            </div>
           </div>
         </div>
         <div class="d-flex flex-row-reverse justify-items-end">
           <button class="btn btn-outline-success">
-            <i class="bi bi-search"></i>&nbsp;
-            Buscar
+            <i class="bi bi-filter"></i>&nbsp;
+            Filtrar
           </button>
         </div>
       </div>
@@ -80,9 +113,11 @@
       <table class="table">
         <thead>
           <tr>
-            <th></th>
             <th>Foto</th>
             <th>Nome</th>
+            <th>Idade</th>
+            <th>Cidade</th>
+            <th>Técnico</th>
             <th>Categorias</th>
             <th>Tipos de dupla</th>
             <th></th>
@@ -91,22 +126,26 @@
         </thead>
         <tbody>
           <tr>
-            <td><input type="checkbox" class="form-checkbox"></td>
             <td>
               <div style="background-color: grey; width: 80px; height: 80px; border-radius: 100%;"></div>
             </td>
+            <td>João Silva</td>
             <td>
-              João Silva<br/>
-              17 anos (nascimento 17/06/2006)<br/>
-              Rio do Sul, SC<br/>
-              Técnico: Marcos Medeiros<br/>
+              17 anos<br/>
+              <small>Nascimento: 17/06/2006</small>
+            </td>
+            <td>
+              Rio do Sul, SC
+            </td>
+            <td>
+              Marcos Medeiros
             </td>
             <td>Sub15, Sub17</td>
             <td>Mista, Masculina</td>
-            <td>
+            <td class="td-botao">
               <button class="btn btn-outline-success">Enviar solicitação</button>
             </td>
-            <td>
+            <td class="td-botao">
               <button class="btn btn-outline-secondary">Detalhes</button>
             </td>
           </tr>
