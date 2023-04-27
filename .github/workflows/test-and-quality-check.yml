@@ -31,13 +31,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Docker image
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          file: Docker/prod/Dockerfile
-          push: false
-          tags: badminton-manager:test
+      - name: Build the Docker image
+        run: docker build . -f Docker/prod/Dockerfile -t badminton-manager:test
 
       - name: Run tests inside Docker container
         run: docker run -v $(pwd):/app badminton-manager:test vendor/bin/phpunit --coverage-clover=coverage.xml
