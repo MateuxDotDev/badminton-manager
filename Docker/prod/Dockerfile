@@ -14,7 +14,9 @@ RUN apk update && apk upgrade \
         unzip \
         postgresql-dev \
         libpq \
+        pecl-http \
     && docker-php-ext-install pdo_pgsql \
+    && docker-php-ext-enable http \
     && rm -rf /var/cache/apk/*
 
 # Habilita o JIT para PHP

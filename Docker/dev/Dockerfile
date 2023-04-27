@@ -6,6 +6,9 @@ RUN groupadd -r nonroot && useradd -r -g nonroot -m nonroot \
     && apt-get update && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends libpq-dev git zip unzip fish \
     && docker-php-ext-install pdo_pgsql \
+    && pecl install raphf \
+    && pecl install pecl_http \
+    && docker-php-ext-enable raphf http \
     && apt-get clean && rm -rf /var/lib/apt/lists/* \
     && a2enmod rewrite \
     && echo "ServerName localhost" >> /etc/apache2/apache2.conf \
