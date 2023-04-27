@@ -4,9 +4,9 @@ require_once(__DIR__.'/../../vendor/autoload.php');
 
 use App\Util\Template\Template;
 
-$pag = new Template();
+$template = new Template();
 
-$pag->head('Login - Administrador');
+$template->head('Administrador | Login');
 ?>
 
 <div class="m-auto mt-5 card" style="width: 50%">
@@ -50,7 +50,7 @@ $pag->head('Login - Administrador');
             const json = JSON.parse(texto);
 
             if (response.ok) {
-                location.assign('/competicoes');
+                location.assign('/admin/competicoes');
             } else {
                 Toast.fire({
                     icon: 'error',
@@ -70,5 +70,4 @@ $pag->head('Login - Administrador');
     });
 </script>
 
-<?php $pag->footer() ?>
-
+<?php $template->footer() ?>

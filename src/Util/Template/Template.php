@@ -4,23 +4,23 @@ namespace App\Util\Template;
 
 class Template
 {
-    public function put(string $key, string $content, string $subject): void
+    public function put(string $key, string $content, string $subject): string
     {
-        str_replace("{{ $key }}", htmlspecialchars($content, ENT_QUOTES, 'UTF-8'), $subject);
+        return str_replace("{{ $key }}", htmlspecialchars($content, ENT_QUOTES, 'UTF-8'), $subject);
     }
 
     public function head(string $titulo): void
     {
         $head = file_get_contents(__DIR__. "/common/head.html");
-        $this->put("titulo_head", $titulo, $head);
-        $this->put("file_time", time(), $head);
+        $head = $this->put("titulo_head", $titulo, $head);
+        $head = $this->put("file_time", time(), $head);
         echo $head;
     }
 
     public function footer(): void
     {
         $footer = file_get_contents(__DIR__. "/common/footer.html");
-        $this->put("file_time", time(), $footer);
+        $footer = $this->put("file_time", time(), $footer);
         echo $footer;
     }
 
@@ -33,6 +33,6 @@ class Template
 
     public function navAdmin(): void
     {
-        echo file_get_contents(__DIR__. "/common/navAdmin.php");
+        echo file_get_contents(__DIR__. "/common/adminNav.html");
     }
 }

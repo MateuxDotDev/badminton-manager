@@ -41,7 +41,9 @@ function generateAdmin(string $username, string $password): bool
     $pdo = initPdo();
     $salt = generateSalt();
     $login = new App\Admin\Login\Login($username, $password);
+    echo "Gerando hash da senha...\n";
     $hash = $login->gerarHash($salt);
+    echo "Inserindo usuário no banco de dados...\n";
 
     $stmt = $pdo->prepare('
         INSERT INTO admin ("user", hash_senha, salt_senha)

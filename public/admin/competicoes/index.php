@@ -11,7 +11,7 @@ Session::iniciar();
 
 $template = new Template();
 
-$template->head('Competições - Administrador');
+$template->head('Administrador | Competições');
 if (!Session::isAdmin()) {
     $template->naoAutorizado();
 }
@@ -296,4 +296,3 @@ $competicoes = $repository->todasAsCompeticoes();
 </script>
 
 <?php $template->footer() ?>
-

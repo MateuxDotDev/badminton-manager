@@ -23,8 +23,13 @@ class Login
         return $this->usuario;
     }
 
+    public function getBeforeHash(string $salt): string
+    {
+        return $this->usuario . $this->senha . $salt;
+    }
+
     public function gerarHash(string $salt): string
     {
-        return password_hash($this->usuario . $this->senha . $salt, PASSWORD_BCRYPT, ['cost' => 12]);
+        return password_hash($this->getBeforeHash($salt), PASSWORD_BCRYPT, ['cost' => 20]);
     }
 }

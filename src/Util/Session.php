@@ -21,6 +21,8 @@ class Session
 
     public static function destruir(): void
     {
+        self::iniciar();
+        unset($_SESSION['tipo']);
         session_destroy();
     }
 }

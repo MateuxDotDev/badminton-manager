@@ -2,8 +2,6 @@
 
 namespace App\Admin\Login;
 
-
-
 use Exception;
 use PDO;
 
@@ -19,7 +17,7 @@ readonly class LoginRepository
     /**
      * @throws Exception
      */
-    function validateLogin(Login $login): bool
+    public function validateLogin(Login $login): bool
     {
         $stmt = $this->pdo->prepare('
             SELECT hash_senha, salt_senha
@@ -36,6 +34,6 @@ readonly class LoginRepository
             return false;
         }
 
-        return password_verify($login->gerarHash($user['salt_senha']), $user['hash_senha']);
+        return password_verify($login->getBeforeHash($user['salt_senha']), $user['hash_senha']);
     }
 }
