@@ -37,10 +37,10 @@ jobs:
           context: .
           file: Docker/prod/Dockerfile
           push: false
-          tags: badminton-manager
+          tags: badminton-manager:test
 
       - name: Run tests inside Docker container
-        run: docker run -v $(pwd):/app badminton-manager vendor/bin/phpunit --coverage-clover=coverage.xml
+        run: docker run -v $(pwd):/app badminton-manager:test vendor/bin/phpunit --coverage-clover=coverage.xml
 
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@master
