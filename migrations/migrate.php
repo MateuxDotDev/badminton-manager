@@ -1,27 +1,29 @@
 <?php
 
-/**
- * This script provides functionality to manage and execute database migrations.
- *
- * Available actions:
- * 1. Create a new migration file: php migrate.php new
- *    - This will create a new empty migration file with the current timestamp in the "migrations" folder.
- *
- * 2. Run the most recent migration: php migrate.php latest
- *    - This will execute the most recent migration file that hasn't been executed yet.
- *
- * 3. Run a specific migration: php migrate.php migration=migration_2023_04_19_000001
- *    - Replace "migration_2023_04_19_000001" with the desired migration file's name (without the .sql extension).
- *    - This will execute the specified migration file if it hasn't been executed yet.
- *
- * 4. Force run a specific migration: php migrate.php migration=migration_2023_04_19_000001 force
- *    - Replace "migration_2023_04_19_000001" with the desired migration file's name (without the .sql extension).
- *    - This will execute the specified migration file even if it has already been executed before.
- *
- * 5. Run all pending migrations: php migrate.php
- *    - This will execute all pending migrations in chronological order.
- *    - If a migration fails, the script will stop and won't execute the remaining migrations.
- */
+/*
+O arquivo migrate.php é um script responsável pela gestão de migrações de banco de dados. Aqui estão as funções que o script pode realizar:
+
+1. Criação de uma nova migração: Este script pode criar um novo arquivo de migração, com um nome baseado na data atual e opcionalmente um sufixo fornecido pelo usuário. O arquivo de migração é um arquivo SQL vazio que é colocado na pasta "files".
+
+Exemplo de uso:
+php migrate.php new nome_da_migracao
+Este comando cria um arquivo SQL vazio chamado migration_YYYY_MM_DD_HHMMSS_nome_da_migracao.sql na pasta "files".
+
+2. Execução de migrações: O migrate.php pode executar migrações de banco de dados que ainda não foram executadas. As migrações são armazenadas como arquivos SQL na pasta "files". Cada arquivo é lido e os comandos SQL nele contidos são executados no banco de dados.
+
+Exemplo de uso:
+php migrate.php migrate
+Este comando executa todas as migrações que ainda não foram executadas.
+
+php migrate.php migrate=migration_2023_04_26_153002_nome_da_migracao
+Este comando executa a migração especificada, se ela ainda não tiver sido executada.
+
+php migrate.php migrate=migration_2023_04_26_153002_nome_da_migracao force
+Este comando força a execução da migração especificada, mesmo se ela já tiver sido executada.
+
+php migrate.php latest
+Este comando executa a migração mais recente que ainda não foi executada.
+*/
 
 declare(strict_types=1);
 

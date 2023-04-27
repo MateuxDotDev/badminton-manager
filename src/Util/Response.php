@@ -2,6 +2,7 @@
 
 namespace App\Util;
 
+use App\Util\Exceptions\ResponseException;
 use Exception;
 
 class Response
@@ -34,6 +35,10 @@ class Response
 
     public static function erroException(Exception $e): Response
     {
+        if ($e instanceof ResponseException) {
+            return $e->response();
+        }
+
         return new Response(500, 'Ocorreu um erro inesperado', ['exception' => $e]);
     }
 

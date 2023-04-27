@@ -5,10 +5,9 @@ namespace App\Admin\Competicoes;
 use DateTimeImmutable;
 use PDO;
 
-class CompeticaoRepository
+readonly class CompeticaoRepository
 {
-
-    private readonly PDO $pdo;
+    private PDO $pdo;
 
     public function __construct(PDO $pdo)
     {
@@ -17,7 +16,7 @@ class CompeticaoRepository
 
     public function todasAsCompeticoes(): array
     {
-        $sql = "SELECT id, nome, prazo FROM competicao ORDER BY prazo DESC";
+        $sql = "SELECT id, nome, prazo FROM competicoes ORDER BY prazo DESC";
         $qry = $this->pdo->query($sql);
         $competicoes = [];
         foreach ($qry as $linha) {
@@ -31,7 +30,7 @@ class CompeticaoRepository
 
     public function criarCompeticao(Competicao $competicao): int
     {
-        $stmt = $this->pdo->prepare("INSERT INTO competicao (nome, prazo) VALUES (:nome, :prazo)");
+        $stmt = $this->pdo->prepare("INSERT INTO competicoes (nome, prazo) VALUES (:nome, :prazo)");
         $stmt->execute([
             'nome' => $competicao->nome(),
             'prazo' => $competicao->prazo()->format('Y-m-d'),
@@ -44,7 +43,7 @@ class CompeticaoRepository
     public function alterarCompeticao(Competicao $competicao): bool
     {
         $stmt = $this->pdo->prepare("
-      UPDATE competicao
+      UPDATE competicoes
       SET nome = :nome, prazo = :prazo
       WHERE id = :id"
         );
@@ -58,7 +57,7 @@ class CompeticaoRepository
 
     public function excluirCompeticao(int $id): void
     {
-        $stmt = $this->pdo->prepare("DELETE FROM competicao WHERE id = :id");
+        $stmt = $this->pdo->prepare("DELETE FROM competicoes WHERE id = :id");
         $stmt->execute(['id' => $id]);
     }
 }

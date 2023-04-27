@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS admin (
 -- Commands should be split by --
 --
 
-CREATE TABLE IF NOT EXISTS competicao (
+CREATE TABLE IF NOT EXISTS competicoes (
     id    SERIAL PRIMARY KEY,
     nome  TEXT NOT NULL,
     prazo DATE NOT NULl

@@ -4,53 +4,35 @@ namespace App\Util\Template;
 
 class Template
 {
-    private string $html;
-
-    private string $title;
-
-    public function __construct(string $html, string $title)
+    public function put(string $key, string $content, string $subject): void
     {
-        $this->html = $html;
-        $this->title = $title;
+        str_replace("{{ $key }}", htmlspecialchars($content, ENT_QUOTES, 'UTF-8'), $subject);
     }
 
-    public function put(string $key, string $content): void
+    public function head(string $titulo): void
     {
-        $this->html = str_replace("{{ $key }}", htmlspecialchars($content, ENT_QUOTES, 'UTF-8'), $html);
+        $head = file_get_contents(__DIR__. "/common/head.html");
+        $this->put("titulo_head", $titulo, $head);
+        $this->put("file_time", time(), $head);
+        echo $head;
     }
 
-    public function addHead(string $titulo): void
+    public function footer(): void
     {
-        $head = file_get_contents(__DIR__ . '/common/head.html');
-        $this->put('head', $head);
-        $this->put('titulo_head', $titulo);
+        $footer = file_get_contents(__DIR__. "/common/footer.html");
+        $this->put("file_time", time(), $footer);
+        echo $footer;
     }
 
-    public function addFooter(): void
+    public function naoAutorizado(): never
     {
-        $footer = file_get_contents(__DIR__ . '/common/footer.html');
-        $this->put('footer', $footer);
+        echo file_get_contents(__DIR__. "/common/unauthorized.html");
+        $this->footer();
+        die;
     }
 
-    public function showUnauthorized(string $titulo): void
+    public function navAdmin(): void
     {
-        $this->html = file_get_contents(__DIR__ . '/common/naoAutorizado.html');
-        $this->addHead($titulo);
-        $this->addFooter();
-
-    }
-
-    public function addAdminNav(): void
-    {
-        $adminNav = file_get_contents(__DIR__ . '/common/adminNav.html');
-        $this->put($adminNav, 'nav_admin');
-    }
-
-    public function render(): string
-    {
-        $this->addHead($this->title);
-        $this->addFooter();
-        $this->put('file_time', date("Y-m-d H:i:s"));
-        return preg_replace($pattern, '', $this->html);
+        echo file_get_contents(__DIR__. "/common/navAdmin.php");
     }
 }

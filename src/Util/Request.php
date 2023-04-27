@@ -5,6 +5,8 @@ namespace App\Util;
 // poderia ser uma classe Request não só com esses métodos estáticos,
 // mas podia ser um objeto que a gente instancia mesmo
 // tipo a Request do symfony e outros frameworks
+use App\Util\Exceptions\ResponseException;
+
 class Request
 {
     public static function getJson(): array
@@ -16,13 +18,16 @@ class Request
         return json_decode($json, true);
     }
 
-    public static function validarCamposPresentes(array $req, array $camposRequeridos): Response|false
+    /**
+     * @throws ResponseException
+     */
+    public static function camposSaoValidos(array $req, array $camposRequeridos): true
     {
         foreach ($camposRequeridos as $campo) {
             if (!array_key_exists($campo, $req)) {
-                return Response::erro("Campo faltando na requisição", ['campo' => $campo]);
+                throw new ResponseException(Response::erro("Campo faltando na requisição", ['campo' => $campo]));
             }
         }
-        return false;
+        return true;
     }
 }
