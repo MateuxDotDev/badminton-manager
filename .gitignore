@@ -7,3 +7,4 @@ vendor/
 .DS_Store
 Docker/**/data/
 .phpunit.cache
+coverage.xml

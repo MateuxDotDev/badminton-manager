@@ -10,3 +10,4 @@ example.env
 sonar-project.properties
 .github
 .phpunit.cache
+coverage.xml
