@@ -17,6 +17,13 @@ RUN apk update && apk upgrade \
     && docker-php-ext-install pdo_pgsql \
     && rm -rf /var/cache/apk/*
 
+# Habilita o JIT para PHP
+RUN echo 'opcache.enable=1' >> /usr/local/etc/php/php.ini \
+    && echo 'opcache.enable_cli=1' >> /usr/local/etc/php/php.ini \
+    && echo 'opcache.jit_buffer_size=128M' >> /usr/local/etc/php/php.ini \
+    && echo 'opcache.jit=tracing' >> /usr/local/etc/php/php.ini \
+    && docker-php-ext-enable opcache
+
 # Configurar os diretórios e permissões do Nginx
 RUN mkdir -p /run/nginx \
     && mkdir -p /var/lib/nginx/logs \
@@ -29,11 +36,12 @@ WORKDIR /var/www/html
 COPY --chown=nonroot:nonroot ../../composer.json ./
 COPY --chown=nonroot:nonroot ../../composer.lock ./
 COPY --chown=nonroot:nonroot ../../src ./src
+COPY --chown=nonroot:nonroot ../../public ./public
 COPY --chown=nonroot:nonroot .env ./
 
-# Define a pasta /var/www/html/src como a raiz do Nginx e PHP-FPM
-ENV NGINX_DOCUMENT_ROOT=/var/www/html/src \
-    PHP_FPM_DOCUMENT_ROOT=/var/www/html/src
+# Define a pasta /var/www/html/public como a raiz do Nginx e PHP-FPM
+ENV NGINX_DOCUMENT_ROOT=/var/www/html/public \
+    PHP_FPM_DOCUMENT_ROOT=/var/www/html/public
 
 # Instala o Composer globalmente
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \

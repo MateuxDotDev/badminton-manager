@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Database;
+namespace App\Util\Database;
 
 use App\Util\Environment\Environment;
 use PDO;
 
-class Connection implements ConnectionInterface
+class Connection
 {
     private static ?PDO $instance = null;
 

@@ -10,30 +10,25 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ../../src:/var/www/html/src
-      - ../../tests:/var/www/html/tests
-      - ../../vendor:/var/www/html/vendor
-      - ../../migrations:/var/www/html/migrations
-      - ../../composer.json:/var/www/html/composer.json
-      - ../../composer.lock:/var/www/html/composer.lock
-      - ../../phpunit.xml:/var/www/html/phpunit.xml
-      - ../../.env:/var/www/html/.env
+      - ../..:/var/www/html
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_PORT=${POSTGRES_PORT}
+    restart: unless-stopped
 
   database:
     image: postgres:15
     container_name: badminton-database
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - ./data:/var/lib/postgresql/data
-      - ../../migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../../scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"

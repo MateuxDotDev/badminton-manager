@@ -1,0 +1,5 @@
+/* https://stackoverflow.com/a/43615091 */
+td.td-botao {
+    width: 0.1%;
+    white-space: nowrap;
+}

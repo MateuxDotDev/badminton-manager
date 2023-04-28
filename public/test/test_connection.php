@@ -4,7 +4,7 @@ namespace App\Test;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use App\Database\Connection;
+use App\Util\Database\Connection;
 use Exception;
 
 function tryConnection(): void

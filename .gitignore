@@ -6,3 +6,5 @@ vendor/
 .idea/
 .DS_Store
 Docker/**/data/
+.phpunit.cache
+coverage.xml

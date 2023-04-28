@@ -19,7 +19,7 @@ RUN groupadd -r nonroot && useradd -r -g nonroot -m nonroot \
 COPY ./Docker/dev/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 # Define a pasta /var/www como a raiz do Apache
-ENV APACHE_DOCUMENT_ROOT /var/www/html/src
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 
 # Altera o DocumentRoot do Apache
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf

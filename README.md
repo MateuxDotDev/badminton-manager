@@ -80,11 +80,11 @@ Se você deseja usar o Xdebug com o Visual Studio Code, siga estas instruções:
 }
 ```
 
-4. Reinicie o VSCode, se necessário.
+1. Reinicie o VSCode, se necessário.
 
-5. No VSCode, clique no ícone de depuração (um inseto) na barra lateral esquerda e selecione "Listen for Xdebug" no menu suspenso na parte superior.
+2. No VSCode, clique no ícone de depuração (um inseto) na barra lateral esquerda e selecione "Listen for Xdebug" no menu suspenso na parte superior.
 
-6. Clique no botão de reprodução verde (▶️) para iniciar a sessão de depuração. O VSCode começará a ouvir conexões do Xdebug.
+3. Clique no botão de reprodução verde (▶️) para iniciar a sessão de depuração. O VSCode começará a ouvir conexões do Xdebug.
 
 # Parar e remover os contêineres
 
@@ -99,3 +99,12 @@ docker compose down
 1. Crie um arquivo chamado `.env` na raiz do projeto.
 
 2. Adicione as com base no arquivo `example.env`.
+
+
+## Executando testes
+
+Para executar os testes, basta se conectar com o contêiner conforme descrito na etapa acima, e posteriormente executar o comando:
+
+```bash
+XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-clover=coverage.xml
+```
