@@ -3,9 +3,9 @@
 require_once('../../../vendor/autoload.php');
 
 use App\Admin\Competicoes\CompeticaoRepository;
-use App\Database\ConnectionImp;
-use App\Util\Template\Template;
+use App\Util\Database\Connection;
 use App\Util\Session;
+use App\Util\Template\Template;
 
 Session::iniciar();
 
@@ -17,7 +17,7 @@ if (!Session::isAdmin()) {
 }
 
 $template->navAdmin();
-$repository = new CompeticaoRepository(ConnectionImp::getInstance());
+$repository = new CompeticaoRepository(Connection::getInstance());
 $competicoes = $repository->todasAsCompeticoes();
 ?>
 

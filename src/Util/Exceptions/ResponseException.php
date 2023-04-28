@@ -2,7 +2,7 @@
 
 namespace App\Util\Exceptions;
 
-use App\Util\Response;
+use App\Util\Http\Response;
 use Exception;
 
 class ResponseException extends Exception

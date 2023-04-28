@@ -4,10 +4,10 @@ require_once('../../../vendor/autoload.php');
 
 use App\Admin\Competicoes\Competicao;
 use App\Admin\Competicoes\CompeticaoRepository;
-use App\Database\ConnectionImp;
+use App\Util\Database\Connection;
 use App\Util\Exceptions\ResponseException;
-use App\Util\Request;
-use App\Util\Response;
+use App\Util\Http\Request;
+use App\Util\Http\Response;
 use App\Util\Session;
 
 Session::iniciar();
@@ -46,7 +46,7 @@ function criarCompeticao(array $req): Response
             throw new ResponseException(Response::erro("Prazo deve ser no futuro"));
         }
 
-        $repo = new CompeticaoRepository(ConnectionImp::getInstance());
+        $repo = new CompeticaoRepository(Connection::getInstance());
         $id = $repo->criarCompeticao($competicao);
         return Response::ok('Competição criada com sucesso', ['id' => $id]);
     } catch (Exception $e) {
@@ -65,7 +65,7 @@ function excluirCompeticao(array $req): Response
 
     $id = $req['id'];
     try {
-        $repo = new CompeticaoRepository(ConnectionImp::getInstance());
+        $repo = new CompeticaoRepository(Connection::getInstance());
         $repo->excluirCompeticao($id);
         return Response::okExcluido();
     } catch (Exception $e) {
@@ -93,7 +93,7 @@ function alterarCompeticao(array $req): Response
             throw new ResponseException(Response::erro("Prazo deve ser no futuro"));
         }
 
-        $repo = new CompeticaoRepository(ConnectionImp::getInstance());
+        $repo = new CompeticaoRepository(Connection::getInstance());
         if ($repo->alterarCompeticao($competicao)) {
             return Response::ok('Competição alterada com sucesso');
         } else {

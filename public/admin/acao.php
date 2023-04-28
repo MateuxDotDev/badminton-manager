@@ -2,11 +2,11 @@
 
 require('../../vendor/autoload.php');
 
-use App\Admin\Login\LoginRepository;
 use App\Admin\Login\Login;
-use App\Database\ConnectionImp;
-use App\Util\Request;
-use App\Util\Response;
+use App\Admin\Login\LoginRepository;
+use App\Util\Database\Connection;
+use App\Util\Http\Request;
+use App\Util\Http\Response;
 use App\Util\Session;
 
 loginAdminController()->enviar();
@@ -28,7 +28,7 @@ function acaoLogin(array $req): Response
         Request::camposSaoValidos($req, ['usuario', 'senha']);
 
         $login = new Login($req['usuario'], $req['senha']);
-        $repo = new LoginRepository(ConnectionImp::getInstance());
+        $repo = new LoginRepository(Connection::getInstance());
         if ($repo->validateLogin($login)) {
             Session::iniciar();
             Session::setAdmin();

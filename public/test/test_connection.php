@@ -4,13 +4,13 @@ namespace App\Test;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
 
-use App\Database\ConnectionImp;
+use App\Util\Database\Connection;
 use Exception;
 
 function tryConnection(): void
 {
     try {
-        if (ConnectionImp::getInstance()) {
+        if (Connection::getInstance()) {
             echo "Conexão com o banco de dados bem-sucedida!";
         }
     } catch (Exception $e) {
