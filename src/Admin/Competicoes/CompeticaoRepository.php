@@ -21,7 +21,7 @@ readonly class CompeticaoRepository
                    nome,
                    prazo
               FROM competicao
-          ORDER BY prazo 
+          ORDER BY prazo
               DESC
         ");
         $competicoes = [];
