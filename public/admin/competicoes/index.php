@@ -9,14 +9,12 @@ use App\Util\Template\Template;
 
 Session::iniciar();
 
-$template = new Template();
-
-$template->head('Administrador | Competições');
+Template::head('Administrador | Competições');
 if (!Session::isAdmin()) {
-    $template->naoAutorizado();
+    Template::naoAutorizado();
 }
 
-$template->navAdmin();
+Template::navAdmin();
 $repository = new CompeticaoRepository(Connection::getInstance());
 $competicoes = $repository->todasAsCompeticoes();
 ?>
@@ -133,6 +131,8 @@ $competicoes = $repository->todasAsCompeticoes();
 </div>
 
 <?php
+    Template::scripts();
+
     $competicoesJson = [];
     foreach ($competicoes as $competicao) {
         $competicoesJson[$competicao->id()] = $competicao->toJson();
@@ -187,7 +187,7 @@ $competicoes = $repository->todasAsCompeticoes();
             nome,
             prazo
         };
-        const response = await fetch('/competicoes/controller.php', {
+        const response = await fetch('/admin/competicoes/acao.php', {
             method: 'POST',
             body: JSON.stringify(dados),
         });
@@ -221,7 +221,7 @@ $competicoes = $repository->todasAsCompeticoes();
             acao: 'excluirCompeticao',
             id,
         };
-        const response = await fetch('/competicoes/controller.php', {
+        const response = await fetch('/admin/competicoes/acao.php', {
             method: 'DELETE',
             body: JSON.stringify(dados)
         })
@@ -273,7 +273,7 @@ $competicoes = $repository->todasAsCompeticoes();
             nome,
             prazo,
         };
-        const response = await fetch('/competicoes/controller.php', {
+        const response = await fetch('/admin/competicoes/acao.php', {
             method: 'PUT',
             body: JSON.stringify(dados)
         });
@@ -295,4 +295,4 @@ $competicoes = $repository->todasAsCompeticoes();
     }
 </script>
 
-<?php $template->footer() ?>
+<?php Template::footer() ?>

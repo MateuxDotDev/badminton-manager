@@ -16,8 +16,14 @@ readonly class CompeticaoRepository
 
     public function todasAsCompeticoes(): array
     {
-        $sql = "SELECT id, nome, prazo FROM competicoes ORDER BY prazo DESC";
-        $qry = $this->pdo->query($sql);
+        $qry = $this->pdo->query("
+            SELECT id,
+                   nome,
+                   prazo
+              FROM competicao
+          ORDER BY prazo 
+              DESC
+        ");
         $competicoes = [];
         foreach ($qry as $linha) {
             $competicoes[] = (new Competicao)
@@ -30,7 +36,10 @@ readonly class CompeticaoRepository
 
     public function criarCompeticao(Competicao $competicao): int
     {
-        $stmt = $this->pdo->prepare("INSERT INTO competicoes (nome, prazo) VALUES (:nome, :prazo)");
+        $stmt = $this->pdo->prepare("
+            INSERT INTO competicao (nome, prazo)
+                 VALUES (:nome, :prazo)
+        ");
         $stmt->execute([
             'nome' => $competicao->nome(),
             'prazo' => $competicao->prazo()->format('Y-m-d'),
@@ -43,10 +52,12 @@ readonly class CompeticaoRepository
     public function alterarCompeticao(Competicao $competicao): bool
     {
         $stmt = $this->pdo->prepare("
-      UPDATE competicoes
-      SET nome = :nome, prazo = :prazo
-      WHERE id = :id"
-        );
+          UPDATE competicao
+             SET nome = :nome,
+                 prazo = :prazo,
+                 alterado_em = NOW()
+           WHERE id = :id
+        ");
         $stmt->execute([
             'id' => $competicao->id(),
             'nome' => $competicao->nome(),
@@ -57,7 +68,10 @@ readonly class CompeticaoRepository
 
     public function excluirCompeticao(int $id): void
     {
-        $stmt = $this->pdo->prepare("DELETE FROM competicoes WHERE id = :id");
+        $stmt = $this->pdo->prepare("
+            DELETE FROM competicao
+                  WHERE id = :id
+          ");
         $stmt->execute(['id' => $id]);
     }
 }

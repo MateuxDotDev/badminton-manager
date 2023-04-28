@@ -15,13 +15,6 @@ RUN groupadd -r nonroot && useradd -r -g nonroot -m nonroot \
     && chown -R nonroot:nonroot /var/www/html \
     && chsh -s /usr/bin/fish nonroot
 
-# Habilita o JIT para PHP
-RUN echo 'opcache.enable=1' >> /usr/local/etc/php/php.ini \
-    && echo 'opcache.enable_cli=1' >> /usr/local/etc/php/php.ini \
-    && echo 'opcache.jit_buffer_size=128M' >> /usr/local/etc/php/php.ini \
-    && echo 'opcache.jit=tracing' >> /usr/local/etc/php/php.ini \
-    && docker-php-ext-enable opcache
-
 # Configura o Xdebug
 COPY ./Docker/dev/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 

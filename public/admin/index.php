@@ -4,9 +4,7 @@ require_once(__DIR__.'/../../vendor/autoload.php');
 
 use App\Util\Template\Template;
 
-$template = new Template();
-
-$template->head('Administrador | Login');
+Template::head('Administrador | Login');
 ?>
 
 <div class="m-auto mt-5 card" style="width: 50%">
@@ -29,6 +27,9 @@ $template->head('Administrador | Login');
         </div>
     </form>
 </div>
+
+<?php Template::scripts(); ?>
+
 <script>
     const form       = document.forms["form_entrar_admin"];
     const inputSenha = form.senha;
@@ -70,4 +71,4 @@ $template->head('Administrador | Login');
     });
 </script>
 
-<?php $template->footer() ?>
+<?php Template::footer() ?>

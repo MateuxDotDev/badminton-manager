@@ -4,34 +4,44 @@ namespace App\Util\Template;
 
 class Template
 {
-    public function put(string $key, string $content, string $subject): string
+    private static function put(string $key, string $content, string $subject): string
     {
         return str_replace("{{ $key }}", htmlspecialchars($content, ENT_QUOTES, 'UTF-8'), $subject);
     }
 
-    public function head(string $titulo): void
+    public static function head(string $titulo): void
     {
-        $head = file_get_contents(__DIR__. "/common/head.html");
-        $head = $this->put("titulo_head", $titulo, $head);
-        $head = $this->put("file_time", time(), $head);
+        $headFile = __DIR__. "/common/head.html";
+        $head = file_get_contents($headFile);
+        $head = self::put("titulo_head", $titulo, $head);
+        $head = self::put("file_time", filemtime($headFile), $head);
         echo $head;
     }
 
-    public function footer(): void
+    public static function scripts(): void
+    {
+        $scriptsFile = __DIR__. "/common/scripts.html";
+        $scripts = file_get_contents($scriptsFile);
+        $scripts = self::put("file_time", filemtime($scriptsFile), $scripts);
+        echo $scripts;
+    }
+
+    public static function footer(): void
     {
         $footer = file_get_contents(__DIR__. "/common/footer.html");
-        $footer = $this->put("file_time", time(), $footer);
         echo $footer;
     }
 
-    public function naoAutorizado(): never
+    public static function naoAutorizado(): never
     {
+        self::head("Não autorizado");
         echo file_get_contents(__DIR__. "/common/unauthorized.html");
-        $this->footer();
+        self::scripts();
+        self::footer();
         die;
     }
 
-    public function navAdmin(): void
+    public static function navAdmin(): void
     {
         echo file_get_contents(__DIR__. "/common/adminNav.html");
     }

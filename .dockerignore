@@ -1,7 +1,7 @@
 .vscode
 .idea
 .git
-migrations
+scripts
 Docker/database/data
 Docker/dev/data
 LICENSE

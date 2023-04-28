@@ -16,6 +16,7 @@ php createAdmin.php nome_do_usuario senha_do_usuario
 Este comando cria um usuário admin com o nome 'nome_do_usuario' e a senha 'senha_do_usuario'.
 */
 
+require_once __DIR__ . '/initPDO.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
 /**
@@ -57,7 +58,7 @@ function generateAdmin(string $username, string $password): bool
 }
 
 if (empty($argv[1]) || empty($argv[2])) {
-    echo "Error: Username and password cannot be empty.\n";
+    echo "Error: Usuário e senha não podem ser vazios.\n";
     exit(1);
 }
 
@@ -66,37 +67,11 @@ $password = $argv[2];
 
 try {
     if (generateAdmin($username, $password)) {
-        echo "Admin user '{$username}' created successfully.\n";
+        echo "Usuário '{$username}' criado com sucesso.\n";
     } else {
-        echo "Error: Failed to create admin user '{$username}'.\n";
+        echo "Erro: Não foi possível criar o usuário '{$username}'.\n";
     }
 } catch (Exception $e) {
-    echo "Error: {$e->getMessage()}\n";
+    echo "Erro: {$e->getMessage()}\n";
     exit(1);
-}
-
-function initPdo(): PDO
-{
-    $dsn = sprintf(
-        'pgsql:host=%s;port=%d;dbname=%s',
-        getenv('POSTGRES_HOST'),
-        getenv('POSTGRES_PORT'),
-        getenv('POSTGRES_DB')
-    );
-
-    $pdo = new PDO(
-        $dsn,
-        getenv('POSTGRES_USER'),
-        getenv('POSTGRES_PASSWORD'),
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]
-    );
-
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->exec("set time zone -3");
-
-    return $pdo;
 }

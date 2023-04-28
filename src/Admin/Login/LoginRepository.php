@@ -20,9 +20,10 @@ readonly class LoginRepository
     public function validateLogin(Login $login): bool
     {
         $stmt = $this->pdo->prepare('
-            SELECT hash_senha, salt_senha
-            FROM admin
-            WHERE "user" = :user
+            SELECT hash_senha,
+                   salt_senha
+              FROM admin
+             WHERE "user" = :user
         ');
         $usuario = $login->getUsuario();
         $stmt->bindParam(':user', $usuario);

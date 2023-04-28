@@ -16,8 +16,15 @@ if (!Session::isAdmin()) {
     return Response::erroNaoAutorizado();
 }
 
-competicaoController()->enviar();
+try {
+    competicaoController()->enviar();
+} catch (ResponseException $e) {
+    $e->response()->enviar();
+}
 
+/**
+ * @throws ResponseException
+ */
 function competicaoController(): Response
 {
     $req = Request::getJson();
@@ -54,14 +61,14 @@ function criarCompeticao(array $req): Response
     }
 }
 
+/**
+ * @throws ResponseException
+ */
 function excluirCompeticao(array $req): Response
 {
-    if ($resp = Request::camposSaoValidos($req, ['id'])) {
-        return $resp;
-    }
+    Request::camposSaoValidos($req, ['id']);
 
-    // TODO
-    // caso a competição já tenha inscrições, não pode ser excluída
+    // TODO: caso a competição já tenha inscrições, não pode ser excluída
 
     $id = $req['id'];
     try {

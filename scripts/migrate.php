@@ -3,13 +3,13 @@
 /*
 O arquivo migrate.php é um script responsável pela gestão de migrações de banco de dados. Aqui estão as funções que o script pode realizar:
 
-1. Criação de uma nova migração: Este script pode criar um novo arquivo de migração, com um nome baseado na data atual e opcionalmente um sufixo fornecido pelo usuário. O arquivo de migração é um arquivo SQL vazio que é colocado na pasta "files".
+1. Criação de uma nova migração: Este script pode criar um novo arquivo de migração, com um nome baseado na data atual e opcionalmente um sufixo fornecido pelo usuário. O arquivo de migração é um arquivo SQL vazio que é colocado na pasta "migrations".
 
 Exemplo de uso:
 php migrate.php new nome_da_migracao
-Este comando cria um arquivo SQL vazio chamado migration_YYYY_MM_DD_HHMMSS_nome_da_migracao.sql na pasta "files".
+Este comando cria um arquivo SQL vazio chamado migration_YYYY_MM_DD_HHMMSS_nome_da_migracao.sql na pasta "migrations".
 
-2. Execução de migrações: O migrate.php pode executar migrações de banco de dados que ainda não foram executadas. As migrações são armazenadas como arquivos SQL na pasta "files". Cada arquivo é lido e os comandos SQL nele contidos são executados no banco de dados.
+2. Execução de migrações: O migrate.php pode executar migrações de banco de dados que ainda não foram executadas. As migrações são armazenadas como arquivos SQL na pasta "migrations". Cada arquivo é lido e os comandos SQL nele contidos são executados no banco de dados.
 
 Exemplo de uso:
 php migrate.php migrate
@@ -27,10 +27,12 @@ Este comando executa a migração mais recente que ainda não foi executada.
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/initPDO.php';
+
 $pdo = initPdo();
 $migrationName = '';
 $force = false;
-$action = 'migrate'; // Default action is to run migrations
+$action = 'migrate'; // Default action is to run scripts
 $newMigrationName = '';
 
 foreach ($argv as $index => $arg) {
@@ -63,7 +65,7 @@ function createNewMigration($name): void
 {
     $namePart = $name !== '' ? '_' . $name : '';
     $migrationName = 'migration_' . date('Y_m_d_His'). $namePart;
-    $filePath = "files/$migrationName.sql";
+    $filePath = "migrations/$migrationName.sql";
     if (file_put_contents($filePath, '') !== false) {
         logMigration("Migration file created: $filePath");
     } else {
@@ -73,7 +75,7 @@ function createNewMigration($name): void
 
 function runLatestMigration(): void
 {
-    $files = glob('files/*.sql');
+    $files = glob('migrations/*.sql');
     if (empty($files)) {
         die("No migration files found");
     }
@@ -98,7 +100,7 @@ function runMigrations(string $migrationName, bool $force): void
             logMigration("Migration $migrationName already run");
         }
     } else {
-        $files = glob('files/*.sql');
+        $files = glob('migrations/*.sql');
         if ($files === false) {
             die("Error reading migrations folder");
         }
@@ -169,7 +171,7 @@ function executeMigration(PDO $pdo, string $directory): bool
 
 function migrationAlreadyRun(PDO $pdo, string $nomeMigration): bool
 {
-    $stmt = $pdo->prepare("SELECT 1 FROM migrations WHERE migration = :migration");
+    $stmt = $pdo->prepare("SELECT 1 FROM migration WHERE migration = :migration");
     $stmt->bindParam('migration', $nomeMigration);
     $stmt->execute();
     return count($stmt->fetchAll()) > 0;
@@ -178,7 +180,7 @@ function migrationAlreadyRun(PDO $pdo, string $nomeMigration): bool
 function saveRunMigration(PDO $pdo, string $nomeMigration): void
 {
     $stmt = $pdo->prepare("
-        INSERT INTO migrations (migration)
+        INSERT INTO migration (migration)
         VALUES (:migration)
         ON CONFLICT (migration) DO UPDATE SET created_at = NOW()
     ");
@@ -191,30 +193,4 @@ function logMigration(string $s): void
 {
     $dateTime = date('d/m/Y H:i:s');
     echo "[$dateTime] => $s\n\n";
-}
-
-function initPdo(): PDO
-{
-    $dsn = sprintf(
-        'pgsql:host=%s;port=%d;dbname=%s',
-        getenv('POSTGRES_HOST'),
-        getenv('POSTGRES_PORT'),
-        getenv('POSTGRES_DB')
-    );
-
-    $pdo = new PDO(
-        $dsn,
-        getenv('POSTGRES_USER'),
-        getenv('POSTGRES_PASSWORD'),
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-        ]
-    );
-
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $pdo->exec("set time zone -3");
-
-    return $pdo;
 }
