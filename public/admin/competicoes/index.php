@@ -4,8 +4,8 @@ require_once('../../../vendor/autoload.php');
 
 use App\Admin\Competicoes\CompeticaoRepository;
 use App\Util\Database\Connection;
-use App\Util\Session;
 use App\Util\Template\Template;
+use App\Util\Session;
 
 Session::iniciar();
 

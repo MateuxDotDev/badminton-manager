@@ -12,6 +12,9 @@ Este comando cria um arquivo SQL vazio chamado migration_YYYY_MM_DD_HHMMSS_nome_
 2. Execução de migrações: O migrate.php pode executar migrações de banco de dados que ainda não foram executadas. As migrações são armazenadas como arquivos SQL na pasta "migrations". Cada arquivo é lido e os comandos SQL nele contidos são executados no banco de dados.
 
 Exemplo de uso:
+php migrate.php new AdicionarDescricaoACompeticao
+Cria uma nova migration com o nome informado.
+
 php migrate.php migrate
 Este comando executa todas as migrações que ainda não foram executadas.
 

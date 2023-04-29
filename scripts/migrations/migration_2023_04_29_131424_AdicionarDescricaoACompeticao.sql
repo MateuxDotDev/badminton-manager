@@ -1,0 +1,1 @@
+ALTER TABLE competicao ADD COLUMN descricao TEXT;
