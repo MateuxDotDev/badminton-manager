@@ -58,6 +58,7 @@ readonly class CompeticaoRepository
           UPDATE competicao
              SET nome = :nome,
                  prazo = :prazo,
+                 descricao = :descricao,
                  alterado_em = NOW()
            WHERE id = :id
         ");
@@ -65,6 +66,7 @@ readonly class CompeticaoRepository
             'id' => $competicao->id(),
             'nome' => $competicao->nome(),
             'prazo' => $competicao->prazo()->format('Y-m-d'),
+            'descricao' => $competicao->descricao()
         ]);
         return $stmt->rowCount() == 1;
     }

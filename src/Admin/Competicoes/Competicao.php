@@ -67,7 +67,8 @@ class Competicao
         return [
             'id' => $this->id,
             'nome' => $this->nome,
-            'prazo' => $this->prazo->format('Y-m-d')
+            'prazo' => $this->prazo->format('Y-m-d'),
+            'descricao' => $this->descricao
         ];
     }
 }
