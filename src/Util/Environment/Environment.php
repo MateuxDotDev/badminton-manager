@@ -34,6 +34,6 @@ class Environment
 
     public static function getPostgresPort(): int
     {
-        return (int)getenv('POSTGRES_PORT');
+        return (int) getenv('POSTGRES_PORT');
     }
 }
