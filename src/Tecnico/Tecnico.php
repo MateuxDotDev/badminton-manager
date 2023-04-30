@@ -4,6 +4,8 @@
 
 namespace App\Tecnico;
 
+use App\Senha;
+use DateTimeImmutable;
 use DateTimeInterface;
 
 class Tecnico
@@ -11,12 +13,11 @@ class Tecnico
     private ?int $id = null;
     private string $email;
     private string $nomeCompleto;
-    private string $informacoes;
+    private string $informacoes = '';
     private Clube $clube;
+    private ?Senha $senha;
     private ?DateTimeInterface $dataCriacao = null;
     private ?DateTimeInterface $dataAlteracao = null;
-
-    private bool $temSenha = false;
 
     public function setId(int $id): Tecnico
     {
@@ -48,21 +49,21 @@ class Tecnico
         return $this;
     }
 
-    public function setDataCriacao(DateTimeInterface $data): Tecnico
+    public function setSenha(?Senha $senha): Tecnico
+    {
+        $this->senha = $senha;
+        return $this;
+    }
+
+    public function setDataCriacao(?DateTimeInterface $data): Tecnico
     {
         $this->dataCriacao = $data;
         return $this;
     }
 
-    public function setDataAlteracao(DateTimeInterface $data): Tecnico
+    public function setDataAlteracao(?DateTimeInterface $data): Tecnico
     {
         $this->dataAlteracao = $data;
-        return $this;
-    }
-
-    public function settemSenha(bool $temSenha): Tecnico
-    {
-        $this->temSenha = $temSenha;
         return $this;
     }
 
@@ -91,6 +92,11 @@ class Tecnico
         return $this->clube;
     }
 
+    public function senha(): ?Senha
+    {
+        return $this->senha;
+    }
+
     public function dataCriacao(): ?DateTimeInterface
     {
         return $this->dataCriacao;
@@ -101,9 +107,34 @@ class Tecnico
         return $this->dataAlteracao;
     }
 
-    public function temSenha(): bool
-    {
-        return $this->temSenha;
+    public function __serialize(): array {
+        return [
+            'id' => $this->id,
+            'email' => $this->email,
+            'nomeCompleto' => $this->nomeCompleto,
+            'informacoes' => $this->informacoes,
+            'clube' => serialize($this->clube),
+            'dataCriacao' => $this->dataCriacao?->format('Y-m-d H:i:s.u'),
+            'dataAlteracao' => $this->dataAlteracao?->format('Y-m-d H:i:s.u'),
+        ];
     }
 
+    public function __unserialize(array $a): void {
+        $id = $a['id'] === null ? null : (int) $a['id'];
+
+        $clube = unserialize($a['clube']);
+
+        $dataCriacao   = $a['dataCriacao']   == null ? null : DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $a['dataCriacao']);
+        $dataAlteracao = $a['dataAlteracao'] == null ? null : DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $a['dataAlteracao']);
+
+        $this
+            ->setId($id)
+            ->setEmail($a['email'])
+            ->setNomeCompleto($a['nomeCompleto'])
+            ->setInformacoes($a['informacoes'])
+            ->setClube($clube)
+            ->setDataCriacao($dataCriacao)
+            ->setDataAlteracao($dataAlteracao)
+            ;
+    }
 }

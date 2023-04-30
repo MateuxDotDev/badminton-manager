@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Util;
+use App\Tecnico\Tecnico;
 
 class Session
 {
@@ -9,20 +10,50 @@ class Session
         session_start();
     }
 
+    private static function setTipo(string $tipo): void
+    {
+        $_SESSION['tipo'] = $tipo;
+    }
+
+    private static function isTipo(string $tipo): bool
+    {
+        return array_key_exists('tipo', $_SESSION) && $_SESSION['tipo'] == $tipo;
+    }
+
+
     public static function setAdmin(): void
     {
-        $_SESSION['tipo'] = 'admin';
+        self::setTipo('admin');
     }
 
     public static function isAdmin(): bool
     {
-        return array_key_exists('tipo', $_SESSION) && $_SESSION['tipo'] === 'admin';
+        return self::isTipo('admin');
     }
 
     public static function destruir(): void
     {
         self::iniciar();
-        unset($_SESSION['tipo']);
+        unset($_SESSION['tipo']); // necessário? session_destroy já não faz isso?
         session_destroy();
+    }
+
+    public static function setTecnico(Tecnico $tecnico): void
+    {
+        $_SESSION['tipo']    = 'tecnico';
+        $_SESSION['tecnico'] = serialize($tecnico);
+    }
+
+    public static function isTecnico(): bool
+    {
+        return self::isTipo('tecnico');
+    }
+
+    public static function getTecnico(): ?Tecnico
+    {
+        if (!self::isTipo('tecnico')) {
+            return null;
+        }
+        return unserialize($_SESSION['tecnico']);
     }
 }

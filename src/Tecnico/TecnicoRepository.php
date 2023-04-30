@@ -2,6 +2,7 @@
 
 namespace App\Tecnico;
 
+use App\Senha;
 use \DateTimeImmutable;
 use \PDO;
 use \Exception;
@@ -25,9 +26,11 @@ class TecnicoRepository
                 t.email,
                 t.nome_completo,
                 t.informacoes,
-                t.hash_senha IS NOT NULL as tem_senha,
+                t.hash_senha,
+                t.salt_senha,
                 c.id as clube_id,
                 c.nome as clube_nome,
+                c.criado_em as clube_criado_em,
                 t.criado_em,
                 t.alterado_em
             FROM tecnico t
@@ -59,12 +62,15 @@ class TecnicoRepository
         $clube = (new Clube)
             ->setId((int) $row['clube_id'])
             ->setNome($row['clube_nome'])
+            ->setDataCriacao(DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $row['clube_criado_em']))
             ;
+
+        $senha = Senha::from($row['hash_senha'], $row['salt_senha']);
 
         return (new Tecnico)
             ->setId((int) $row['id'])
             ->setEmail($row['email'])
-            ->settemSenha($row['tem_senha'])
+            ->setSenha($senha)
             ->setNomeCompleto($row['nome_completo'])
             ->setInformacoes($row['informacoes'])
             ->setDataCriacao($dataCriacao)
@@ -83,7 +89,7 @@ class TecnicoRepository
         return $this->getViaChave('id', (string) $id);
     }
 
-    public function criarTecnico(Tecnico $tecnico, string $hashSenha, string $saltSenha): void
+    public function criarTecnico(Tecnico $tecnico): void
     {
         $pdo = $this->pdo;
 
@@ -105,8 +111,8 @@ class TecnicoRepository
                 'nomeCompleto' => $tecnico->nomeCompleto(),
                 'informacoes' => $tecnico->informacoes(),
                 'idClube' => $tecnico->clube()->id(),
-                'hashSenha' => $hashSenha,
-                'saltSenha' => $saltSenha,
+                'hashSenha' => $tecnico->senha()?->hash(),
+                'saltSenha' => $tecnico->senha()?->salt(),
             ]);
 
             $tecnico->setId($pdo->lastInsertId());

@@ -19,6 +19,7 @@ readonly class LoginRepository
      */
     public function validateLogin(Login $login): bool
     {
+        // TODO remover e usar o Login->validar no lugar 
         $stmt = $this->pdo->prepare('
             SELECT hash_senha,
                    salt_senha

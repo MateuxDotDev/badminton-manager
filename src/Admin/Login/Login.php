@@ -1,6 +1,11 @@
 <?php
 
 namespace App\Admin\Login;
+use App\Senha;
+
+// TODO acho que dá pra refatorar pra ser só métodos estáticos
+// e substituir o LoginRepository por um AdminRepository
+// com uma classe Admin que usa o trait PodeTerSenhaImpl
 
 class Login
 {
@@ -43,5 +48,11 @@ class Login
     public function gerarHash(string $salt, int $cost = 12): string
     {
         return password_hash($this->getBeforeHash($salt), PASSWORD_BCRYPT, ['cost' => $cost]);
+    }
+
+    public function validar(?Senha $senhaCorreta): bool
+    {
+        return $senhaCorreta != null
+             && password_verify($this->getBeforeHash($senhaCorreta->salt()), $senhaCorreta->hash());
     }
 }

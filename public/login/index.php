@@ -48,7 +48,7 @@ Template::head('Login');
     </div>
 
     <div id="etapa-senha" style="display: none">
-        <form name="form-senha">
+        <form name="form-login">
             <div class="mb-3">
                 <label class="form-label">E-mail</label>
                 <input name="email" type="text" class="form-control" readonly disabled>
@@ -68,7 +68,7 @@ Template::head('Login');
 
 <script>
     const formEmail = document.forms['form-email'];
-    const formSenha = document.forms['form-senha'];
+    const formLogin = document.forms['form-login'];
 
     const etapas = {
         email: {
@@ -77,7 +77,7 @@ Template::head('Login');
         },
         senha: {
             elemento: document.querySelector('#etapa-senha'),
-            focus: formSenha.senha,
+            focus: formLogin.senha,
         }
     };
 
@@ -101,24 +101,18 @@ Template::head('Login');
         const email = formEmail.email.value;
         const dadosConta = await getDadosConta(email);
         if (dadosConta == null) {
-            Toast.fire({
-                icon: 'error',
-                text: 'Ocorreu um erro inesperado',
-            });
+            alertaErro('Ocorreu um erro inesperado');
             return;
         }
 
         const {existe, temSenha} = dadosConta;
         if (!existe) {
-            Toast.fire({
-                icon: 'error',
-                text: 'Não existe técnico cadastrado com esse e-mail',
-            });
+            alertaErro('Não existe técnico cadastrado com esse e-mail');
             return;
         }
 
         if (temSenha) {
-            formSenha.email.value = email;
+            formLogin.email.value = email;
             trocarEtapa('senha');
         } else {
             // TODO quando implementarmos login sem precisar de senha
@@ -133,32 +127,44 @@ Template::head('Login');
         trocarEtapa('email');
     }
 
-    formSenha.addEventListener('submit', (event) => {
+    formLogin.addEventListener('submit', (event) => {
         event.preventDefault();
         fazerLogin(
-            formSenha.email.value,
-            formSenha.senha.value,
+            formLogin.email.value,
+            formLogin.senha.value,
         );
     });
 
     async function getDadosConta(email) {
         // TODO urlencode ou oq for necessário para passar com GET corretamente
         const response = await fetch(`/login/acao.php?acao=getDadosConta&email=${email}`);
-        const text = await response.text();
+        const texto = await response.text();
         try {
-            const json = JSON.parse(text);
+            const json = JSON.parse(texto);
             return json;
         } catch (err) {
-            console.error(err);
-            console.error('texto', text);
-            console.error('response', response);
+            console.error({ err, texto, response })
             return null;
         }
     }
 
     async function fazerLogin(email, senha) {
         const dados = { acao: 'login', email, senha };
-        // TODO login
+        const response = await fetch('/login/acao.php', {
+            method: 'POST',
+            body: JSON.stringify(dados),
+        });
+        const texto = await response.text();
+        try {
+            const retorno = JSON.parse(texto);
+            if (response.ok) {
+                location.assign('/tecnico');
+            } else {
+                alertaErro(retorno.mensagem);
+            }
+        } catch (err) {
+            console.error({ err, texto, response })
+        }
     }
 </script>
 

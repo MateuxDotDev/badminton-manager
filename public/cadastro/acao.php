@@ -1,4 +1,5 @@
 <?php
+use App\Senha;
 
 require_once(__DIR__.'/../../vendor/autoload.php');
 use App\Admin\Login\Login;
@@ -48,14 +49,15 @@ function realizarCadastro(PDO $pdo, array $req): Response {
         $salt = Login::gerarSalt();
         $hash = $login->gerarHash($salt);
 
-
         $tecnico = (new Tecnico)
             ->setEmail($req['email'])
             ->setNomeCompleto($req['nome'])
             ->setInformacoes($informacoes)
-            ->setClube($clube);
+            ->setClube($clube)
+            ->setSenha(Senha::from($hash, $salt))
+            ;
 
-        $repo->criarTecnico($tecnico, $hash, $salt);
+        $repo->criarTecnico($tecnico);
 
         return Response::ok('Técnico cadastrado com sucesso', [
             'id' => $tecnico->id(),
