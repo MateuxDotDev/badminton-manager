@@ -41,7 +41,7 @@ function competicaoController(): Response
 function criarCompeticao(array $req): Response
 {
     try {
-        Request::camposSaoValidos($req, ['nome', 'prazo']);
+        Request::camposRequeridos($req, ['nome', 'prazo']);
         $nome = $req['nome'];
         $prazo = DateTimeImmutable::createFromFormat('Y-m-d', $req['prazo']);
         if ($prazo === false) {
@@ -66,7 +66,7 @@ function criarCompeticao(array $req): Response
  */
 function excluirCompeticao(array $req): Response
 {
-    Request::camposSaoValidos($req, ['id']);
+    Request::camposRequeridos($req, ['id']);
 
     // TODO: caso a competição já tenha inscrições, não pode ser excluída
 
@@ -83,7 +83,7 @@ function excluirCompeticao(array $req): Response
 function alterarCompeticao(array $req): Response
 {
     try {
-        Request::camposSaoValidos($req, ['id', 'nome', 'prazo']);
+        Request::camposRequeridos($req, ['id', 'nome', 'prazo']);
 
         $id = $req['id'];
         $nome = $req['nome'];

@@ -23,9 +23,21 @@ class Login
         return $this->usuario;
     }
 
-    public function getBeforeHash(string $salt): string
+    private function getBeforeHash(string $salt): string
     {
         return $this->usuario . $this->senha . $salt;
+    }
+
+    public static function gerarSalt()
+    {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $salt = '';
+
+        for ($i = 0; $i < random_int(32, 64); $i++) {
+            $salt .= $characters[rand(0, strlen($characters) - 1)];
+        }
+
+        return $salt;
     }
 
     public function gerarHash(string $salt, int $cost = 12): string

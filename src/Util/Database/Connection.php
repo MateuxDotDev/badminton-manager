@@ -23,7 +23,6 @@ class Connection
                 Environment::getPostgresPort(),
                 Environment::getPostgresDb()
             );
-
             $pdo = new PDO(
                 $dsn,
                 Environment::getPostgresUser(),
@@ -34,10 +33,7 @@ class Connection
                     PDO::ATTR_EMULATE_PREPARES => false,
                 ]
             );
-
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $pdo->exec("set time zone -3");
-
             return $pdo;
         }
 

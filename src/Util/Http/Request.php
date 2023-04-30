@@ -21,13 +21,12 @@ class Request
     /**
      * @throws ResponseException
      */
-    public static function camposSaoValidos(array $req, array $camposRequeridos): true
+    public static function camposRequeridos(array $req, array $camposRequeridos): void
     {
         foreach ($camposRequeridos as $campo) {
             if (!array_key_exists($campo, $req)) {
                 throw new ResponseException(Response::erro("Campo faltando na requisição", ['campo' => $campo]));
             }
         }
-        return true;
     }
 }

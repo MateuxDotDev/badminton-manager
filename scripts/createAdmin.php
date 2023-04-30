@@ -22,25 +22,10 @@ require_once __DIR__ . '/../vendor/autoload.php';
 /**
  * @throws Exception
  */
-function generateSalt(): string
-{
-    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $salt = '';
-
-    for ($i = 0; $i < random_int(32, 64); $i++) {
-        $salt .= $characters[rand(0, strlen($characters) - 1)];
-    }
-
-    return $salt;
-}
-
-/**
- * @throws Exception
- */
 function generateAdmin(string $username, string $password): bool
 {
     $pdo = initPdo();
-    $salt = generateSalt();
+    $salt = App\Admin\Login\Login::gerarSalt();
     $login = new App\Admin\Login\Login($username, $password);
     echo "Gerando hash da senha...\n";
     $hash = $login->gerarHash($salt);

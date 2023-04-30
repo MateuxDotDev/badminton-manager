@@ -25,7 +25,7 @@ function loginAdminController(): Response
 function acaoLogin(array $req): Response
 {
     try {
-        Request::camposSaoValidos($req, ['usuario', 'senha']);
+        Request::camposRequeridos($req, ['usuario', 'senha']);
 
         $login = new Login($req['usuario'], $req['senha']);
         $repo = new LoginRepository(Connection::getInstance());
