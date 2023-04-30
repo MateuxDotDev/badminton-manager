@@ -16,6 +16,8 @@ class Tecnico
     private ?DateTimeInterface $dataCriacao = null;
     private ?DateTimeInterface $dataAlteracao = null;
 
+    private bool $temSenha = false;
+
     public function setId(int $id): Tecnico
     {
         $this->id = $id;
@@ -58,6 +60,12 @@ class Tecnico
         return $this;
     }
 
+    public function settemSenha(bool $temSenha): Tecnico
+    {
+        $this->temSenha = $temSenha;
+        return $this;
+    }
+
     public function id(): ?int
     {
         return $this->id;
@@ -91,6 +99,11 @@ class Tecnico
     public function dataAlteracao(): ?DateTimeInterface
     {
         return $this->dataAlteracao;
+    }
+
+    public function temSenha(): bool
+    {
+        return $this->temSenha;
     }
 
 }

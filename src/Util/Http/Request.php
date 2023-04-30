@@ -9,13 +9,25 @@ use App\Util\Exceptions\ResponseException;
 
 class Request
 {
+    public static function getDados(): array
+    {
+        $metodo = $_SERVER['REQUEST_METHOD'];
+        return ($metodo == 'GET') ? $_GET : self::getJson();
+    }
+
+    // TODO tornar getJson private, utilizar somente getDados por fora
     public static function getJson(): array
     {
         $json = file_get_contents('php://input');
         if ($json === false) {
             die('Erro ao ler o corpo da request');
         }
-        return json_decode($json, true);
+        return json_decode($json, true) ?? [];
+    }
+
+    public static function getAcao($req): ?string
+    {
+        return array_key_exists('acao', $req) ? $req['acao'] : null;
     }
 
     /**

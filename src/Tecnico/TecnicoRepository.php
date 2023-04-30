@@ -25,6 +25,7 @@ class TecnicoRepository
                 t.email,
                 t.nome_completo,
                 t.informacoes,
+                t.hash_senha IS NOT NULL as tem_senha,
                 c.id as clube_id,
                 c.nome as clube_nome,
                 t.criado_em,
@@ -63,6 +64,7 @@ class TecnicoRepository
         return (new Tecnico)
             ->setId((int) $row['id'])
             ->setEmail($row['email'])
+            ->settemSenha($row['tem_senha'])
             ->setNomeCompleto($row['nome_completo'])
             ->setInformacoes($row['informacoes'])
             ->setDataCriacao($dataCriacao)
