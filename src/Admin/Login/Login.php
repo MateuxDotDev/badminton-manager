@@ -28,7 +28,7 @@ class Login
         return $this->usuario;
     }
 
-    private function getBeforeHash(string $salt): string
+    public function getBeforeHash(string $salt): string
     {
         return $this->usuario . $this->senha . $salt;
     }
