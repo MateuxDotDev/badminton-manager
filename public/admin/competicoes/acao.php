@@ -9,11 +9,11 @@ use App\Util\Database\Connection;
 use App\Util\Exceptions\ResponseException;
 use App\Util\Http\Request;
 use App\Util\Http\Response;
-use App\Util\Session;
+use App\Util\SessionOld;
 
-Session::iniciar();
+SessionOld::iniciar();
 
-if (!Session::isAdmin()) {
+if (!SessionOld::isAdmin()) {
     return Response::erroNaoAutorizado();
 }
 

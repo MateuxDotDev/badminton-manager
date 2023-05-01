@@ -1,10 +1,13 @@
 <?php
 use App\Admin\Login\Login;
+use App\Session;
+use App\Tecnico\Conta\LoginDTO;
+use App\Tecnico\Conta\RealizarLogin;
 use App\Tecnico\TecnicoRepository;
 use App\Util\Database\Connection;
 use App\Util\Http\Request as Req;
 use App\Util\Http\Response as Res;
-use App\Util\Session;
+use App\Util\SessionOld;
 
 require_once(__DIR__.'/../../vendor/autoload.php');
 
@@ -40,27 +43,16 @@ function getDadosConta(PDO $pdo, array $req): Res
 
 function realizarLogin(PDO $pdo, array $req)
 {
-    try {
-        Req::camposRequeridos($req, ['email', 'senha']);
-        $email = filter_var($req['email'], FILTER_SANITIZE_EMAIL);
-        $senha = $req['senha'];
+    $parsed = LoginDTO::parse($req);
+    if ($parsed instanceof LoginDTO) {
 
+        session_start();
         $repo = new TecnicoRepository($pdo);
-        $tecnico = $repo->getViaEmail($email);
-        if ($tecnico === null) {
-            return Res::erro('Técnico não encontrado');
-        }
-
-        $ok = $tecnico->senhaCriptografada()?->validar($email, $senha) ?? false;
-        if (!$ok) {
-            return Res::erro('Senha incorreta');
-        }
-
-        Session::iniciar();
-        Session::setTecnico($tecnico);
-        return Res::ok();
-
-    } catch (Exception $e) {
-        return Res::erroException($e);
+        $session = Session::obj();
+        $realizarLogin = new RealizarLogin($repo, $session);
+        $result = $realizarLogin($parsed);
+        return Res::fromResult($result);
+    } else {
+        return Res::erro($parsed);
     }
 }

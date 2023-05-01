@@ -1,17 +1,17 @@
 <?php
-use App\Util\Session;
+use App\Util\SessionOld;
 use App\Util\Template\Template;
 
 require_once(__DIR__.'/../../vendor/autoload.php');
 
-Session::iniciar();
-if (!Session::isTecnico()) {
+SessionOld::iniciar();
+if (!SessionOld::isTecnico()) {
     Template::naoAutorizado();
 }
 
 Template::head('Tela inicial');
 
-$tecnico = Session::getTecnico();
+$tecnico = SessionOld::getTecnico();
 echo '<pre>';
 dump($tecnico);
 echo '</pre>';

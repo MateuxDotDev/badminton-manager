@@ -3,7 +3,10 @@
 namespace App\Util;
 use App\Tecnico\Tecnico;
 
-class Session
+// Renomeado para SessionOld porque vamos usar no lugar o objeto Session
+// que é mais fácil de usar nos testes
+
+class SessionOld
 {
     public static function iniciar(): void
     {

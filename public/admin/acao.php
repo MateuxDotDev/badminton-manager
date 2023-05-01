@@ -8,7 +8,7 @@ use App\Admin\Login\LoginRepository;
 use App\Util\Database\Connection;
 use App\Util\Http\Request;
 use App\Util\Http\Response;
-use App\Util\Session;
+use App\Util\SessionOld;
 
 loginAdminController()->enviar();
 
@@ -38,8 +38,8 @@ function acaoLogin(PDO $pdo, array $req): Response
         $ok = $admin->senhaCriptografada()->validar($req['usuario'], $req['senha']);
 
         if ($ok) {
-            Session::iniciar();
-            Session::setAdmin();
+            SessionOld::iniciar();
+            SessionOld::setAdmin();
             return Response::ok();
         } else {
             return Response::erro('Senha incorreta');

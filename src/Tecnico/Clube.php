@@ -45,9 +45,7 @@ class Clube
 
     public function __unserialize(array $a): void
     {
-        $id = ($a['id'] === null)
-            ? null
-            : (int)$a['id'];
+        $id = ($a['id'] === null) ? null : (int) $a['id'];
         $nome = $a['nome'];
         $dataCriacao = Dates::parseMicro($a['dataCriacao']);
 
