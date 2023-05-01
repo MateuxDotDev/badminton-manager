@@ -2,8 +2,8 @@
 
 namespace App\Admin\Competicoes;
 
-use DateTimeImmutable;
-use PDO;
+use App\Util\Dates;
+use \PDO;
 
 readonly class CompeticaoRepository
 {
@@ -30,9 +30,9 @@ readonly class CompeticaoRepository
             $competicoes[] = (new Competicao)
                 ->setId((int) $linha['id'])
                 ->setNome($linha['nome'])
-                ->setPrazo(DateTimeImmutable::createFromFormat('Y-m-d', $linha['prazo']))
-                ->setDataAlteracao(DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $linha['alterado_em']))
-                ->setDataCriacao(DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $linha['criado_em']))
+                ->setPrazo(Dates::parseDay($linha['prazo']))
+                ->setDataAlteracao(Dates::parseMicro($linha['alterado_em']))
+                ->setDataCriacao(Dates::parseMicro($linha['criado_em']))
                 ;
         }
         return $competicoes;

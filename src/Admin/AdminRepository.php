@@ -2,8 +2,8 @@
 namespace App\Admin;
 
 use App\SenhaCriptografada;
+use App\Util\Dates;
 use \PDO;
-use \DateTimeImmutable;
 
 class AdminRepository
 {
@@ -34,13 +34,13 @@ class AdminRepository
         }
         $row = $rows[0];
 
-        $senhaCripto = SenhaCriptografada::from($row['hash_senha'], $row['salt_senha']);
+        $senhaCripto = SenhaCriptografada::existente($row['hash_senha'], $row['salt_senha']);
 
         return (new Admin)
             ->setNome($row['user'])
             ->setSenhaCriptografada($senhaCripto)
-            ->setDataCriacao(DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $row['criado_em']))
-            ->setDataAlteracao(DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $row['alterado_em']))
+            ->setDataCriacao(Dates::parseMicro($row['criado_em']))
+            ->setDataAlteracao(Dates::parseMicro($row['alterado_em']))
             ;
     }
 

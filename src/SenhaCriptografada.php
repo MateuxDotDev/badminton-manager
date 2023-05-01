@@ -19,8 +19,7 @@ class SenhaCriptografada
         return $this->salt;
     }
 
-    // TODO renomear? ::existente()?
-    public static function from(?string $hash, ?string $salt): ?SenhaCriptografada
+    public static function existente(?string $hash, ?string $salt): ?SenhaCriptografada
     {
         if ($hash !== null && $salt !== null) {
             return new SenhaCriptografada($hash, $salt);
@@ -43,7 +42,7 @@ class SenhaCriptografada
         $salt = self::gerarSalt();
         $toHash = $usuario . $senha . $salt;
         $hash = password_hash($toHash, PASSWORD_BCRYPT, ['cost' => $cost]);
-        return SenhaCriptografada::from($hash, $salt);
+        return SenhaCriptografada::existente($hash, $salt);
     }
 
     public function validar(string $usuario, string $senha): bool

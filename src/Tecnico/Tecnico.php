@@ -5,7 +5,7 @@ namespace App\Tecnico;
 use App\SenhaCriptografada;
 use App\TemDataAlteracao;
 use App\TemDataCriacao;
-use DateTimeImmutable;
+use App\Util\Dates;
 
 class Tecnico
 {
@@ -92,8 +92,8 @@ class Tecnico
             'nomeCompleto' => $this->nomeCompleto,
             'informacoes' => $this->informacoes,
             'clube' => serialize($this->clube),
-            'dataCriacao' => $this->dataCriacao?->format('Y-m-d H:i:s.u'),
-            'dataAlteracao' => $this->dataAlteracao?->format('Y-m-d H:i:s.u'),
+            'dataCriacao' => Dates::formatMicro($this->dataCriacao),
+            'dataAlteracao' => Dates::formatMicro($this->dataAlteracao),
         ];
     }
 
@@ -102,8 +102,8 @@ class Tecnico
 
         $clube = unserialize($a['clube']);
 
-        $dataCriacao   = $a['dataCriacao']   == null ? null : DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $a['dataCriacao']);
-        $dataAlteracao = $a['dataAlteracao'] == null ? null : DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $a['dataAlteracao']);
+        $dataCriacao = Dates::parseMicro($a['dataCriacao']);
+        $dataAlteracao = Dates::parseMicro($a['dataAlteracao']);
 
         $this
             ->setId($id)

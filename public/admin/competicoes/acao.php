@@ -1,4 +1,5 @@
 <?php
+use App\Util\Dates;
 
 require_once('../../../vendor/autoload.php');
 
@@ -43,7 +44,7 @@ function criarCompeticao(array $req): Response
     try {
         Request::camposRequeridos($req, ['nome', 'prazo']);
         $nome = $req['nome'];
-        $prazo = DateTimeImmutable::createFromFormat('Y-m-d', $req['prazo']);
+        $prazo = Dates::parseDay($req['prazo']);
         if ($prazo === false) {
             throw new ResponseException(Response::erro("Prazo inválido"));
         }
@@ -87,7 +88,7 @@ function alterarCompeticao(array $req): Response
 
         $id = $req['id'];
         $nome = $req['nome'];
-        $prazo = DateTimeImmutable::createFromFormat('Y-m-d', $req['prazo']);
+        $prazo = Dates::parseDay($req['prazo']);
         if ($prazo === false) {
             throw new ResponseException(Response::erro("Prazo inválido"));
         }

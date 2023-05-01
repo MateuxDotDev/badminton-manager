@@ -3,7 +3,7 @@
 namespace App\Tecnico;
 
 use App\SenhaCriptografada;
-use \DateTimeImmutable;
+use App\Util\Dates;
 use \PDO;
 use \Exception;
 
@@ -54,16 +54,16 @@ class TecnicoRepository
 
         $row = $rows[0];
 
-        $dataCriacao   = DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $row['criado_em']);
-        $dataAlteracao = DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $row['alterado_em']);
+        $dataCriacao   = Dates::parseMicro($row['criado_em']);
+        $dataAlteracao = Dates::parseMicro($row['alterado_em']);
 
         $clube = (new Clube)
             ->setId((int) $row['clube_id'])
             ->setNome($row['clube_nome'])
-            ->setDataCriacao(DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $row['clube_criado_em']))
+            ->setDataCriacao(Dates::parseMicro($row['clube_criado_em']))
             ;
 
-        $senha = SenhaCriptografada::from($row['hash_senha'], $row['salt_senha']);
+        $senha = SenhaCriptografada::existente($row['hash_senha'], $row['salt_senha']);
 
         return (new Tecnico)
             ->setId((int) $row['id'])

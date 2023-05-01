@@ -4,8 +4,8 @@ namespace App\Admin\Competicoes;
 
 use App\TemDataAlteracao;
 use App\TemDataCriacao;
-use DateTimeImmutable;
-use DateTimeInterface;
+use \DateTimeImmutable;
+use \DateTimeInterface;
 
 class Competicao
 {

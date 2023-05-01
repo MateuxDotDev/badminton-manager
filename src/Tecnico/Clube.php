@@ -3,7 +3,7 @@
 namespace App\Tecnico;
 
 use App\TemDataCriacao;
-use \DateTimeImmutable;
+use App\Util\Dates;
 
 class Clube
 {
@@ -39,15 +39,17 @@ class Clube
         return [
             'id' => $this->id,
             'nome' => $this->nome,
-            'dataCriacao' => $this->dataCriacao?->format('Y-m-d H:i:s.u'),
+            'dataCriacao' => Dates::formatMicro($this->dataCriacao)
         ];
     }
 
     public function __unserialize(array $a): void
     {
-        $id          = ($a['id']          === null) ? null : (int)$a['id'];
-        $dataCriacao = ($a['dataCriacao'] === null) ? null : DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $a['dataCriacao']);
-        $nome        = $a['nome'];
+        $id = ($a['id'] === null)
+            ? null
+            : (int)$a['id'];
+        $nome = $a['nome'];
+        $dataCriacao = Dates::parseMicro($a['dataCriacao']);
 
         $this
             ->setId($id)

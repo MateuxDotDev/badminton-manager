@@ -4,9 +4,9 @@ namespace Tests\Admin\Competicoes;
 
 use App\Admin\Competicoes\Competicao;
 use App\Admin\Competicoes\CompeticaoRepository;
-use DateTimeImmutable;
-use PDO;
-use PDOStatement;
+use \DateTimeImmutable;
+use \PDO;
+use \PDOStatement;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
