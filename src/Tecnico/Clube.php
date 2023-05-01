@@ -2,15 +2,15 @@
 
 namespace App\Tecnico;
 
-use DateTimeImmutable;
-use DateTimeInterface;
+use App\TemDataCriacao;
+use \DateTimeImmutable;
 
 class Clube
 {
+    use TemDataCriacao;
 
     private ?int $id = null;
     private string $nome;
-    private ?DateTimeInterface $dataCriacao = null;
 
     public function setId(?int $id): Clube
     {
@@ -24,12 +24,6 @@ class Clube
         return $this;
     }
 
-    public function setDataCriacao(?DateTimeInterface $data): Clube
-    {
-        $this->dataCriacao = $data;
-        return $this;
-    }
-
     public function id(): ?int
     {
         return $this->id;
@@ -38,11 +32,6 @@ class Clube
     public function nome(): string
     {
         return $this->nome;
-    }
-
-    public function dataCriacao(): ?DateTimeInterface
-    {
-        return $this->dataCriacao;
     }
 
     public function __serialize(): array

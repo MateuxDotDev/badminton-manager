@@ -1,8 +1,7 @@
 <?php
-use App\Senha;
+use App\SenhaCriptografada;
 
 require_once(__DIR__.'/../../vendor/autoload.php');
-use App\Admin\Login\Login;
 use App\Tecnico\{TecnicoRepository, Tecnico, Clube};
 use App\Util\Database\Connection;
 use App\Util\Exceptions\ResponseException;
@@ -28,15 +27,14 @@ function realizarCadastro(PDO $pdo, array $req): Response {
     try {
         Request::camposRequeridos($req, ['email', 'senha', 'clube']);
 
-        $email = filter_var($req['email'], FILTER_SANITIZE_EMAIL);
+        $email       = filter_var($req['email'], FILTER_SANITIZE_EMAIL);
+        $senha       = $req['senha'];
+        $clube       = (new Clube)->setNome(htmlspecialchars($req['clube']));
+        $informacoes = htmlspecialchars(array_key_exists('informacoes', $req) ? $req['informacoes'] : '');
+
         if (false === ($email = filter_var($req['email'], FILTER_VALIDATE_EMAIL))) {
             return Response::erro('E-mail inválido');
         }
-
-        $nomeClube = htmlspecialchars($req['clube']);
-        $clube = (new Clube)->setNome($nomeClube);
-
-        $informacoes = htmlspecialchars(array_key_exists('informacoes', $req) ? $req['informacoes'] : '');
 
         $repo = new TecnicoRepository(Connection::getInstance());
 
@@ -45,16 +43,14 @@ function realizarCadastro(PDO $pdo, array $req): Response {
             return Response::erro('Já existe um técnico cadastrado com esse e-mail');
         }
 
-        $login = new Login($email, $req['senha']);
-        $salt = Login::gerarSalt();
-        $hash = $login->gerarHash($salt);
+        $senha = SenhaCriptografada::criptografar($email, $req['senha']);
 
         $tecnico = (new Tecnico)
             ->setEmail($req['email'])
             ->setNomeCompleto($req['nome'])
             ->setInformacoes($informacoes)
             ->setClube($clube)
-            ->setSenha(Senha::from($hash, $salt))
+            ->setSenhaCriptografada($senha)
             ;
 
         $repo->criarTecnico($tecnico);

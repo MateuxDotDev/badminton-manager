@@ -1,23 +1,22 @@
 <?php
 
-// TODO testes......
-
 namespace App\Tecnico;
 
-use App\Senha;
+use App\SenhaCriptografada;
+use App\TemDataAlteracao;
+use App\TemDataCriacao;
 use DateTimeImmutable;
-use DateTimeInterface;
 
 class Tecnico
 {
+    use TemDataCriacao, TemDataAlteracao;
+
     private ?int $id = null;
     private string $email;
     private string $nomeCompleto;
     private string $informacoes = '';
     private Clube $clube;
-    private ?Senha $senha;
-    private ?DateTimeInterface $dataCriacao = null;
-    private ?DateTimeInterface $dataAlteracao = null;
+    private ?SenhaCriptografada $senhaCriptografada = null;
 
     public function setId(int $id): Tecnico
     {
@@ -49,21 +48,9 @@ class Tecnico
         return $this;
     }
 
-    public function setSenha(?Senha $senha): Tecnico
+    public function setSenhaCriptografada(?SenhaCriptografada $senhaCriptografada): Tecnico
     {
-        $this->senha = $senha;
-        return $this;
-    }
-
-    public function setDataCriacao(?DateTimeInterface $data): Tecnico
-    {
-        $this->dataCriacao = $data;
-        return $this;
-    }
-
-    public function setDataAlteracao(?DateTimeInterface $data): Tecnico
-    {
-        $this->dataAlteracao = $data;
+        $this->senhaCriptografada = $senhaCriptografada;
         return $this;
     }
 
@@ -92,22 +79,13 @@ class Tecnico
         return $this->clube;
     }
 
-    public function senha(): ?Senha
+    public function senhaCriptografada(): ?SenhaCriptografada
     {
-        return $this->senha;
-    }
-
-    public function dataCriacao(): ?DateTimeInterface
-    {
-        return $this->dataCriacao;
-    }
-
-    public function dataAlteracao(): ?DateTimeInterface
-    {
-        return $this->dataAlteracao;
+        return $this->senhaCriptografada;
     }
 
     public function __serialize(): array {
+        // Não inclui senhaCriptografada
         return [
             'id' => $this->id,
             'email' => $this->email,

@@ -31,7 +31,7 @@ function getDadosConta(PDO $pdo, array $req): Res
         $tecnico = $repo->getViaEmail($email);
         return Res::ok('', [
             'existe'   => $tecnico != null,
-            'temSenha' => $tecnico != null && $tecnico->senha() != null
+            'temSenha' => $tecnico != null && $tecnico->senhaCriptografada() != null
         ]);
     } catch (Exception $e) {
         return Res::erroException($e);
@@ -51,9 +51,7 @@ function realizarLogin(PDO $pdo, array $req)
             return Res::erro('Técnico não encontrado');
         }
 
-        $login = new Login($email, $senha);
-        $ok = $login->validar(senhaCorreta: $tecnico->senha());
-
+        $ok = $tecnico->senhaCriptografada()?->validar($email, $senha) ?? false;
         if (!$ok) {
             return Res::erro('Senha incorreta');
         }

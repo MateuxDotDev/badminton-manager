@@ -1,4 +1,5 @@
 <?php
+use App\Admin\AdminRepository;
 
 require('../../vendor/autoload.php');
 
@@ -14,28 +15,36 @@ loginAdminController()->enviar();
 function loginAdminController(): Response
 {
     $req = Request::getJson();
+    $pdo = Connection::getInstance();
 
     $acao = array_key_exists('acao', $req) ? $req['acao'] : '';
     return match ($acao) {
-        'login' => acaoLogin($req),
+        'login' => acaoLogin($pdo, $req),
         default => Response::erro('Ação inválida', ['acao' => $acao])
     };
 }
 
-function acaoLogin(array $req): Response
+function acaoLogin(PDO $pdo, array $req): Response
 {
     try {
         Request::camposRequeridos($req, ['usuario', 'senha']);
 
-        $login = new Login($req['usuario'], $req['senha']);
-        $repo = new LoginRepository(Connection::getInstance());
-        if ($repo->validateLogin($login)) {
+        $repo = new AdminRepository($pdo);
+        $admin = $repo->getViaNome($req['usuario']);
+        if ($admin === null) {
+            return Response::erro('Usuário administrador não encontrado');
+        }
+
+        $ok = $admin->senhaCriptografada()->validar($req['usuario'], $req['senha']);
+
+        if ($ok) {
             Session::iniciar();
             Session::setAdmin();
-            return Response::justOk();
+            return Response::ok();
         } else {
-            return Response::erro('Usuário ou senha incorretos');
+            return Response::erro('Senha incorreta');
         }
+
     } catch (Exception $e) {
         return Response::erroException($e);
     }

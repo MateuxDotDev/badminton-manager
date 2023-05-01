@@ -41,7 +41,7 @@ Template::head('Login');
                 <input name="email" type="email" class="form-control" required/>
             </div>
             <div class="d-flex flex-column gap-3">
-                <button type="submit" class="btn btn-primary">Continuar</button>
+                <button id="btn-continuar" type="submit" class="btn btn-primary">Continuar</button>
                 <small>Não tem uma conta? <a href="/cadastro">cadastre-se</a>.</small>
             </div>
         </form>
@@ -70,6 +70,11 @@ Template::head('Login');
     const formEmail = document.forms['form-email'];
     const formLogin = document.forms['form-login'];
 
+    const inputSenha = formLogin.senha;
+
+    const btnContinuar = document.querySelector('#btn-continuar')
+    const btnEntrar    = document.querySelector('#btn-entrar')
+
     const etapas = {
         email: {
             elemento: document.querySelector('#etapa-email'),
@@ -95,31 +100,29 @@ Template::head('Login');
     trocarEtapa('email');
 
     formEmail.addEventListener('submit', async (event) => {
-        // TODO animação de carregando em algum lugar
+        // TODO animação de carregando em algum lugar (por enquanto o botão fica meio 'apagado' com o disabled)
+        btnContinuar.setAttribute('disabled', '');
 
         event.preventDefault();
         const email = formEmail.email.value;
         const dadosConta = await getDadosConta(email);
         if (dadosConta == null) {
             alertaErro('Ocorreu um erro inesperado');
-            return;
-        }
-
-        const {existe, temSenha} = dadosConta;
-        if (!existe) {
-            alertaErro('Não existe técnico cadastrado com esse e-mail');
-            return;
-        }
-
-        if (temSenha) {
-            formLogin.email.value = email;
-            trocarEtapa('senha');
         } else {
-            // TODO quando implementarmos login sem precisar de senha
-            // enviar e-mail de confirmação...
-            // trocarEtapa('emailConfirmacao')
+            const {existe, temSenha} = dadosConta;
+            if (!existe) {
+                alertaErro('Não existe técnico cadastrado com esse e-mail');
+            } else if (temSenha) {
+                formLogin.email.value = email;
+                trocarEtapa('senha');
+            } else {
+                // TODO quando implementarmos login sem precisar de senha
+                // enviar e-mail de confirmação...
+                // trocarEtapa('emailConfirmacao')
+            }
         }
 
+        btnContinuar.removeAttribute('disabled');
     });
 
     document.querySelector('#link-voltar').onclick = (event) => {
@@ -127,16 +130,18 @@ Template::head('Login');
         trocarEtapa('email');
     }
 
-    formLogin.addEventListener('submit', (event) => {
+    formLogin.addEventListener('submit', async (event) => {
         event.preventDefault();
-        fazerLogin(
+        btnEntrar.setAttribute('disabled', '');
+        await fazerLogin(
             formLogin.email.value,
             formLogin.senha.value,
         );
+        btnEntrar.removeAttribute('disabled');
     });
 
     async function getDadosConta(email) {
-        // TODO urlencode ou oq for necessário para passar com GET corretamente
+        email = encodeURI(email);
         const response = await fetch(`/login/acao.php?acao=getDadosConta&email=${email}`);
         const texto = await response.text();
         try {
@@ -161,6 +166,7 @@ Template::head('Login');
                 location.assign('/tecnico');
             } else {
                 alertaErro(retorno.mensagem);
+                inputSenha.value = '';
             }
         } catch (err) {
             console.error({ err, texto, response })

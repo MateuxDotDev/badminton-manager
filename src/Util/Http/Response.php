@@ -13,11 +13,6 @@ class Response
         private readonly array $dados = [],
     ) {}
 
-    public static function justOk(): Response
-    {
-        return new Response(200);
-    }
-
     public static function ok(string $mensagem='', array $dados=[]): Response
     {
         return new Response(200, $mensagem, $dados);

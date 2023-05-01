@@ -2,12 +2,10 @@
 
 namespace App\Tecnico;
 
-use App\Senha;
+use App\SenhaCriptografada;
 use \DateTimeImmutable;
 use \PDO;
 use \Exception;
-
-// TODO testes
 
 class TecnicoRepository
 {
@@ -23,19 +21,19 @@ class TecnicoRepository
 
         $sql = <<<SQL
             SELECT t.id,
-                t.email,
-                t.nome_completo,
-                t.informacoes,
-                t.hash_senha,
-                t.salt_senha,
-                c.id as clube_id,
-                c.nome as clube_nome,
-                c.criado_em as clube_criado_em,
-                t.criado_em,
-                t.alterado_em
-            FROM tecnico t
-            JOIN clube c
-              ON c.id = t.clube_id
+                   t.email,
+                   t.nome_completo,
+                   t.informacoes,
+                   t.hash_senha,
+                   t.salt_senha,
+                   c.id as clube_id,
+                   c.nome as clube_nome,
+                   c.criado_em as clube_criado_em,
+                   t.criado_em,
+                   t.alterado_em
+              FROM tecnico t
+              JOIN clube c
+                ON c.id = t.clube_id
         SQL;
 
         if ($chave == 'email') {
@@ -65,12 +63,12 @@ class TecnicoRepository
             ->setDataCriacao(DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $row['clube_criado_em']))
             ;
 
-        $senha = Senha::from($row['hash_senha'], $row['salt_senha']);
+        $senha = SenhaCriptografada::from($row['hash_senha'], $row['salt_senha']);
 
         return (new Tecnico)
             ->setId((int) $row['id'])
             ->setEmail($row['email'])
-            ->setSenha($senha)
+            ->setSenhaCriptografada($senha)
             ->setNomeCompleto($row['nome_completo'])
             ->setInformacoes($row['informacoes'])
             ->setDataCriacao($dataCriacao)
@@ -111,8 +109,8 @@ class TecnicoRepository
                 'nomeCompleto' => $tecnico->nomeCompleto(),
                 'informacoes' => $tecnico->informacoes(),
                 'idClube' => $tecnico->clube()->id(),
-                'hashSenha' => $tecnico->senha()?->hash(),
-                'saltSenha' => $tecnico->senha()?->salt(),
+                'hashSenha' => $tecnico->senhaCriptografada()?->hash(),
+                'saltSenha' => $tecnico->senhaCriptografada()?->salt(),
             ]);
 
             $tecnico->setId($pdo->lastInsertId());
