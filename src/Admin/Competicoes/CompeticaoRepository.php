@@ -19,17 +19,21 @@ readonly class CompeticaoRepository
         $qry = $this->pdo->query("
             SELECT id,
                    nome,
-                   prazo
+                   prazo,
+                   criado_em,
+                   alterado_em
               FROM competicao
-          ORDER BY prazo
-              DESC
+          ORDER BY prazo DESC
         ");
         $competicoes = [];
         foreach ($qry as $linha) {
             $competicoes[] = (new Competicao)
                 ->setId((int) $linha['id'])
                 ->setNome($linha['nome'])
-                ->setPrazo(DateTimeImmutable::createFromFormat('Y-m-d', $linha['prazo']));
+                ->setPrazo(DateTimeImmutable::createFromFormat('Y-m-d', $linha['prazo']))
+                ->setDataAlteracao(DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $linha['alterado_em']))
+                ->setDataCriacao(DateTimeImmutable::createFromFormat('Y-m-d H:i:s.u', $linha['criado_em']))
+                ;
         }
         return $competicoes;
     }
@@ -38,7 +42,7 @@ readonly class CompeticaoRepository
     {
         $stmt = $this->pdo->prepare("
             INSERT INTO competicao (nome, prazo)
-                 VALUES (:nome, :prazo)
+            VALUES (:nome, :prazo)
         ");
         $stmt->execute([
             'nome' => $competicao->nome(),
