@@ -40,7 +40,12 @@ $competicoes = $repository->todasAsCompeticoes();
             <?php foreach ($competicoes as $competicao): ?>
                 <tr>
                     <td><?= $competicao->id() ?></td>
-                    <td><?= $competicao->nome() ?></td>
+                    <td>
+                        <div class="d-flex flex-column">
+                            <span><?= $competicao->nome() ?></span>
+                            <small><?= $competicao->descricao() ?></small>
+                        </div>
+                    </td>
                     <td><?= $competicao->prazo()->format('d/m/Y') ?></td>
                     <td class="td-botao">
                         <button
