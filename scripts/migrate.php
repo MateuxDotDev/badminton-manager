@@ -12,6 +12,9 @@ Este comando cria um arquivo SQL vazio chamado migration_YYYY_MM_DD_HHMMSS_nome_
 2. Execução de migrações: O migrate.php pode executar migrações de banco de dados que ainda não foram executadas. As migrações são armazenadas como arquivos SQL na pasta "migrations". Cada arquivo é lido e os comandos SQL nele contidos são executados no banco de dados.
 
 Exemplo de uso:
+php migrate.php new AdicionarDescricaoACompeticao
+Cria uma nova migration com o nome informado.
+
 php migrate.php migrate
 Este comando executa todas as migrações que ainda não foram executadas.
 
@@ -30,7 +33,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/initPDO.php';
 
 $pdo = initPdo();
-$migrationName = '';
+$migrationPath = '';
 $force = false;
 $action = 'migrate'; // Default action is to run scripts
 $newMigrationName = '';
@@ -38,8 +41,8 @@ $newMigrationName = '';
 foreach ($argv as $index => $arg) {
     if ($arg === 'force') {
         $force = true;
-    } elseif (str_starts_with($arg, 'migration')) {
-        [, $migrationName] = explode('=', $arg);
+    } elseif (str_starts_with($arg, 'migration=')) {
+        [, $migrationPath] = explode('=', $arg);
     } elseif (in_array($arg, ['new', 'latest', 'migrate'])) {
         $action = $arg;
         if ($action === 'new' && isset($argv[$index + 1])) {
@@ -57,19 +60,20 @@ switch ($action) {
         break;
     case 'migrate':
     default:
-        runMigrations($migrationName, $force);
+        runMigrations($migrationPath, $force);
         break;
 }
+echo "\n";
 
 function createNewMigration($name): void
 {
     $namePart = $name !== '' ? '_' . $name : '';
     $migrationName = 'migration_' . date('Y_m_d_His'). $namePart;
-    $filePath = "migrations/$migrationName.sql";
-    if (file_put_contents($filePath, '') !== false) {
-        logMigration("Migration file created: $filePath");
+    $migrationPath = "migrations/$migrationName.sql";
+    if (file_put_contents($migrationPath, '') !== false) {
+        cliLog("Migration file created: $migrationPath");
     } else {
-        logMigration("Error creating migration file: $filePath");
+        cliLog("Error creating migration file: $migrationPath");
     }
 }
 
@@ -88,41 +92,38 @@ function runLatestMigration(): void
     runMigrations($latestFile, false);
 }
 
-function runMigrations(string $migrationName, bool $force): void
+function runMigrations(string $migrationPath, bool $force): void
 {
     $pdo = initPdo();
-    logMigration("Running migrations...");
+    cliLog("Running migrations...");
 
-    if ($migrationName !== '') {
-        if ($force || !migrationAlreadyRun($pdo, $migrationName)) {
-            executeMigration($pdo, $migrationName);
-        } else {
-            logMigration("Migration $migrationName already run");
-        }
+    if (!empty($migrationPath)) {
+        $toRun = [$migrationPath];
     } else {
-        $files = glob('migrations/*.sql');
-        if ($files === false) {
-            die("Error reading migrations folder");
+        $toRun = glob('migrations/*.sql');
+        if ($toRun === false) {
+            dieLog("Error when opening the migrations folder");
         }
-        if (empty($files)) {
-            die("No migration files found");
+        if (empty($toRun)) {
+            dieLog("No migrations found");
         }
-        foreach ($files as $file) {
-            $migrationName = pathinfo($file, PATHINFO_FILENAME);
-            if (str_starts_with($migrationName, '0')) {
-                continue;
-            }
-            if (migrationAlreadyRun($pdo, $migrationName)) {
-                logMigration("Migration $migrationName already run");
-                continue;
-            }
-            if (!executeMigration($pdo, $file)) {
-                // If fails, stop execution
+    }
+
+    foreach ($toRun as $migrationPath) {
+        $migrationName = pathinfo($migrationPath, PATHINFO_FILENAME);
+        $alreadyRan = migrationAlreadyRan($pdo, $migrationName);
+        if ($alreadyRan && !$force) {
+            cliLog("Migration $migrationPath already ran");
+        } else {
+            $success = executeMigration($pdo, $migrationPath);
+            if (!$success) {
+                cliLog("Error running migration $migrationName");
                 break;
             }
         }
     }
-    logMigration("End");
+
+    cliLog("End");
 }
 
 function executeMigration(PDO $pdo, string $directory): bool
@@ -146,9 +147,9 @@ function executeMigration(PDO $pdo, string $directory): bool
 
     $pdo->beginTransaction();
     try {
-        logMigration("Executing commands from script $directory");
+        cliLog("Executing commands from script $directory");
         foreach ($commands as $command) {
-            logMigration("Executing command:\n$command");
+            cliLog("Executing command:\n$command");
             $pdo->query($command);
         }
 
@@ -156,20 +157,20 @@ function executeMigration(PDO $pdo, string $directory): bool
         saveRunMigration($pdo, $migrationName);
 
         $pdo->commit();
-        logMigration("Migration $migrationName executed successfully");
+        cliLog("Migration $migrationName executed successfully");
 
         return true;
 
     } catch (Exception $e) {
         $pdo->rollBack();
         $msg = $e->getMessage();
-        logMigration("Error running migration $directory ($msg)");
+        cliLog("Error running migration $directory ($msg)");
 
         return false;
     }
 }
 
-function migrationAlreadyRun(PDO $pdo, string $nomeMigration): bool
+function migrationAlreadyRan(PDO $pdo, string $nomeMigration): bool
 {
     $stmt = $pdo->prepare("SELECT 1 FROM migration WHERE migration = :migration");
     $stmt->bindParam('migration', $nomeMigration);
@@ -189,8 +190,15 @@ function saveRunMigration(PDO $pdo, string $nomeMigration): void
 }
 
 
-function logMigration(string $s): void
+function cliLog(string $s): void
 {
     $dateTime = date('d/m/Y H:i:s');
-    echo "[$dateTime] => $s\n\n";
+    echo "[$dateTime] => $s\n";
+}
+
+function dieLog(string $s): never
+{
+    cliLog($s);
+    echo "\n";
+    die;
 }

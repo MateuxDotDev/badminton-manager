@@ -22,6 +22,13 @@ class CompeticaoTest extends TestCase
         $this->assertEquals('Teste Nome', $competicao->nome());
     }
 
+    public function testSetAndGetDescricao()
+    {
+        $competicao = new Competicao();
+        $competicao->setDescricao('Teste descricao');
+        $this->assertEquals('Teste descricao', $competicao->descricao());
+    }
+
     public function testSetAndGetPrazo()
     {
         $prazo = new DateTimeImmutable();
@@ -48,12 +55,14 @@ class CompeticaoTest extends TestCase
         $competicao = new Competicao();
         $competicao->setId(10)
             ->setNome('Teste Nome')
-            ->setPrazo($prazo);
+            ->setPrazo($prazo)
+            ->setDescricao('descrição teste');
 
         $expected = [
             'id' => 10,
             'nome' => 'Teste Nome',
-            'prazo' => $prazo->format('Y-m-d')
+            'prazo' => $prazo->format('Y-m-d'),
+            'descricao' => 'descrição teste',
         ];
 
         $this->assertEquals($expected, $competicao->toJson());
