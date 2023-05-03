@@ -1,9 +1,9 @@
 <?php
 
-namespace Tests\Admin\Competicoes;
+namespace Tests\Competicoes;
 
-use App\Admin\Competicoes\Competicao;
-use App\Admin\Competicoes\CompeticaoRepository;
+use App\Competicoes\Competicao;
+use App\Competicoes\CompeticaoRepository;
 use DateTimeImmutable;
 use PDO;
 use PDOStatement;

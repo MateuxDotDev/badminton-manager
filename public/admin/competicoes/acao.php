@@ -2,8 +2,8 @@
 
 require_once('../../../vendor/autoload.php');
 
-use App\Admin\Competicoes\Competicao;
-use App\Admin\Competicoes\CompeticaoRepository;
+use App\Competicoes\Competicao;
+use App\Competicoes\CompeticaoRepository;
 use App\Util\Database\Connection;
 use App\Util\Exceptions\ResponseException;
 use App\Util\Http\Request;

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin\Competicoes;
+namespace App\Competicoes;
 
 use DateTimeImmutable;
 use DateTimeInterface;

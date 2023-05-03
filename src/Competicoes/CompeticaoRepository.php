@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin\Competicoes;
+namespace App\Competicoes;
 
 use DateTimeImmutable;
 use PDO;
@@ -30,6 +30,29 @@ readonly class CompeticaoRepository
             $competicoes[] = (new Competicao)
                 ->setId((int) $linha['id'])
                 ->setNome($linha['nome'])
+                ->setPrazo(DateTimeImmutable::createFromFormat('Y-m-d', $linha['prazo']))
+                ->setDescricao($linha['descricao']);
+        }
+        return $competicoes;
+    }
+
+    public function competicoesAbertas(): array
+    {
+        $qry = $this->pdo->query("
+            SELECT id,
+                   nome,
+                   prazo,
+                   descricao
+              FROM competicao
+             WHERE prazo >= NOW()
+          ORDER BY prazo DESC
+        ");
+        $competicoes = [];
+        foreach ($qry as $linha) {
+            $competicoes[] = (new Competicao)
+                ->setId((int) $linha['id'])
+                ->setNome($linha['nome'])
+                // TODO usar Dates::parseDay após merge
                 ->setPrazo(DateTimeImmutable::createFromFormat('Y-m-d', $linha['prazo']))
                 ->setDescricao($linha['descricao']);
         }
