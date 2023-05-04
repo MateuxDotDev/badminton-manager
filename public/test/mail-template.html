@@ -1,0 +1,20 @@
+<main style="display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 16px 32px; font-family: sans-serif; background-color: #F8F9FA; max-width: 50%; margin: auto;">
+  <img src="{{ link_image }}" style="margin-bottom: 32px;" />
+  <h1 style="margin: 8px 0; width: 100%; font-size: 24px;">Olá {{ nome_tecnico }}!</h1>
+  <p style="margin: 8px 0; width: 100%;">Você recebeu uma nova solicitação de dupla!</p>
+  <table cellspacing="0" style="border: 1px solid #D2D2D2; border-collapse: separate; border-radius: 4px; margin-top: 8px; width: 100%; background-color: white;">
+    <tr>
+      <th style="border: 1px solid #D2D2D2; padding: 8px;">Atleta</th>
+      <th style="border: 1px solid #D2D2D2; padding: 8px;">Clube</th>
+      <th style="border: 1px solid #D2D2D2; padding: 8px;">Técnico</th>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #D2D2D2; padding: 4px;">{{ convite_atleta }}</td>
+      <td style="border: 1px solid #D2D2D2; padding: 4px;">{{ convite_clube }}</td>
+      <td style="border: 1px solid #D2D2D2; padding: 4px;">{{ convite_tecnico }}</td>
+    </tr>
+    <!--...resto do código...-->
+  </table>
+  <a href="{{ link_aceite }}" style="margin-top: 16px; margin-top: 8px; font-size: 14px; text-align: center; background-color: #198754; padding: 8px 16px; border-radius: 4px; cursor: pointer; text-decoration: none; width: 50%; font-weight: bold; color: white;">Clique aqui para ACEITAR o convite.</a>
+  <!--...resto do código...-->
+</main>

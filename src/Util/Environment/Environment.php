@@ -6,34 +6,56 @@ use Dotenv\Dotenv;
 
 class Environment
 {
-    public function __construct()
+    private static bool $envLoaded = false;
+
+    private static function loadEnv(): void
     {
-        $dotenv = Dotenv::createImmutable(__DIR__ . '/../..');
-        $dotenv->safeLoad();
+        if (!self::$envLoaded) {
+            $dotenv = Dotenv::createImmutable(__DIR__ . '/../../../');
+            $dotenv->load();
+            self::$envLoaded = true;
+        }
     }
 
     public static function getPostgresUser(): string
     {
-        return getenv('POSTGRES_USER');
+        self::loadEnv();
+        return $_ENV['POSTGRES_USER'];
     }
 
     public static function getPostgresPassword(): string
     {
-        return getenv('POSTGRES_PASSWORD');
+        self::loadEnv();
+        return $_ENV['POSTGRES_PASSWORD'];
     }
 
     public static function getPostgresDb(): string
     {
-        return getenv('POSTGRES_DB');
+        self::loadEnv();
+        return $_ENV['POSTGRES_DB'];
     }
 
     public static function getPostgresHost(): string
     {
-        return getenv('POSTGRES_HOST');
+        self::loadEnv();
+        return $_ENV['POSTGRES_HOST'];
     }
 
     public static function getPostgresPort(): int
     {
-        return (int) getenv('POSTGRES_PORT');
+        self::loadEnv();
+        return (int) $_ENV['POSTGRES_PORT'];
+    }
+
+    public static function getMailUsername(): string
+    {
+        self::loadEnv();
+        return $_ENV['MAIL_USERNAME'];
+    }
+
+    public static function getMailPassword(): string
+    {
+        self::loadEnv();
+        return $_ENV['MAIL_PASSWORD'];
     }
 }
