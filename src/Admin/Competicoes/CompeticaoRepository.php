@@ -20,6 +20,7 @@ readonly class CompeticaoRepository
             SELECT id,
                    nome,
                    prazo,
+                   descricao,
                    criado_em,
                    alterado_em
               FROM competicao
@@ -30,6 +31,7 @@ readonly class CompeticaoRepository
             $competicoes[] = (new Competicao)
                 ->setId((int) $linha['id'])
                 ->setNome($linha['nome'])
+                ->setDescricao($linha['descricao'])
                 ->setPrazo(Dates::parseDay($linha['prazo']))
                 ->setDataAlteracao(Dates::parseMicro($linha['alterado_em']))
                 ->setDataCriacao(Dates::parseMicro($linha['criado_em']))
@@ -41,12 +43,13 @@ readonly class CompeticaoRepository
     public function criarCompeticao(Competicao $competicao): int
     {
         $stmt = $this->pdo->prepare("
-            INSERT INTO competicao (nome, prazo)
-            VALUES (:nome, :prazo)
+            INSERT INTO competicao (nome, prazo, descricao)
+                 VALUES (:nome, :prazo, :descricao)
         ");
         $stmt->execute([
             'nome' => $competicao->nome(),
             'prazo' => $competicao->prazo()->format('Y-m-d'),
+            'descricao' => $competicao->descricao()
         ]);
         $id = $this->pdo->lastInsertId();
         $competicao->setId($id);
@@ -59,6 +62,7 @@ readonly class CompeticaoRepository
           UPDATE competicao
              SET nome = :nome,
                  prazo = :prazo,
+                 descricao = :descricao,
                  alterado_em = NOW()
            WHERE id = :id
         ");
@@ -66,6 +70,7 @@ readonly class CompeticaoRepository
             'id' => $competicao->id(),
             'nome' => $competicao->nome(),
             'prazo' => $competicao->prazo()->format('Y-m-d'),
+            'descricao' => $competicao->descricao()
         ]);
         return $stmt->rowCount() == 1;
     }

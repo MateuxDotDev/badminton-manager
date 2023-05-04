@@ -1,6 +1,4 @@
 <?php
-use App\Util\Dates;
-
 require_once('../../../vendor/autoload.php');
 
 use App\Admin\Competicoes\Competicao;
@@ -8,6 +6,7 @@ use App\Admin\Competicoes\CompeticaoRepository;
 use App\Util\Database\Connection;
 use App\Util\Exceptions\ResponseException;
 use App\Util\Http\Request;
+use App\Util\Dates;
 use App\Util\Http\Response;
 use App\Util\SessionOld;
 
@@ -45,11 +44,16 @@ function criarCompeticao(array $req): Response
         Request::camposRequeridos($req, ['nome', 'prazo']);
         $nome = $req['nome'];
         $prazo = Dates::parseDay($req['prazo']);
+        $descricao = $req['descricao'];
         if ($prazo === false) {
             throw new ResponseException(Response::erro("Prazo inválido"));
         }
 
-        $competicao = (new Competicao)->setNome($nome)->setPrazo($prazo);
+        $competicao = (new Competicao)
+            ->setNome($nome)
+            ->setPrazo($prazo)
+            ->setDescricao($descricao);
+
         if ($competicao->prazoPassou()) {
             throw new ResponseException(Response::erro("Prazo deve ser no futuro"));
         }
@@ -89,6 +93,7 @@ function alterarCompeticao(array $req): Response
         $id = $req['id'];
         $nome = $req['nome'];
         $prazo = Dates::parseDay($req['prazo']);
+        $descricao = $req['descricao'];
         if ($prazo === false) {
             throw new ResponseException(Response::erro("Prazo inválido"));
         }
@@ -96,7 +101,9 @@ function alterarCompeticao(array $req): Response
         $competicao = (new Competicao)
             ->setId($id)
             ->setNome($nome)
-            ->setPrazo($prazo);
+            ->setPrazo($prazo)
+            ->setDescricao($descricao);
+
         if ($competicao->prazoPassou()) {
             throw new ResponseException(Response::erro("Prazo deve ser no futuro"));
         }
