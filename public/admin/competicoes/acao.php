@@ -41,14 +41,19 @@ function competicaoController(): Response
 function criarCompeticao(array $req): Response
 {
     try {
-        Request::camposSaoValidos($req, ['nome', 'prazo']);
+        Request::camposSaoValidos($req, ['nome', 'prazo', 'descricao']);
         $nome = $req['nome'];
+        $descricao = $req['descricao'];
         $prazo = DateTimeImmutable::createFromFormat('Y-m-d', $req['prazo']);
         if ($prazo === false) {
             throw new ResponseException(Response::erro("Prazo inválido"));
         }
 
-        $competicao = (new Competicao)->setNome($nome)->setPrazo($prazo);
+        $competicao = (new Competicao)
+            ->setNome($nome)
+            ->setPrazo($prazo)
+            ->setDescricao($descricao);
+
         if ($competicao->prazoPassou()) {
             throw new ResponseException(Response::erro("Prazo deve ser no futuro"));
         }
@@ -83,10 +88,11 @@ function excluirCompeticao(array $req): Response
 function alterarCompeticao(array $req): Response
 {
     try {
-        Request::camposSaoValidos($req, ['id', 'nome', 'prazo']);
+        Request::camposSaoValidos($req, ['id', 'nome', 'prazo', 'descricao']);
 
         $id = $req['id'];
         $nome = $req['nome'];
+        $descricao = $req['descricao'];
         $prazo = DateTimeImmutable::createFromFormat('Y-m-d', $req['prazo']);
         if ($prazo === false) {
             throw new ResponseException(Response::erro("Prazo inválido"));
@@ -95,7 +101,9 @@ function alterarCompeticao(array $req): Response
         $competicao = (new Competicao)
             ->setId($id)
             ->setNome($nome)
-            ->setPrazo($prazo);
+            ->setPrazo($prazo)
+            ->setDescricao($descricao);
+
         if ($competicao->prazoPassou()) {
             throw new ResponseException(Response::erro("Prazo deve ser no futuro"));
         }

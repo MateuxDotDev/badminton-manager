@@ -4,8 +4,8 @@ require_once('../../../vendor/autoload.php');
 
 use App\Admin\Competicoes\CompeticaoRepository;
 use App\Util\Database\Connection;
-use App\Util\Session;
 use App\Util\Template\Template;
+use App\Util\Session;
 
 Session::iniciar();
 
@@ -40,7 +40,12 @@ $competicoes = $repository->todasAsCompeticoes();
             <?php foreach ($competicoes as $competicao): ?>
                 <tr>
                     <td><?= $competicao->id() ?></td>
-                    <td><?= $competicao->nome() ?></td>
+                    <td>
+                        <div class="d-flex flex-column">
+                            <span><?= $competicao->nome() ?></span>
+                            <small><?= $competicao->descricao() ?></small>
+                        </div>
+                    </td>
                     <td><?= $competicao->prazo()->format('d/m/Y') ?></td>
                     <td class="td-botao">
                         <button
@@ -84,6 +89,10 @@ $competicoes = $repository->todasAsCompeticoes();
                         <input class="form-control" type="text" name="nome" required/>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" name="descricao"></textarea>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Prazo</label>
                         <input class="form-control" type="date" name="prazo" required/>
                     </div>
@@ -110,6 +119,10 @@ $competicoes = $repository->todasAsCompeticoes();
                     <div class="mb-3">
                         <label class="form-label" for="nome">Nome</label>
                         <input class="form-control" type="text" id="nome" name="nome" required/>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" name="descricao"></textarea>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="prazo">Prazo</label>
@@ -156,7 +169,7 @@ $competicoes = $repository->todasAsCompeticoes();
     formNovaCompeticao.addEventListener('submit', (event) => {
         event.preventDefault();
         const form = formNovaCompeticao;
-        criarCompeticao(form.nome.value, form.prazo.value);
+        criarCompeticao(form.nome.value, form.prazo.value, form.descricao.value);
     });
 
     {
@@ -181,11 +194,12 @@ $competicoes = $repository->todasAsCompeticoes();
         }
     }
 
-    async function criarCompeticao(nome, prazo) {
+    async function criarCompeticao(nome, prazo, descricao) {
         const dados = {
             acao: 'criarCompeticao',
             nome,
-            prazo
+            prazo,
+            descricao
         };
         const response = await fetch('/admin/competicoes/acao.php', {
             method: 'POST',
@@ -243,15 +257,17 @@ $competicoes = $repository->todasAsCompeticoes();
     }
 
     function abrirModalAlterarCompeticao(id) {
-        const { nome, prazo } = competicoes[id];
+        const { nome, prazo, descricao } = competicoes[id];
         const { form, botaoSubmit, modal } = alterar;
         form.id.value = id;
         form.nome.value = nome;
         form.prazo.value = prazo;
+        form.descricao.value = descricao;
         botaoSubmit.removeAttribute('disabled');
         modal.show();
     }
 
+    // Após fechar modal de alterar competição
     alterar.elemento.addEventListener('hidden.bs.modal', () => {
         alterar.form.id.value = '';
         alterar.botaoSubmit.setAttribute('disabled', 'disabled');
@@ -260,18 +276,20 @@ $competicoes = $repository->todasAsCompeticoes();
     alterar.form.addEventListener('submit', event => {
         event.preventDefault();
         const {form} = alterar;
-        const id    = form.id.value;
-        const nome  = form.nome.value;
-        const prazo = form.prazo.value;
-        alterarCompeticao(id, nome, prazo);
+        const id        = form.id.value;
+        const nome      = form.nome.value;
+        const prazo     = form.prazo.value;
+        const descricao = form.descricao.value;
+        alterarCompeticao(id, nome, prazo, descricao);
     });
 
-    async function alterarCompeticao(id, nome, prazo) {
+    async function alterarCompeticao(id, nome, prazo, descricao) {
         const dados = {
             acao: 'alterarCompeticao',
             id,
             nome,
             prazo,
+            descricao,
         };
         const response = await fetch('/admin/competicoes/acao.php', {
             method: 'PUT',
