@@ -1,4 +1,7 @@
 <?php
+
+namespace Tests;
+
 use App\SenhaCriptografada;
 use PHPUnit\Framework\TestCase;
 

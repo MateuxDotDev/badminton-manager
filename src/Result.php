@@ -19,12 +19,12 @@ readonly class Result
         return $this->data;
     }
 
-    public static function ok(mixed $data=null)
+    public static function ok(mixed $data = null): Result
     {
         return new Result(true, $data);
     }
 
-    public static function error(mixed $data=null)
+    public static function error(mixed $data = null): Result
     {
         return new Result(false, $data);
     }

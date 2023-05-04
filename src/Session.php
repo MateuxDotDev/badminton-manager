@@ -8,7 +8,7 @@ class Session
 {
     private array $data;
 
-    public static function obj()
+    public static function obj(): Session
     {
         return new self($_SESSION);
     }
@@ -27,7 +27,6 @@ class Session
     {
         return array_key_exists('tipo', $this->data) && $this->data['tipo'] == $tipo;
     }
-
 
     public function setAdmin(): void
     {

@@ -84,7 +84,8 @@ class Tecnico
         return $this->senhaCriptografada;
     }
 
-    public function __serialize(): array {
+    public function __serialize(): array
+    {
         // Não inclui senhaCriptografada
         return [
             'id' => $this->id,

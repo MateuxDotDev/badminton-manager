@@ -6,12 +6,12 @@ use App\Result;
 use App\Util\Exceptions\ResponseException;
 use Exception;
 
-class Response
+readonly class Response
 {
     public function __construct(
-        private readonly int $code = 200,
-        private readonly string $mensagem = '',
-        private readonly array $dados = [],
+        private int    $code = 200,
+        private string $mensagem = '',
+        private array  $dados = [],
     ) {}
 
     public static function ok(string $mensagem='', array $dados=[]): Response
@@ -60,7 +60,7 @@ class Response
         } else {
             if ($data instanceof Exception) {
                 return self::erroException($data);
-            } else if (is_string($data)) {
+            } elseif (is_string($data)) {
                 return self::erro($data);
             } else {
                 return self::erro('Ocorreu um erro inesperado', $data);

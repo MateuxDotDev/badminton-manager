@@ -1,5 +1,7 @@
 <?php
-use App\Admin\Login\Login;
+
+require_once(__DIR__.'/../../vendor/autoload.php');
+
 use App\Session;
 use App\Tecnico\Conta\LoginDTO;
 use App\Tecnico\Conta\RealizarLogin;
@@ -7,9 +9,6 @@ use App\Tecnico\TecnicoRepository;
 use App\Util\Database\Connection;
 use App\Util\Http\Request as Req;
 use App\Util\Http\Response as Res;
-use App\Util\SessionOld;
-
-require_once(__DIR__.'/../../vendor/autoload.php');
 
 loginController()->enviar();
 
@@ -41,7 +40,7 @@ function getDadosConta(PDO $pdo, array $req): Res
     }
 }
 
-function realizarLogin(PDO $pdo, array $req)
+function realizarLogin(PDO $pdo, array $req): Res
 {
     $parsed = LoginDTO::parse($req);
     if ($parsed instanceof LoginDTO) {

@@ -2,11 +2,11 @@
 
 namespace App;
 
-class SenhaCriptografada
+readonly class SenhaCriptografada
 {
     public function __construct(
-        private readonly string $hash,
-        private readonly string $salt,
+        private string $hash,
+        private string $salt,
     ) {}
 
     public function hash(): string
@@ -27,7 +27,10 @@ class SenhaCriptografada
         return null;
     }
 
-    private static function gerarSalt()
+    /**
+     * @throws \Exception
+     */
+    private static function gerarSalt(): string
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $salt = '';
@@ -37,6 +40,9 @@ class SenhaCriptografada
         return $salt;
     }
 
+    /**
+     * @throws \Exception
+     */
     public static function criptografar(string $usuario, string $senha, int $cost=12): SenhaCriptografada
     {
         $salt = self::gerarSalt();

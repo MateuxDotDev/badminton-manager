@@ -5,10 +5,10 @@ use App\SenhaCriptografada;
 use App\Util\Dates;
 use \PDO;
 
-class AdminRepository
+readonly class AdminRepository
 {
     public function __construct(
-        private readonly PDO $pdo
+        private PDO $pdo
     ) {}
 
     public function getViaNome(string $nome): ?Admin

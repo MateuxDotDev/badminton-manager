@@ -1,7 +1,8 @@
 <?php
-use App\Util\Template\Template;
 
 require_once(__DIR__.'/../../vendor/autoload.php');
+
+use App\Util\Template\Template;
 
 Template::head('Login');
 ?>
@@ -50,12 +51,12 @@ Template::head('Login');
     <div id="etapa-senha" style="display: none">
         <form name="form-login">
             <div class="mb-3">
-                <label class="form-label">E-mail</label>
-                <input name="email" type="text" class="form-control" readonly disabled>
+                <label class="form-label" for="email">E-mail</label>
+                <input name="email" type="text" class="form-control" id="email" readonly disabled>
             </div>
             <div class="mb-3">
-                <label class="form-label">Senha</label>
-                <input class="form-control" type="password" name="senha" required/>
+                <label class="form-label" for="senha">Senha</label>
+                <input class="form-control" type="password" id="senha" name="senha" required/>
             </div>
             <div class="d-flex flex-column gap-3">
                 <button id="btn-entrar" type="submit" class="btn btn-primary">Entrar</button>
@@ -145,8 +146,7 @@ Template::head('Login');
         const response = await fetch(`/login/acao.php?acao=getDadosConta&email=${email}`);
         const texto = await response.text();
         try {
-            const json = JSON.parse(texto);
-            return json;
+            return JSON.parse(texto);
         } catch (err) {
             console.error({ err, texto, response })
             return null;

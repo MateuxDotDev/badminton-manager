@@ -1,11 +1,12 @@
 <?php
-use App\SenhaCriptografada;
 
 require_once(__DIR__.'/../../vendor/autoload.php');
+
 use App\Tecnico\{TecnicoRepository, Tecnico, Clube};
 use App\Util\Database\Connection;
 use App\Util\Exceptions\ResponseException;
 use App\Util\Http\{Request, Response};
+use App\SenhaCriptografada;
 
 try {
     cadastroController()->enviar();
@@ -59,7 +60,6 @@ function realizarCadastro(PDO $pdo, array $req): Response {
             'id' => $tecnico->id(),
             'idClube' => $tecnico->clube()->id(),
         ]);
-
     } catch (Exception $e) {
         return Response::erroException($e);
     }

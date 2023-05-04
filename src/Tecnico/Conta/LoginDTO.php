@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Tecnico\Conta;
-use App\Result;
 
 readonly class LoginDTO
 {
@@ -12,8 +11,12 @@ readonly class LoginDTO
 
     public static function parse(array $a): LoginDTO|string
     {
-        if (!array_key_exists('email', $a)) return 'E-mail faltando';
-        if (!array_key_exists('senha', $a)) return 'Senha faltando';
+        if (!array_key_exists('email', $a)) {
+            return 'E-mail faltando';
+        }
+        if (!array_key_exists('senha', $a)) {
+            return 'Senha faltando';
+        }
 
         $email = filter_var($a['email'], FILTER_SANITIZE_EMAIL);
         $senha = $a['senha'];

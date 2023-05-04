@@ -7,12 +7,15 @@ use App\Util\Dates;
 use \PDO;
 use \Exception;
 
-class TecnicoRepository
+readonly class TecnicoRepository
 {
     public function __construct(
-        private readonly PDO $pdo
+        private PDO $pdo
     ) {}
 
+    /**
+     * @throws Exception
+     */
     private function getViaChave(string $chave, string $valor): ?Tecnico
     {
         if ($chave != 'email' && $chave != 'id') {
@@ -77,16 +80,25 @@ class TecnicoRepository
             ;
     }
 
+    /**
+     * @throws Exception
+     */
     public function getViaEmail(string $email): ?Tecnico
     {
         return $this->getViaChave('email', $email);
     }
 
+    /**
+     * @throws Exception
+     */
     public function getViaId(int $id): ?Tecnico
     {
         return $this->getViaChave('id', (string) $id);
     }
 
+    /**
+     * @throws Exception
+     */
     public function criarTecnico(Tecnico $tecnico): void
     {
         $pdo = $this->pdo;

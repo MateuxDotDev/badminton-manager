@@ -1,4 +1,7 @@
 <?php
+
+namespace Tests\Tecnico;
+
 use App\SenhaCriptografada;
 use App\Session;
 use App\Tecnico\Clube;
@@ -67,7 +70,7 @@ class RealizarLoginTest extends TestCase
         $this->assertTrue($result->isOk());
         $this->assertNotEmpty($this->session);
         $this->assertArrayHasKey('tipo', $this->session);
-        $this->assertEquals($this->session['tipo'], 'tecnico');
+        $this->assertEquals('tecnico', $this->session['tipo']);
         $this->assertArrayHasKey('tecnico', $this->session);
 
         $tecnico = unserialize($this->session['tecnico']);
@@ -79,7 +82,7 @@ class RealizarLoginTest extends TestCase
         $dto = new LoginDTO('tec@ni.co', 'senhaIncorreta');
         $result = ($this->realizarLogin)($dto);
         $this->assertFalse($result->isOk());
-        $this->assertEquals($result->data(), 'Senha incorreta');
+        $this->assertEquals('Senha incorreta', $result->data());
     }
     
     public function testLoginSemSenha()
@@ -87,7 +90,7 @@ class RealizarLoginTest extends TestCase
         $dto = new LoginDTO('bad@minton', '');
         $result = ($this->realizarLogin)($dto);
         $this->assertFalse($result->isOk());
-        $this->assertEquals($result->data(), 'Técnico não tem senha');
+        $this->assertEquals('Técnico não tem senha', $result->data());
         $this->assertEmpty($this->session);
     }
 
@@ -96,7 +99,7 @@ class RealizarLoginTest extends TestCase
         $dto = new LoginDTO('asdf@hjkl', '');
         $result = ($this->realizarLogin)($dto);
         $this->assertFalse($result->isOk());
-        $this->assertEquals($result->data(), 'Técnico não encontrado');
+        $this->assertEquals('Técnico não encontrado', $result->data());
         $this->assertEmpty($this->session);
     }
 }

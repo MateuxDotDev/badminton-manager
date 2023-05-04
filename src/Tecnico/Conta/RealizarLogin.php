@@ -10,11 +10,11 @@ use Exception;
 
 // implementa somente login quando técnico tem senha
 // para técnico sem senha, requerindo e-mail de confirmação, é (será) feito num lugar diferente
-class RealizarLogin
+readonly class RealizarLogin
 {
     public function __construct(
-        private readonly TecnicoRepository $repo,
-        private readonly Session $session,
+        private TecnicoRepository $repo,
+        private Session           $session,
     ) {}
 
     public function __invoke(LoginDTO $login): Result
