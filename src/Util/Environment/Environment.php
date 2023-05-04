@@ -2,46 +2,38 @@
 
 namespace App\Util\Environment;
 
+use Dotenv\Dotenv;
+
 class Environment
 {
-    private static ?EnvironmentAdapterInterface $environmentAdapter = null;
-
-    public static function setEnvironmentAdapter(?EnvironmentAdapterInterface $adapter): void
+    public function __construct()
     {
-        self::$environmentAdapter = $adapter;
-    }
-
-    public static function getEnvironmentAdapter(): EnvironmentAdapterInterface
-    {
-        if (self::$environmentAdapter === null) {
-            self::$environmentAdapter = new EnvironmentAdapter();
-        }
-
-        return self::$environmentAdapter;
+        $dotenv = Dotenv::createImmutable(__DIR__ . '/../..');
+        $dotenv->safeLoad();
     }
 
     public static function getPostgresUser(): string
     {
-        return self::getEnvironmentAdapter()->get('POSTGRES_USER');
+        return getenv('POSTGRES_USER');
     }
 
     public static function getPostgresPassword(): string
     {
-        return self::getEnvironmentAdapter()->get('POSTGRES_PASSWORD');
+        return getenv('POSTGRES_PASSWORD');
     }
 
     public static function getPostgresDb(): string
     {
-        return self::getEnvironmentAdapter()->get('POSTGRES_DB');
+        return getenv('POSTGRES_DB');
     }
 
     public static function getPostgresHost(): string
     {
-        return self::getEnvironmentAdapter()->get('POSTGRES_HOST');
+        return getenv('POSTGRES_HOST');
     }
 
     public static function getPostgresPort(): int
     {
-        return (int) self::getEnvironmentAdapter()->get('POSTGRES_PORT');
+        return (int) getenv('POSTGRES_PORT');
     }
 }
