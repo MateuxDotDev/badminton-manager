@@ -15,8 +15,6 @@ $displayTabela = empty($competicoes) ? 'none' : 'table';
 Template::head('Competições abertas');
 
 // TODO if tecnico logado { mostrar nav de técnico }
-
-$json = array_map(fn($c) => $c->toJson(), $competicoes);
 ?>
 
 <main class="container">
@@ -76,62 +74,9 @@ $json = array_map(fn($c) => $c->toJson(), $competicoes);
 <?php Template::scripts() ?>
 
 <script>
-    // TODO fazer num script competicoes.js separado?
-    // intellisense funciona um pouco melhor
-
-    const inputPesquisa = document.querySelector('#pesquisa');
-    const nenhumaEncontrada = document.querySelector('#nenhuma-competicao-encontrada');
-    const tabelaCompeticoes = document.querySelector('#tabela-competicoes');
-    const competicoes = <?= json_encode($json) ?>;
-
-    const linhaCompeticao = new Map();
-    for (const tr of tabelaCompeticoes.rows) {
-        const id = Number(tr.getAttribute('data-id'))
-        linhaCompeticao.set(id, tr);
-    }
-
-    // algoritmo ineficiente
-    // mas ok enquanto o sistema não tiver muitas competições abertas a cada momento
-
-    /**
-     * @param {array} termos
-     * @param {string} texto
-     */
-    function match(termos, texto) {
-        for (const termo of termos) {
-            if (texto.includes(termo)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @param {array} termos
-     */
-    function pesquisar(termos) {
-        let algumaEncontrada = false; 
-        for (const competicao of competicoes) {
-            const ok = match(termos, competicao.nome) || match(termos, competicao.descricao);
-            linha = linhaCompeticao.get(competicao.id);
-            linha.style.display = ok ? 'table-row' : 'none';
-            algumaEncontrada ||= ok;
-        }
-        tabelaCompeticoes.style.display = algumaEncontrada ? 'table' : 'none';
-        nenhumaEncontrada.style.display = algumaEncontrada ? 'none' : 'block';
-    }
-
-    // debounce
-    let timeoutPesquisa = null;
-    inputPesquisa.addEventListener('keydown', () => {
-        if (timeoutPesquisa) {
-            clearTimeout(timeoutPesquisa);
-        }
-        timeoutPesquisa = setTimeout(() => {
-            const termos = (inputPesquisa.value ?? '').split(/\s+/);
-            pesquisar(termos)
-        }, 200);
-    });
+    const competicoes = <?= json_encode(array_map(fn($c) => $c->toJson(), $competicoes)) ?>;
 </script>
+
+<script src="/tecnico/competicoes.js"></script>
 
 <?php Template::footer() ?>
