@@ -3,20 +3,20 @@
 namespace App\Tecnico\Conta;
 
 use App\Tecnico\TecnicoRepository;
-use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
 use App\Util\Http\HttpStatus;
-use Exception;
+use App\Util\Exceptions\ValidatorException;
+use \Exception;
 
 /**
  * Implementa somente login quando técnico tem senha
  * Para técnico sem senha, requerendo e-mail de confirmação, é (será) feito num lugar diferente
  */
-readonly class RealizarLogin
+class RealizarLogin
 {
     public function __construct(
-        private TecnicoRepository $repo,
-        private UserSession       $session,
+        private readonly TecnicoRepository $repo,
+        private readonly UserSession       $session,
     ) {}
 
     /**

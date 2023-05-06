@@ -2,6 +2,7 @@
 
 namespace App\Tecnico\Conta;
 
+use App\Util\Http\HttpStatus;
 use App\Tecnico\TecnicoRepositoryInterface;
 use App\Tecnico\Tecnico;
 use App\Tecnico\Clube;
@@ -24,7 +25,7 @@ readonly class Cadastrar
 
         $jaExiste = null !== $repo->getViaEmail($dto->email);
         if ($jaExiste) {
-            throw new ValidatorException('Esse e-mail já está sendo usado por outro técnico', 403);
+            throw new ValidatorException('Esse e-mail já está sendo usado por outro técnico', HttpStatus::FORBIDDEN);
         }
     
         $senha = SenhaCriptografada::criptografar($dto->email, $dto->senha);

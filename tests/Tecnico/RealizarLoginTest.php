@@ -7,12 +7,11 @@ use App\Tecnico\Conta\LoginDTO;
 use App\Tecnico\Conta\RealizarLogin;
 use App\Tecnico\Tecnico;
 use App\Tecnico\TecnicoRepository;
-use App\Util\Exceptions\ValidatorException;
-use App\Util\General\Dates;
-use App\Util\General\SenhaCriptografada;
-use App\Util\General\UserSession;
-use Exception;
+use App\Util\General\{Dates, SenhaCriptografada, UserSession};
+use \Exception;
+use \Throwable;
 use PHPUnit\Framework\TestCase;
+use App\Util\Exceptions\ValidatorException;
 
 class RealizarLoginTest extends TestCase
 {
@@ -20,7 +19,7 @@ class RealizarLoginTest extends TestCase
     private RealizarLogin $realizarLogin;
 
     /**
-     * @throws \Exception|Exception|\PHPUnit\Framework\MockObject\Exception
+     * @throws Exception|\PHPUnit\Framework\MockObject\Exception
      */
     protected function setUp(): void
     {
@@ -93,7 +92,7 @@ class RealizarLoginTest extends TestCase
             ($this->realizarLogin)($dto);
         } catch (Exception $e) {}
         $this->assertNotNull($e);
-        $this->assertInstanceOf($e, ValidatorException::class);
+        $this->assertInstanceOf(ValidatorException::class, $e);
         $this->assertEquals('Senha incorreta', $e->getMessage());
     }
     
@@ -105,7 +104,7 @@ class RealizarLoginTest extends TestCase
             ($this->realizarLogin)($dto);
         } catch (Exception $e) { }
         $this->assertNotNull($e);
-        $this->assertInstanceOf($e, ValidatorException::class);
+        $this->assertInstanceOf(ValidatorException::class, $e);
         $this->assertEquals('Técnico não tem senha', $e->getMessage());
         $this->assertEmpty($this->session);
     }
@@ -118,7 +117,7 @@ class RealizarLoginTest extends TestCase
             ($this->realizarLogin)($dto);
         } catch (Exception $e) { }
         $this->assertNotNull($e);
-        $this->assertInstanceOf($e, ValidatorException::class);
+        $this->assertInstanceOf(ValidatorException::class, $e);
         $this->assertEquals('Técnico não encontrado', $e->getMessage());
         $this->assertEmpty($this->session);
     }
