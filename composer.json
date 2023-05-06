@@ -7,6 +7,10 @@
         {
             "name": "Mateus Lucas Cruz Brandt",
             "email": "mateus.brandt@edu.udesc.br"
+        },
+        {
+            "name": "Lucas Moares Schwambach",
+            "email": "lucas.schwambach@edu.udesc.br"
         }
     ],
     "require": {

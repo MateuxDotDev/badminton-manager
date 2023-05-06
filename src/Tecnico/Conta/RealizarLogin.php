@@ -2,14 +2,16 @@
 
 namespace App\Tecnico\Conta;
 
-use App\Tecnico\TecnicoRepository;
-
 use App\Result;
 use App\Session;
+use App\Tecnico\TecnicoRepository;
+use App\Util\Exceptions\ValidatorException;
 use Exception;
 
-// implementa somente login quando técnico tem senha
-// para técnico sem senha, requerindo e-mail de confirmação, é (será) feito num lugar diferente
+/**
+ * Implementa somente login quando técnico tem senha
+ * Para técnico sem senha, requerendo e-mail de confirmação, é (será) feito num lugar diferente
+ */
 readonly class RealizarLogin
 {
     public function __construct(
@@ -19,29 +21,27 @@ readonly class RealizarLogin
 
     public function __invoke(LoginDTO $login): Result
     {
-        $repo    = $this->repo;
-        $session = $this->session;
-
         try {
-            $tecnico = $repo->getViaEmail($login->email);
+            $tecnico = $this->repo->getViaEmail($login->email);
             if ($tecnico === null) {
-                return Result::error('Técnico não encontrado');
+                throw new ValidatorException('Técnico não encontrado', 404);
             }
+
+            $senha = $tecnico->senhaCriptografada();
+            if ($senha === null) {
+                throw new ValidatorException('Técnico não tem senha', 403);
+            }
+            $ok = $senha->validar($login->email, $login->senha);
+            if (!$ok) {
+                throw new ValidatorException('Senha incorreta', 401);
+            }
+
+            $this->session->setTecnico($tecnico);
+            return Result::ok();
+        } catch (ValidatorException $e) {
+            return Result::error($e->getMessage());
         } catch (Exception $e) {
             return Result::error($e);
         }
-
-        $senha = $tecnico->senhaCriptografada();
-        if ($senha === null) {
-            return Result::error('Técnico não tem senha');
-        }
-        $ok = $senha->validar($login->email, $login->senha);
-        if (!$ok) {
-            return Result::error('Senha incorreta');
-        }
-
-        $session->setTecnico($tecnico);
-
-        return Result::ok();
     }
 }

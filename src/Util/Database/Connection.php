@@ -39,9 +39,4 @@ class Connection
 
         return self::$instance;
     }
-
-    public function setInstance(PDO $instance): void
-    {
-        self::$instance = $instance;
-    }
 }

@@ -3,7 +3,7 @@ namespace App\Admin;
 
 use App\SenhaCriptografada;
 use App\Util\Dates;
-use \PDO;
+use PDO;
 
 readonly class AdminRepository
 {

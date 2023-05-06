@@ -2,25 +2,23 @@
 
 namespace App\Util\Exceptions;
 
+use App\Util\Http\Response;
 use Exception;
 
 class ValidatorException extends Exception
 {
-    private string $status;
-    private array $errors;
+    private int $statusCode;
+    private string $errorMessage;
 
-    public function __construct(string $status, array $errors)
+    public function __construct($errorMessage, $statusCode = 400)
     {
-        parent::__construct($status);
-        $this->status = $status;
-        $this->errors = $errors;
+        parent::__construct($errorMessage);
+        $this->statusCode = $statusCode;
+        $this->errorMessage = $errorMessage;
     }
 
-    public function __toString(): string
+    public function toResponse(): Response
     {
-        return json_encode([
-            'status' => $this->status,
-            'errors' => $this->errors
-        ]);
+        return new Response($this->statusCode, $this->errorMessage);
     }
 }

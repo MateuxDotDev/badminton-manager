@@ -44,7 +44,6 @@ function realizarLogin(PDO $pdo, array $req): Res
 {
     $parsed = LoginDTO::parse($req);
     if ($parsed instanceof LoginDTO) {
-
         session_start();
         $repo = new TecnicoRepository($pdo);
         $session = Session::obj();

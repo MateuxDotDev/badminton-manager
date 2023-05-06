@@ -2,7 +2,7 @@
 
 namespace App;
 
-use \DateTimeInterface;
+use DateTimeInterface;
 
 trait TemDataCriacao
 {

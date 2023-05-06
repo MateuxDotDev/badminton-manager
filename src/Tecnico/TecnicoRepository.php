@@ -1,16 +1,16 @@
-<?php
+<?php /** @noinspection PhpClassCanBeReadonlyInspection */
 
 namespace App\Tecnico;
 
 use App\SenhaCriptografada;
 use App\Util\Dates;
-use \PDO;
-use \Exception;
+use Exception;
+use PDO;
 
-readonly class TecnicoRepository
+class TecnicoRepository
 {
     public function __construct(
-        private PDO $pdo
+        private readonly PDO $pdo
     ) {}
 
     /**

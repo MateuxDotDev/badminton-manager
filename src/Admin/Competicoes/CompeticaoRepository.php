@@ -3,7 +3,7 @@
 namespace App\Admin\Competicoes;
 
 use App\Util\Dates;
-use \PDO;
+use PDO;
 
 readonly class CompeticaoRepository
 {

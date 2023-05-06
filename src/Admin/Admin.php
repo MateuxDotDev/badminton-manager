@@ -2,8 +2,8 @@
 namespace App\Admin;
 
 use App\SenhaCriptografada;
-use App\TemDataCriacao;
 use App\TemDataAlteracao;
+use App\TemDataCriacao;
 
 class Admin
 {

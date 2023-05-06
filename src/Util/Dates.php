@@ -3,8 +3,8 @@
 
 namespace App\Util;
 
-use \DateTimeImmutable;
-use \DateTimeInterface;
+use DateTimeImmutable;
+use DateTimeInterface;
 
 class Dates
 {
