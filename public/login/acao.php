@@ -2,11 +2,11 @@
 
 require_once(__DIR__.'/../../vendor/autoload.php');
 
-use App\Session;
 use App\Tecnico\Conta\LoginDTO;
 use App\Tecnico\Conta\RealizarLogin;
 use App\Tecnico\TecnicoRepository;
 use App\Util\Database\Connection;
+use App\Util\General\UserSession;
 use App\Util\Http\Request as Req;
 use App\Util\Http\Response as Res;
 
@@ -46,7 +46,7 @@ function realizarLogin(PDO $pdo, array $req): Res
     if ($parsed instanceof LoginDTO) {
         session_start();
         $repo = new TecnicoRepository($pdo);
-        $session = Session::obj();
+        $session = UserSession::obj();
         $realizarLogin = new RealizarLogin($repo, $session);
         $result = $realizarLogin($parsed);
         return Res::fromResult($result);

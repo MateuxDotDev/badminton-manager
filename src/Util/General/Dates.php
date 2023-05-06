@@ -1,7 +1,6 @@
 <?php
 
-
-namespace App\Util;
+namespace App\Util\General;
 
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -22,22 +21,22 @@ class Dates
         return $d?->format($fmt);
     }
 
-    public static function parseDay(?string $s)
+    public static function parseDay(?string $s): DateTimeImmutable|false|null
     {
         return self::parse($s, self::DAY);
     }
 
-    public static function parseMicro(?string $s)
+    public static function parseMicro(?string $s): DateTimeImmutable|false|null
     {
         return self::parse($s, self::MICRO);
     }
 
-    public static function formatDay(?DateTimeInterface $d)
+    public static function formatDay(?DateTimeInterface $d): ?string
     {
         return self::format($d, self::DAY);
     }
 
-    public static function formatMicro(?DateTimeInterface $d)
+    public static function formatMicro(?DateTimeInterface $d): ?string
     {
         return self::format($d, self::MICRO);
     }

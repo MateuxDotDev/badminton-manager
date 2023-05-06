@@ -2,8 +2,9 @@
 
 namespace App\Tecnico;
 
-use App\SenhaCriptografada;
-use App\Util\Dates;
+use App\Util\Exceptions\ValidatorException;
+use App\Util\General\Dates;
+use App\Util\General\SenhaCriptografada;
 use Exception;
 use PDO;
 
@@ -19,7 +20,7 @@ class TecnicoRepository
     private function getViaChave(string $chave, string $valor): ?Tecnico
     {
         if ($chave != 'email' && $chave != 'id') {
-            throw new Exception("Chave de técnico '$chave' inválida");
+            throw new ValidatorException("Chave de técnico '$chave' inválida", 401);
         }
 
         $sql = <<<SQL

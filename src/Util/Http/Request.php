@@ -5,7 +5,7 @@ namespace App\Util\Http;
 // poderia ser uma classe Request não só com esses métodos estáticos,
 // mas podia ser um objeto que a gente instancia mesmo
 // tipo a Request do symfony e outros frameworks
-use App\Util\Exceptions\ResponseException;
+use App\Util\Exceptions\ValidatorException;
 
 class Request
 {
@@ -31,13 +31,13 @@ class Request
     }
 
     /**
-     * @throws ResponseException
+     * @throws ValidatorException
      */
     public static function camposRequeridos(array $req, array $camposRequeridos): void
     {
         foreach ($camposRequeridos as $campo) {
             if (!array_key_exists($campo, $req)) {
-                throw new ResponseException(Response::erro("Campo faltando na requisição", ['campo' => $campo]));
+                throw new ValidatorException("Campo faltando na requisição", ['campo' => $campo]);
             }
         }
     }

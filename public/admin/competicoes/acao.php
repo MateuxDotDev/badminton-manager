@@ -1,29 +1,30 @@
 <?php
+
 require_once('../../../vendor/autoload.php');
 
 use App\Admin\Competicoes\Competicao;
 use App\Admin\Competicoes\CompeticaoRepository;
 use App\Util\Database\Connection;
-use App\Util\Exceptions\ResponseException;
+use App\Util\Exceptions\ValidatorException;
+use App\Util\General\Dates;
+use App\Util\General\OldSession;
 use App\Util\Http\Request;
-use App\Util\Dates;
 use App\Util\Http\Response;
-use App\Util\SessionOld;
 
-SessionOld::iniciar();
+OldSession::iniciar();
 
-if (!SessionOld::isAdmin()) {
+if (!OldSession::isAdmin()) {
     return Response::erroNaoAutorizado();
 }
 
 try {
     competicaoController()->enviar();
-} catch (ResponseException $e) {
-    $e->response()->enviar();
+} catch (Exception $e) {
+    Response::erroException($e)->enviar();
 }
 
 /**
- * @throws ResponseException
+ * @throws ValidatorException
  */
 function competicaoController(): Response
 {
@@ -46,7 +47,7 @@ function criarCompeticao(array $req): Response
         $prazo = Dates::parseDay($req['prazo']);
         $descricao = $req['descricao'];
         if ($prazo === false) {
-            throw new ResponseException(Response::erro("Prazo inválido"));
+            throw new ValidatorException("Prazo inválido");
         }
 
         $competicao = (new Competicao)
@@ -55,7 +56,7 @@ function criarCompeticao(array $req): Response
             ->setDescricao($descricao);
 
         if ($competicao->prazoPassou()) {
-            throw new ResponseException(Response::erro("Prazo deve ser no futuro"));
+            throw new ValidatorException("Prazo deve ser no futuro", 400, ['prazo' => $prazo]);
         }
 
         $repo = new CompeticaoRepository(Connection::getInstance());
@@ -67,7 +68,7 @@ function criarCompeticao(array $req): Response
 }
 
 /**
- * @throws ResponseException
+ * @throws ValidatorException
  */
 function excluirCompeticao(array $req): Response
 {
@@ -95,7 +96,7 @@ function alterarCompeticao(array $req): Response
         $prazo = Dates::parseDay($req['prazo']);
         $descricao = $req['descricao'];
         if ($prazo === false) {
-            throw new ResponseException(Response::erro("Prazo inválido"));
+            throw new ValidatorException("Prazo inválido");
         }
 
         $competicao = (new Competicao)
@@ -105,7 +106,7 @@ function alterarCompeticao(array $req): Response
             ->setDescricao($descricao);
 
         if ($competicao->prazoPassou()) {
-            throw new ResponseException(Response::erro("Prazo deve ser no futuro"));
+            throw new ValidatorException("Prazo deve ser no futuro");
         }
 
         $repo = new CompeticaoRepository(Connection::getInstance());

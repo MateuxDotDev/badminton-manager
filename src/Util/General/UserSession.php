@@ -1,14 +1,14 @@
 <?php
 
-namespace App;
+namespace App\Util\General;
 
 use App\Tecnico\Tecnico;
 
-class Session
+class UserSession
 {
     private array $data;
 
-    public static function obj(): Session
+    public static function obj(): UserSession
     {
         return new self($_SESSION);
     }

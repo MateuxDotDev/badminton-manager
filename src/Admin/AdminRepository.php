@@ -1,8 +1,8 @@
 <?php
 namespace App\Admin;
 
-use App\SenhaCriptografada;
-use App\Util\Dates;
+use App\Util\General\Dates;
+use App\Util\General\SenhaCriptografada;
 use PDO;
 
 readonly class AdminRepository

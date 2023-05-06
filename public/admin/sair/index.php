@@ -2,7 +2,7 @@
 
 require_once('../../../vendor/autoload.php');
 
-use App\Util\SessionOld;
+use App\Util\General\OldSession;
 
-SessionOld::destruir();
+OldSession::destruir();
 header('Location: /admin');

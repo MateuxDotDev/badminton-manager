@@ -2,8 +2,8 @@
 
 namespace App\Admin\Competicoes;
 
-use App\TemDataAlteracao;
-use App\TemDataCriacao;
+use App\Util\Traits\TemDataAlteracao;
+use App\Util\Traits\TemDataCriacao;
 use DateTimeImmutable;
 use DateTimeInterface;
 

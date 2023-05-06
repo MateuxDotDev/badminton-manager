@@ -1,9 +1,9 @@
 <?php
 namespace App\Admin;
 
-use App\SenhaCriptografada;
-use App\TemDataAlteracao;
-use App\TemDataCriacao;
+use App\Util\General\SenhaCriptografada;
+use App\Util\Traits\TemDataAlteracao;
+use App\Util\Traits\TemDataCriacao;
 
 class Admin
 {

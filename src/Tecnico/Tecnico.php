@@ -2,10 +2,10 @@
 
 namespace App\Tecnico;
 
-use App\SenhaCriptografada;
-use App\TemDataAlteracao;
-use App\TemDataCriacao;
-use App\Util\Dates;
+use App\Util\General\Dates;
+use App\Util\General\SenhaCriptografada;
+use App\Util\Traits\TemDataAlteracao;
+use App\Util\Traits\TemDataCriacao;
 
 class Tecnico
 {
@@ -98,7 +98,8 @@ class Tecnico
         ];
     }
 
-    public function __unserialize(array $a): void {
+    public function __unserialize(array $a): void
+    {
         $id = $a['id'] === null ? null : (int) $a['id'];
 
         $clube = unserialize($a['clube']);

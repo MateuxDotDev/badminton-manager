@@ -2,10 +2,10 @@
 
 namespace App\Tecnico\Conta;
 
-use App\Result;
-use App\Session;
 use App\Tecnico\TecnicoRepository;
 use App\Util\Exceptions\ValidatorException;
+use App\Util\General\Result;
+use App\Util\General\UserSession;
 use Exception;
 
 /**
@@ -16,7 +16,7 @@ readonly class RealizarLogin
 {
     public function __construct(
         private TecnicoRepository $repo,
-        private Session           $session,
+        private UserSession       $session,
     ) {}
 
     public function __invoke(LoginDTO $login): Result

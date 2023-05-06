@@ -2,8 +2,9 @@
 
 namespace App\Util\Http;
 
-use App\Result;
 use App\Util\Exceptions\ResponseException;
+use App\Util\Exceptions\ValidatorException;
+use App\Util\General\Result;
 use Exception;
 
 readonly class Response
@@ -31,8 +32,8 @@ readonly class Response
 
     public static function erroException(Exception $e): Response
     {
-        if ($e instanceof ResponseException) {
-            return $e->response();
+        if ($e instanceof ValidatorException) {
+            return $e->toResponse();
         }
 
         return new Response(500, 'Ocorreu um erro inesperado', ['exception' => $e]);
@@ -48,7 +49,7 @@ readonly class Response
         return new Response(404, 'Recurso não encontrado');
     }
 
-    public static function fromResult(Result $result)
+    public static function fromResult(Result $result): Response
     {
         $data = $result->data();
         if ($result->isOk()) {
@@ -58,13 +59,18 @@ readonly class Response
                 return self::ok('', $data ?? []);
             }
         } else {
-            if ($data instanceof Exception) {
-                return self::erroException($data);
-            } elseif (is_string($data)) {
-                return self::erro($data);
-            } else {
-                return self::erro('Ocorreu um erro inesperado', $data);
-            }
+            return self::parseError($data);
+        }
+    }
+
+    private static function parseError($data): Response
+    {
+        if ($data instanceof Exception) {
+            return self::erroException($data);
+        } elseif (is_string($data)) {
+            return self::erro($data);
+        } else {
+            return self::erro('Ocorreu um erro inesperado', $data);
         }
     }
 

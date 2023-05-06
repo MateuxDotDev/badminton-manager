@@ -2,7 +2,7 @@
 
 namespace Tests;
 
-use App\SenhaCriptografada;
+use App\Util\General\SenhaCriptografada;
 use PHPUnit\Framework\TestCase;
 
 class SenhaCriptografadaTest extends TestCase

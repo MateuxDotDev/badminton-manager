@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Util;
+namespace App\Util\General;
 
 use App\Tecnico\Tecnico;
 
 /**
- * Renomeado para SessionOld porque vamos usar no lugar o objeto Session
+ * Renomeado para OldSession porque vamos usar no lugar o objeto UserSession
  * Que é mais fácil de usar nos testes
  */
-class SessionOld
+class OldSession
 {
     public static function iniciar(): void
     {

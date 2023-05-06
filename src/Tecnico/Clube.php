@@ -2,8 +2,8 @@
 
 namespace App\Tecnico;
 
-use App\TemDataCriacao;
-use App\Util\Dates;
+use App\Util\General\Dates;
+use App\Util\Traits\TemDataCriacao;
 
 class Clube
 {

@@ -2,14 +2,14 @@
 
 namespace Tests\Tecnico;
 
-use App\SenhaCriptografada;
-use App\Session;
 use App\Tecnico\Clube;
 use App\Tecnico\Conta\LoginDTO;
 use App\Tecnico\Conta\RealizarLogin;
 use App\Tecnico\Tecnico;
 use App\Tecnico\TecnicoRepository;
-use App\Util\Dates;
+use App\Util\General\Dates;
+use App\Util\General\SenhaCriptografada;
+use App\Util\General\UserSession;
 use PHPUnit\Framework\TestCase;
 
 class RealizarLoginTest extends TestCase
@@ -19,7 +19,7 @@ class RealizarLoginTest extends TestCase
 
     protected function setUp(): void
     {
-        $session = new Session($this->session);
+        $session = new UserSession($this->session);
 
         $email1 = 'tec@ni.co';
         $senha1 = 'senha123';

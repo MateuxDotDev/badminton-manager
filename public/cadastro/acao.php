@@ -2,46 +2,45 @@
 
 require_once(__DIR__.'/../../vendor/autoload.php');
 
-use App\Tecnico\{TecnicoRepository, Tecnico, Clube};
+use App\Util\Exceptions\ValidatorException;
+use App\Tecnico\{Clube, Tecnico, TecnicoRepository};
 use App\Util\Database\Connection;
-use App\Util\Exceptions\ResponseException;
+use App\Util\General\SenhaCriptografada;
 use App\Util\Http\{Request, Response};
-use App\SenhaCriptografada;
 
 try {
     cadastroController()->enviar();
-} catch (ResponseException $e) {
-    $e->response()->enviar();
+} catch (Exception $e) {
+    Response::erroException($e)->enviar();
 }
 
-function cadastroController(): Response {
+function cadastroController(): Response
+{
     $req = Request::getJson();
     $acao = array_key_exists('acao', $req) ? $req['acao'] : '';
-    $pdo = Connection::getInstance();
     return match($acao) {
-        'cadastro' => realizarCadastro($pdo, $req),
+        'cadastro' => realizarCadastro($req),
         default => Response::erro("Ação '$acao' inválida")
     };
 }
 
-function realizarCadastro(PDO $pdo, array $req): Response {
+function realizarCadastro(array $req): Response
+{
     try {
         Request::camposRequeridos($req, ['email', 'senha', 'clube']);
 
-        $email       = filter_var($req['email'], FILTER_SANITIZE_EMAIL);
-        $senha       = $req['senha'];
         $clube       = (new Clube)->setNome(htmlspecialchars($req['clube']));
         $informacoes = htmlspecialchars(array_key_exists('informacoes', $req) ? $req['informacoes'] : '');
 
         if (false === ($email = filter_var($req['email'], FILTER_VALIDATE_EMAIL))) {
-            return Response::erro('E-mail inválido');
+            throw new ValidatorException('E-mail inválido');
         }
 
         $repo = new TecnicoRepository(Connection::getInstance());
 
         $jaExiste = null !== $repo->getViaEmail($email);
         if ($jaExiste) {
-            return Response::erro('Já existe um técnico cadastrado com esse e-mail');
+            throw new ValidatorException('Já existe um técnico cadastrado com esse e-mail', 403);
         }
 
         $senha = SenhaCriptografada::criptografar($email, $req['senha']);
@@ -51,8 +50,7 @@ function realizarCadastro(PDO $pdo, array $req): Response {
             ->setNomeCompleto($req['nome'])
             ->setInformacoes($informacoes)
             ->setClube($clube)
-            ->setSenhaCriptografada($senha)
-            ;
+            ->setSenhaCriptografada($senha);
 
         $repo->criarTecnico($tecnico);
 

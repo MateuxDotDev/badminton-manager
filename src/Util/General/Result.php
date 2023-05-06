@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Util\General;
 
 readonly class Result
 {
