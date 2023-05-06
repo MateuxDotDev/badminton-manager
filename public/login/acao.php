@@ -7,50 +7,53 @@ use App\Tecnico\Conta\RealizarLogin;
 use App\Tecnico\TecnicoRepository;
 use App\Util\Database\Connection;
 use App\Util\General\UserSession;
-use App\Util\Http\Request as Req;
-use App\Util\Http\Response as Res;
+use App\Util\Http\Request;
+use App\Util\Http\Response;
 
-loginController()->enviar();
+try {
+    loginController()->enviar();
+} catch (Exception $e) {
+    return Response::erroException($e)->enviar();
+}
 
-function loginController(): Res
+function loginController(): Response
 {
-    $req  = Req::getDados();
-    $acao = Req::getAcao($req);
+    $req  = Request::getDados();
+    $acao = Request::getAcao($req);
     $pdo  = Connection::getInstance();
     return match ($acao) {
         'getDadosConta' => getDadosConta($pdo, $req),
         'login' => realizarLogin($pdo, $req),
-        default => Res::erro('Ação inválida', ['acao' => $acao]),
+        default => Response::erro('Ação inválida', ['acao' => $acao]),
     };
 }
 
-function getDadosConta(PDO $pdo, array $req): Res
+/**
+ * @throws Exception
+ */
+function getDadosConta(PDO $pdo, array $req): Response
 {
-    try {
-        Req::camposRequeridos($req, ['email']);
-        $repo = new TecnicoRepository($pdo);
-        $email = filter_var($req['email'], FILTER_SANITIZE_EMAIL);
-        $tecnico = $repo->getViaEmail($email);
-        return Res::ok('', [
-            'existe'   => $tecnico != null,
-            'temSenha' => $tecnico != null && $tecnico->senhaCriptografada() != null
-        ]);
-    } catch (Exception $e) {
-        return Res::erroException($e);
-    }
+    Request::camposRequeridos($req, ['email']);
+    $repo = new TecnicoRepository($pdo);
+    $email = filter_var($req['email'], FILTER_SANITIZE_EMAIL);
+    $tecnico = $repo->getViaEmail($email);
+    return Response::ok('', [
+        'existe'   => $tecnico != null,
+        'temSenha' => $tecnico != null && $tecnico->senhaCriptografada() != null
+    ]);
 }
 
-function realizarLogin(PDO $pdo, array $req): Res
+/**
+ * @throws Exception
+ */
+function realizarLogin(PDO $pdo, array $req): Response
 {
-    $parsed = LoginDTO::parse($req);
-    if ($parsed instanceof LoginDTO) {
-        session_start();
-        $repo = new TecnicoRepository($pdo);
-        $session = UserSession::obj();
-        $realizarLogin = new RealizarLogin($repo, $session);
-        $result = $realizarLogin($parsed);
-        return Res::fromResult($result);
-    } else {
-        return Res::erro($parsed);
-    }
+    $dto = LoginDTO::parse($req);
+    session_start();
+    $realizarLogin = new RealizarLogin(
+        new TecnicoRepository($pdo),
+        UserSession::obj(),
+    );
+    $realizarLogin($dto);
+    return Response::ok('Login realizado com sucesso');
 }

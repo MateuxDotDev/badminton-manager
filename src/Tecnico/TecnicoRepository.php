@@ -9,6 +9,7 @@ use Exception;
 use PDO;
 
 class TecnicoRepository
+implements TecnicoRepositoryInterface
 {
     public function __construct(
         private readonly PDO $pdo

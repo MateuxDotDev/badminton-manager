@@ -4,7 +4,6 @@ namespace App\Util\Http;
 
 use App\Util\Exceptions\ResponseException;
 use App\Util\Exceptions\ValidatorException;
-use App\Util\General\Result;
 use Exception;
 
 readonly class Response
@@ -47,20 +46,6 @@ readonly class Response
     public static function notFound(): Response
     {
         return new Response(404, 'Recurso não encontrado');
-    }
-
-    public static function fromResult(Result $result): Response
-    {
-        $data = $result->data();
-        if ($result->isOk()) {
-            if (is_string($data)) {
-                return self::ok($data);
-            } else {
-                return self::ok('', $data ?? []);
-            }
-        } else {
-            return self::parseError($data);
-        }
     }
 
     private static function parseError($data): Response

@@ -7,9 +7,11 @@ use App\Tecnico\Conta\LoginDTO;
 use App\Tecnico\Conta\RealizarLogin;
 use App\Tecnico\Tecnico;
 use App\Tecnico\TecnicoRepository;
+use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use App\Util\General\SenhaCriptografada;
 use App\Util\General\UserSession;
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 class RealizarLoginTest extends TestCase
@@ -64,10 +66,13 @@ class RealizarLoginTest extends TestCase
 
     public function testLoginComSenhaOk()
     {
-        $dto = new LoginDTO('tec@ni.co', 'senha123');
-        $result = ($this->realizarLogin)($dto);
+        $e = null;
+        try {
+            $dto = new LoginDTO('tec@ni.co', 'senha123');
+            ($this->realizarLogin)($dto);
+        } catch (Exception $e) {}
 
-        $this->assertTrue($result->isOk());
+        $this->assertNull($e);
         $this->assertNotEmpty($this->session);
         $this->assertArrayHasKey('tipo', $this->session);
         $this->assertEquals('tecnico', $this->session['tipo']);
@@ -80,26 +85,38 @@ class RealizarLoginTest extends TestCase
     public function testLoginSenhaIncorreta()
     {
         $dto = new LoginDTO('tec@ni.co', 'senhaIncorreta');
-        $result = ($this->realizarLogin)($dto);
-        $this->assertFalse($result->isOk());
-        $this->assertEquals('Senha incorreta', $result->data());
+        $e = null;
+        try {
+            ($this->realizarLogin)($dto);
+        } catch (Exception $e) {}
+        $this->assertNotNull($e);
+        $this->assertInstanceOf(ValidatorException::class, $e);
+        $this->assertEquals('Senha incorreta', $e->getMessage());
     }
     
     public function testLoginSemSenha()
     {
-        $dto = new LoginDTO('bad@minton', '');
-        $result = ($this->realizarLogin)($dto);
-        $this->assertFalse($result->isOk());
-        $this->assertEquals('Técnico não tem senha', $result->data());
+        $e = null;
+        try {
+            $dto = new LoginDTO('bad@minton', '');
+            ($this->realizarLogin)($dto);
+        } catch (Exception $e) { }
+        $this->assertNotNull($e);
+        $this->assertInstanceOf(ValidatorException::class, $e);
+        $this->assertEquals('Técnico não tem senha', $e->getMessage());
         $this->assertEmpty($this->session);
     }
 
     public function testLoginNaoEncontrado()
     {
-        $dto = new LoginDTO('asdf@hjkl', '');
-        $result = ($this->realizarLogin)($dto);
-        $this->assertFalse($result->isOk());
-        $this->assertEquals('Técnico não encontrado', $result->data());
+        $e = null;
+        try {
+            $dto = new LoginDTO('asdf@hjkl', '');
+            ($this->realizarLogin)($dto);
+        } catch (Exception $e) { }
+        $this->assertNotNull($e);
+        $this->assertInstanceOf(ValidatorException::class, $e);
+        $this->assertEquals('Técnico não encontrado', $e->getMessage());
         $this->assertEmpty($this->session);
     }
 }

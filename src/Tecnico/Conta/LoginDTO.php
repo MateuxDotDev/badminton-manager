@@ -2,6 +2,8 @@
 
 namespace App\Tecnico\Conta;
 
+use App\Util\Exceptions\ValidatorException;
+
 readonly class LoginDTO
 {
     public function __construct(
@@ -9,13 +11,16 @@ readonly class LoginDTO
         public string $senha,
     ) {}
 
-    public static function parse(array $a): LoginDTO|string
+    /**
+     * @throws ValidatorException
+     */
+    public static function parse(array $a): LoginDTO
     {
         if (!array_key_exists('email', $a)) {
-            return 'E-mail faltando';
+            throw new ValidatorException("Campo 'e-mail' faltando", 400);
         }
         if (!array_key_exists('senha', $a)) {
-            return 'Senha faltando';
+            throw new ValidatorException("Campo 'senha' faltando", 400);
         }
 
         $email = filter_var($a['email'], FILTER_SANITIZE_EMAIL);

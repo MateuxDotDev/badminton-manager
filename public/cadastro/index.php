@@ -59,12 +59,16 @@ Template::head('Cadastre-se');
 
     form.addEventListener('submit', (event) => {
         event.preventDefault();
+        const clube = {
+            novo: true,
+            nome: form.clube.value,
+        }
         criarContaTecnico(
             form.email.value,
             form.senha.value,
             form.nome.value,
             form.informacoes.value,
-            form.clube.value,
+            clube,
         );
     });
 
