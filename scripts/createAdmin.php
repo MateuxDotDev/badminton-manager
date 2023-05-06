@@ -27,9 +27,6 @@ function generateAdmin(string $nome, string $senha): bool
     $pdo = initPdo();
 
     $senhaCripto = App\SenhaCriptografada::criptografar($nome, $senha);
-    if ($senhaCripto == null) {
-        return false;
-    }
 
     $stmt = $pdo->prepare('
         INSERT INTO "admin" ("user", hash_senha, salt_senha)

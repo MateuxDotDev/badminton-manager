@@ -2,6 +2,8 @@
 
 namespace App;
 
+use Exception;
+
 readonly class SenhaCriptografada
 {
     public function __construct(
@@ -28,22 +30,22 @@ readonly class SenhaCriptografada
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private static function gerarSalt(): string
     {
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $salt = '';
         for ($i = 0; $i < random_int(32, 64); $i++) {
-            $salt .= $characters[rand(0, strlen($characters) - 1)];
+            $salt .= $characters[random_int(0, strlen($characters) - 1)];
         }
         return $salt;
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    public static function criptografar(string $usuario, string $senha, int $cost=12): SenhaCriptografada
+    public static function criptografar(string $usuario, string $senha, int $cost = 12): SenhaCriptografada
     {
         $salt = self::gerarSalt();
         $toHash = $usuario . $senha . $salt;
