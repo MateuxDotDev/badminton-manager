@@ -5,10 +5,8 @@ namespace App\Tecnico\Conta;
 use App\Tecnico\TecnicoRepository;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
+use App\Util\Http\HttpStatus;
 use Exception;
-
-// TODO copiar classe com códigos HTTP de algum lugar
-// para não termos que ficar escrevendo 401 mas Http::UNAUTHORIZED etc.
 
 /**
  * Implementa somente login quando técnico tem senha
@@ -28,16 +26,16 @@ readonly class RealizarLogin
     {
         $tecnico = $this->repo->getViaEmail($login->email);
         if ($tecnico === null) {
-            throw new ValidatorException('Técnico não encontrado', 404);
+            throw new ValidatorException('Técnico não encontrado', HttpStatus::NOT_FOUND);
         }
 
         $senha = $tecnico->senhaCriptografada();
         if ($senha === null) {
-            throw new ValidatorException('Técnico não tem senha', 403);
+            throw new ValidatorException('Técnico não tem senha', HttpStatus::FORBIDDEN);
         }
         $ok = $senha->validar($login->email, $login->senha);
         if (!$ok) {
-            throw new ValidatorException('Senha incorreta', 401);
+            throw new ValidatorException('Senha incorreta', HttpStatus::UNAUTHORIZED);
         }
 
         $this->session->setTecnico($tecnico);

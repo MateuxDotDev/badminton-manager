@@ -19,6 +19,8 @@ Este comando cria um usuário admin com o nome 'nome_do_usuario' e a senha 'senh
 require_once __DIR__ . '/initPDO.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use App\Util\General\SenhaCriptografada;
+
 /**
  * @throws Exception
  */
@@ -26,7 +28,7 @@ function generateAdmin(string $nome, string $senha): bool
 {
     $pdo = initPdo();
 
-    $senhaCripto = \App\Util\General\SenhaCriptografada::criptografar($nome, $senha);
+    $senhaCripto = SenhaCriptografada::criptografar($nome, $senha);
 
     $stmt = $pdo->prepare('
         INSERT INTO "admin" ("user", hash_senha, salt_senha)

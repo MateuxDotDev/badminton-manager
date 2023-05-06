@@ -19,6 +19,9 @@ class RealizarLoginTest extends TestCase
     private array $session = [];
     private RealizarLogin $realizarLogin;
 
+    /**
+     * @throws \Exception|Exception|\PHPUnit\Framework\MockObject\Exception
+     */
     protected function setUp(): void
     {
         $session = new UserSession($this->session);
@@ -90,7 +93,7 @@ class RealizarLoginTest extends TestCase
             ($this->realizarLogin)($dto);
         } catch (Exception $e) {}
         $this->assertNotNull($e);
-        $this->assertInstanceOf(ValidatorException::class, $e);
+        $this->assertInstanceOf($e, ValidatorException::class);
         $this->assertEquals('Senha incorreta', $e->getMessage());
     }
     
@@ -102,7 +105,7 @@ class RealizarLoginTest extends TestCase
             ($this->realizarLogin)($dto);
         } catch (Exception $e) { }
         $this->assertNotNull($e);
-        $this->assertInstanceOf(ValidatorException::class, $e);
+        $this->assertInstanceOf($e, ValidatorException::class);
         $this->assertEquals('Técnico não tem senha', $e->getMessage());
         $this->assertEmpty($this->session);
     }
@@ -115,7 +118,7 @@ class RealizarLoginTest extends TestCase
             ($this->realizarLogin)($dto);
         } catch (Exception $e) { }
         $this->assertNotNull($e);
-        $this->assertInstanceOf(ValidatorException::class, $e);
+        $this->assertInstanceOf($e, ValidatorException::class);
         $this->assertEquals('Técnico não encontrado', $e->getMessage());
         $this->assertEmpty($this->session);
     }

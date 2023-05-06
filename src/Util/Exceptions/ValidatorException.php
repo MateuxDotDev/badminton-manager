@@ -2,16 +2,17 @@
 
 namespace App\Util\Exceptions;
 
+use App\Util\Http\HttpStatus;
 use App\Util\Http\Response;
 use Exception;
 
 class ValidatorException extends Exception
 {
-    private int $statusCode;
+    private HttpStatus $statusCode;
     private array $data;
     private string $errorMessage;
 
-    public function __construct($errorMessage,$statusCode = 400, $data = [])
+    public function __construct($errorMessage, $statusCode = HttpStatus::BAD_REQUEST, $data = [])
     {
         parent::__construct($errorMessage);
         $this->statusCode = $statusCode;

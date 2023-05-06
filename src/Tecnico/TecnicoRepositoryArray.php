@@ -2,8 +2,7 @@
 
 namespace App\Tecnico;
 
-class TecnicoRepositoryArray
-implements TecnicoRepositoryInterface
+class TecnicoRepositoryArray implements TecnicoRepositoryInterface
 {
     private array $tecnicos = [];
     private int $proximoIdTecnico = 1;

@@ -2,31 +2,30 @@
 
 namespace App\Util\Http;
 
-use App\Util\Exceptions\ResponseException;
 use App\Util\Exceptions\ValidatorException;
 use Exception;
 
 readonly class Response
 {
     public function __construct(
-        private int    $code = 200,
-        private string $mensagem = '',
-        private array  $dados = [],
+        private HttpStatus  $code = HttpStatus::OK,
+        private string      $mensagem = '',
+        private array       $dados = [],
     ) {}
 
     public static function ok(string $mensagem='', array $dados=[]): Response
     {
-        return new Response(200, $mensagem, $dados);
+        return new Response(HttpStatus::OK, $mensagem, $dados);
     }
 
     public static function okExcluido(): Response
     {
-        return new Response(204);
+        return new Response(HttpStatus::NO_CONTENT);
     }
 
     public static function erro(string $mensagem='', array $dados=[]): Response
     {
-        return new Response(400, $mensagem, $dados);
+        return new Response(HttpStatus::BAD_REQUEST, $mensagem, $dados);
     }
 
     public static function erroException(Exception $e): Response
@@ -35,31 +34,20 @@ readonly class Response
             return $e->toResponse();
         }
 
-        return new Response(500, 'Ocorreu um erro inesperado', ['exception' => $e]);
+        return new Response(HttpStatus::INTERNAL_SERVER_ERROR, 'Ocorreu um erro inesperado', ['exception' => $e]);
     }
 
     public static function erroNaoAutorizado(): Response
     {
-        return new Response(401, 'Usuário não autorizado para essa ação');
+        return new Response(HttpStatus::UNAUTHORIZED, 'Usuário não autorizado para essa ação');
     }
 
     public static function notFound(): Response
     {
-        return new Response(404, 'Recurso não encontrado');
+        return new Response(HttpStatus::NOT_FOUND, 'Recurso não encontrado');
     }
 
-    private static function parseError($data): Response
-    {
-        if ($data instanceof Exception) {
-            return self::erroException($data);
-        } elseif (is_string($data)) {
-            return self::erro($data);
-        } else {
-            return self::erro('Ocorreu um erro inesperado', $data);
-        }
-    }
-
-    public function statusCode(): int
+    public function statusCode(): HttpStatus
     {
         return $this->code;
     }
@@ -83,7 +71,7 @@ readonly class Response
 
     public function enviar(): never
     {
-        http_response_code($this->statusCode());
+        http_response_code($this->statusCode()->value);
         header('Content-Type: application/json');
         die(json_encode(
             $this->array(),

@@ -1,14 +1,15 @@
-<?php
+<?php /** @noinspection PhpClassCanBeReadonlyInspection */
+
 namespace App\Admin;
 
 use App\Util\General\Dates;
 use App\Util\General\SenhaCriptografada;
 use PDO;
 
-readonly class AdminRepository
+class AdminRepository
 {
     public function __construct(
-        private PDO $pdo
+        readonly private PDO $pdo
     ) {}
 
     public function getViaNome(string $nome): ?Admin
@@ -40,24 +41,6 @@ readonly class AdminRepository
             ->setNome($row['user'])
             ->setSenhaCriptografada($senhaCripto)
             ->setDataCriacao(Dates::parseMicro($row['criado_em']))
-            ->setDataAlteracao(Dates::parseMicro($row['alterado_em']))
-            ;
-    }
-
-    public function criar(Admin $admin)
-    {
-        $pdo = $this->pdo;
-
-        $sql = <<<SQL
-            INSERT INTO admin (user, hash_senha, salt_senha)
-            VALUES (:nome, :hash, :salt)
-        SQL;
-
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            'nome' => $admin->nome(),
-            'hash' => $admin->senhaCriptografada()->hash(),
-            'salt' => $admin->senhaCriptografada()->salt(),
-        ]);
+            ->setDataAlteracao(Dates::parseMicro($row['alterado_em']));
     }
 }

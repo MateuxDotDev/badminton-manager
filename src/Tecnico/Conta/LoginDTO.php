@@ -3,6 +3,7 @@
 namespace App\Tecnico\Conta;
 
 use App\Util\Exceptions\ValidatorException;
+use App\Util\Http\HttpStatus;
 
 readonly class LoginDTO
 {
@@ -17,10 +18,10 @@ readonly class LoginDTO
     public static function parse(array $a): LoginDTO
     {
         if (!array_key_exists('email', $a)) {
-            throw new ValidatorException("Campo 'e-mail' faltando", 400);
+            throw new ValidatorException("Campo 'e-mail' faltando", HttpStatus::BAD_REQUEST);
         }
         if (!array_key_exists('senha', $a)) {
-            throw new ValidatorException("Campo 'senha' faltando", 400);
+            throw new ValidatorException("Campo 'senha' faltando", HttpStatus::BAD_REQUEST);
         }
 
         $email = filter_var($a['email'], FILTER_SANITIZE_EMAIL);
