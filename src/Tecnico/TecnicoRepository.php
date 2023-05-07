@@ -9,17 +9,18 @@ use App\Util\Http\HttpStatus;
 use Exception;
 use PDO;
 
-class TecnicoRepository
-implements TecnicoRepositoryInterface
+class TecnicoRepository implements TecnicoRepositoryInterface
 {
     public function __construct(
         private readonly PDO $pdo
     ) {}
 
     /**
+     * Chaves válidas: 'email', 'id'
+     *
      * @throws Exception
      */
-    private function getViaChave(string $chave, string $valor): ?Tecnico
+    public function getViaChave(string $chave, string $valor): ?Tecnico
     {
         if ($chave != 'email' && $chave != 'id') {
             throw new ValidatorException("Chave de técnico '$chave' inválida", HttpStatus::UNAUTHORIZED);
@@ -66,8 +67,7 @@ implements TecnicoRepositoryInterface
         $clube = (new Clube)
             ->setId((int) $row['clube_id'])
             ->setNome($row['clube_nome'])
-            ->setDataCriacao(Dates::parseMicro($row['clube_criado_em']))
-            ;
+            ->setDataCriacao(Dates::parseMicro($row['clube_criado_em']));
 
         $senha = SenhaCriptografada::existente($row['hash_senha'], $row['salt_senha']);
 
@@ -79,8 +79,7 @@ implements TecnicoRepositoryInterface
             ->setInformacoes($row['informacoes'])
             ->setDataCriacao($dataCriacao)
             ->setDataAlteracao($dataAlteracao)
-            ->setClube($clube)
-            ;
+            ->setClube($clube);
     }
 
     /**

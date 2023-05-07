@@ -17,7 +17,7 @@ class ValidatorException extends Exception
         HttpStatus $statusCode = HttpStatus::BAD_REQUEST,
         array $data = [],
     ) {
-        parent::__construct($errorMessage);
+        parent::__construct($errorMessage, $statusCode->value);
         $this->statusCode = $statusCode;
         $this->errorMessage = $errorMessage;
         $this->data = $data;

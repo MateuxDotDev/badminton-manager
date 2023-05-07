@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Tecnico\Conta;
+
 use App\Util\Exceptions\ValidatorException;
 
 readonly class CadastroDTO
@@ -39,7 +40,6 @@ readonly class CadastroDTO
         $idClubeExistente = $clube['novo'] ? null : $clube['id'];
         $nomeClubeNovo    = $clube['novo'] ? $clube['nome'] : null;
 
-        $email        = filter_var($req['email'], FILTER_SANITIZE_EMAIL);
         $senha        = $req['senha'];
         $informacoes  = array_key_exists('informacoes', $req) ? $req['informacoes'] : '';
 

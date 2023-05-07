@@ -19,8 +19,9 @@ readonly class LoginDTO
     {
         if (!array_key_exists('email', $a)) {
             throw new ValidatorException("Campo 'e-mail' faltando", HttpStatus::BAD_REQUEST);
-        }
-        if (!array_key_exists('senha', $a)) {
+        } elseif (!filter_var($a['email'], FILTER_VALIDATE_EMAIL)) {
+            throw new ValidatorException("Campo 'e-mail' inválido", HttpStatus::BAD_REQUEST);
+        } elseif (!array_key_exists('senha', $a)) {
             throw new ValidatorException("Campo 'senha' faltando", HttpStatus::BAD_REQUEST);
         }
 
