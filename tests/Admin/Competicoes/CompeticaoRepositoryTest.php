@@ -4,9 +4,9 @@ namespace Tests\Admin\Competicoes;
 
 use App\Admin\Competicoes\Competicao;
 use App\Admin\Competicoes\CompeticaoRepository;
-use DateTimeImmutable;
-use PDO;
-use PDOStatement;
+use \DateTimeImmutable;
+use \PDO;
+use \PDOStatement;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
@@ -23,8 +23,8 @@ class CompeticaoRepositoryTest extends TestCase
             ->willReturn($stmt);
 
         $data = [
-            ['id' => '1', 'nome' => 'Competicao 1', 'prazo' => '2023-01-01'],
-            ['id' => '2', 'nome' => 'Competicao 2', 'prazo' => '2023-02-01']
+            ['id' => '1', 'nome' => 'Competicao 1', 'prazo' => '2023-01-01', 'criado_em' => '2022-12-12 01:01:01.123456', 'alterado_em' => '2023-12-12 02:02:03.121233', 'descricao' => 'teste descrição 1'],
+            ['id' => '2', 'nome' => 'Competicao 2', 'prazo' => '2023-02-01', 'criado_em' => '2022-11-11 11:11:11.111111', 'alterado_em' => '2022-12-25 12:34:56.789012', 'descricao' => '']
         ];
 
         $stmt->method('getIterator')
@@ -38,10 +38,12 @@ class CompeticaoRepositoryTest extends TestCase
         $this->assertEquals(1, $competicoes[0]->id());
         $this->assertEquals('Competicao 1', $competicoes[0]->nome());
         $this->assertEquals('2023-01-01', $competicoes[0]->prazo()->format('Y-m-d'));
+        $this->assertEquals('teste descrição 1', $competicoes[0]->descricao());
 
         $this->assertEquals(2, $competicoes[1]->id());
         $this->assertEquals('Competicao 2', $competicoes[1]->nome());
         $this->assertEquals('2023-02-01', $competicoes[1]->prazo()->format('Y-m-d'));
+        $this->assertEquals('', $competicoes[1]->descricao());
     }
 
     /**
@@ -62,11 +64,13 @@ class CompeticaoRepositoryTest extends TestCase
             ->method('execute')
             ->with([
                 'nome' => 'Teste',
-                'prazo' => '2023-01-01'
+                'prazo' => '2023-01-01',
+                'descricao' => 'Competição de teste'
             ]);
 
         $competicao = (new Competicao)
             ->setNome('Teste')
+            ->setDescricao('Competição de teste')
             ->setPrazo(DateTimeImmutable::createFromFormat('Y-m-d', '2023-01-01'));
 
         $repo = new CompeticaoRepository($pdo);
@@ -95,12 +99,14 @@ class CompeticaoRepositoryTest extends TestCase
             ->with([
                 'id' => 10,
                 'nome' => 'Teste',
-                'prazo' => '2023-01-01'
+                'prazo' => '2023-01-01',
+                'descricao' => 'Descrição atualizada'
             ]);
 
         $competicao = (new Competicao)
             ->setId(10)
             ->setNome('Teste')
+            ->setDescricao('Descrição atualizada')
             ->setPrazo(DateTimeImmutable::createFromFormat('Y-m-d', '2023-01-01'));
 
         $repo = new CompeticaoRepository($pdo);

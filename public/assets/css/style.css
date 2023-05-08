@@ -3,3 +3,7 @@ td.td-botao {
     width: 0.1%;
     white-space: nowrap;
 }
+
+pre.sf-dump {
+    font: 14px monospace !important;
+}
