@@ -7,16 +7,20 @@
         {
             "name": "Mateus Lucas Cruz Brandt",
             "email": "mateus.brandt@edu.udesc.br"
+        },
+        {
+            "name": "Lucas Moares Schwambach",
+            "email": "lucas.schwambach@edu.udesc.br"
         }
     ],
     "require": {
         "php": "^8.2",
         "ext-pdo": "*",
-        "vlucas/phpdotenv": "^5.5",
-      "ext-zend-opcache": "*"
+        "vlucas/phpdotenv": "^5.5"
     },
     "require-dev": {
-        "phpunit/phpunit": "^10.0"
+        "phpunit/phpunit": "^10.0",
+        "symfony/var-dumper": "^6.2"
     },
     "autoload": {
         "psr-4": {

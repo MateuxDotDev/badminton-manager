@@ -5,25 +5,26 @@ require_once('../../../vendor/autoload.php');
 use App\Admin\Competicoes\Competicao;
 use App\Admin\Competicoes\CompeticaoRepository;
 use App\Util\Database\Connection;
-use App\Util\Exceptions\ResponseException;
+use App\Util\Exceptions\ValidatorException;
+use App\Util\General\Dates;
+use App\Util\General\OldSession;
 use App\Util\Http\Request;
 use App\Util\Http\Response;
-use App\Util\Session;
 
-Session::iniciar();
+OldSession::iniciar();
 
-if (!Session::isAdmin()) {
+if (!OldSession::isAdmin()) {
     return Response::erroNaoAutorizado();
 }
 
 try {
     competicaoController()->enviar();
-} catch (ResponseException $e) {
-    $e->response()->enviar();
+} catch (Exception $e) {
+    Response::erroException($e)->enviar();
 }
 
 /**
- * @throws ResponseException
+ * @throws ValidatorException
  */
 function competicaoController(): Response
 {
@@ -41,12 +42,12 @@ function competicaoController(): Response
 function criarCompeticao(array $req): Response
 {
     try {
-        Request::camposSaoValidos($req, ['nome', 'prazo', 'descricao']);
+        Request::camposRequeridos($req, ['nome', 'prazo']);
         $nome = $req['nome'];
+        $prazo = Dates::parseDay($req['prazo']);
         $descricao = $req['descricao'];
-        $prazo = DateTimeImmutable::createFromFormat('Y-m-d', $req['prazo']);
         if ($prazo === false) {
-            throw new ResponseException(Response::erro("Prazo inválido"));
+            throw new ValidatorException("Prazo inválido");
         }
 
         $competicao = (new Competicao)
@@ -55,7 +56,7 @@ function criarCompeticao(array $req): Response
             ->setDescricao($descricao);
 
         if ($competicao->prazoPassou()) {
-            throw new ResponseException(Response::erro("Prazo deve ser no futuro"));
+            throw new ValidatorException("Prazo deve ser no futuro", 400, ['prazo' => $prazo]);
         }
 
         $repo = new CompeticaoRepository(Connection::getInstance());
@@ -67,11 +68,11 @@ function criarCompeticao(array $req): Response
 }
 
 /**
- * @throws ResponseException
+ * @throws ValidatorException
  */
 function excluirCompeticao(array $req): Response
 {
-    Request::camposSaoValidos($req, ['id']);
+    Request::camposRequeridos($req, ['id']);
 
     // TODO: caso a competição já tenha inscrições, não pode ser excluída
 
@@ -88,14 +89,14 @@ function excluirCompeticao(array $req): Response
 function alterarCompeticao(array $req): Response
 {
     try {
-        Request::camposSaoValidos($req, ['id', 'nome', 'prazo', 'descricao']);
+        Request::camposRequeridos($req, ['id', 'nome', 'prazo']);
 
         $id = $req['id'];
         $nome = $req['nome'];
+        $prazo = Dates::parseDay($req['prazo']);
         $descricao = $req['descricao'];
-        $prazo = DateTimeImmutable::createFromFormat('Y-m-d', $req['prazo']);
         if ($prazo === false) {
-            throw new ResponseException(Response::erro("Prazo inválido"));
+            throw new ValidatorException("Prazo inválido");
         }
 
         $competicao = (new Competicao)
@@ -105,7 +106,7 @@ function alterarCompeticao(array $req): Response
             ->setDescricao($descricao);
 
         if ($competicao->prazoPassou()) {
-            throw new ResponseException(Response::erro("Prazo deve ser no futuro"));
+            throw new ValidatorException("Prazo deve ser no futuro");
         }
 
         $repo = new CompeticaoRepository(Connection::getInstance());

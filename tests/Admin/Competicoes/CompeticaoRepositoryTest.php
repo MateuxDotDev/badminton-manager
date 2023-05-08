@@ -4,9 +4,9 @@ namespace Tests\Admin\Competicoes;
 
 use App\Admin\Competicoes\Competicao;
 use App\Admin\Competicoes\CompeticaoRepository;
-use DateTimeImmutable;
-use PDO;
-use PDOStatement;
+use \DateTimeImmutable;
+use \PDO;
+use \PDOStatement;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
@@ -23,8 +23,8 @@ class CompeticaoRepositoryTest extends TestCase
             ->willReturn($stmt);
 
         $data = [
-            ['id' => '1', 'nome' => 'Competicao 1', 'prazo' => '2023-01-01', 'descricao' => 'teste descrição 1'],
-            ['id' => '2', 'nome' => 'Competicao 2', 'prazo' => '2023-02-01', 'descricao' => '']
+            ['id' => '1', 'nome' => 'Competicao 1', 'prazo' => '2023-01-01', 'criado_em' => '2022-12-12 01:01:01.123456', 'alterado_em' => '2023-12-12 02:02:03.121233', 'descricao' => 'teste descrição 1'],
+            ['id' => '2', 'nome' => 'Competicao 2', 'prazo' => '2023-02-01', 'criado_em' => '2022-11-11 11:11:11.111111', 'alterado_em' => '2022-12-25 12:34:56.789012', 'descricao' => '']
         ];
 
         $stmt->method('getIterator')
