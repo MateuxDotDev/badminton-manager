@@ -10,7 +10,7 @@ class Clube
     use TemDataCriacao;
 
     private ?int $id = null;
-    private ?string $nome;
+    private ?string $nome = null;
 
     public function setId(?int $id): Clube
     {

@@ -5,7 +5,9 @@ namespace Tests\Tecnico;
 use App\Tecnico\Clube;
 use App\Tecnico\Tecnico;
 use App\Tecnico\TecnicoRepository;
+use App\Util\Exceptions\ValidatorException;
 use App\Util\General\SenhaCriptografada;
+use App\Util\Http\HttpStatus;
 use Exception;
 use PDO;
 use PDOStatement;
@@ -108,6 +110,33 @@ class TecnicoRepositoryTest extends TestCase
         $this->assertEquals($row['id'], $tecnico->id());
     }
 
+
+    /**
+     * @throws \PHPUnit\Framework\MockObject\Exception
+     * @throws Exception
+     */
+    public function testGetViaIdReturnsNull()
+    {
+        $valor = 1;
+
+        $stmtMock = $this->createMock(PDOStatement::class);
+        $stmtMock->expects($this->once())
+            ->method('execute')
+            ->with(['id' => $valor]);
+
+        $stmtMock->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([]);
+
+        $this->pdoMock->expects($this->once())
+            ->method('prepare')
+            ->willReturn($stmtMock);
+
+        $tecnico = $this->tecnicoRepository->getViaId($valor);
+
+        $this->assertNull($tecnico);
+    }
+
     public function testCriarTecnico()
     {
         $clube = (new Clube)
@@ -148,6 +177,65 @@ class TecnicoRepositoryTest extends TestCase
         } catch (Exception $e) {
             $this->fail('Unexpected exception thrown: ' . $e->getMessage());
         }
+    }
+
+    public function testCriarTecnicoComNovoClube()
+    {
+        $clube = (new Clube)
+            ->setNome('Clube B');
+        $senha = SenhaCriptografada::existente('hashed_password', 'salt');
+
+        $tecnico = (new Tecnico)
+            ->setEmail('jane@example.com')
+            ->setSenhaCriptografada($senha)
+            ->setNomeCompleto('Jane Doe')
+            ->setInformacoes('Informações sobre a técnica')
+            ->setClube($clube);
+
+        $this->pdoMock->expects($this->once())
+            ->method('beginTransaction');
+
+        $this->pdoMock->expects($this->once())
+            ->method('commit');
+
+        $this->pdoMock->expects($this->exactly(2))
+            ->method('prepare')
+            ->willReturnCallback(function () {
+                $stmtMock = $this->createMock(PDOStatement::class);
+                $stmtMock->expects($this->any())
+                    ->method('execute')
+                    ->willReturn(true);
+                return $stmtMock;
+            });
+
+        $this->pdoMock->expects($this->exactly(2))
+            ->method('lastInsertId')
+            ->willReturn('1', '2');
+
+        try {
+            $this->tecnicoRepository->criarTecnico($tecnico);
+            $this->assertEquals(1, $clube->id());
+            $this->assertEquals(2, $tecnico->id());
+        } catch (Exception $e) {
+            $this->fail('Unexpected exception thrown: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testGetViaChaveInvalida()
+    {
+        $chave = 'invalida';
+        $valor = 'teste';
+
+        $repo = $this->tecnicoRepository;
+
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionMessage("Chave de técnico '$chave' inválida");
+        $this->expectExceptionCode(HttpStatus::UNAUTHORIZED->value);
+
+        $repo->getViaChave($chave, $valor);
     }
 
     public function testCriarTecnicoException()

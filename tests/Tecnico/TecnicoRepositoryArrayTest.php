@@ -101,4 +101,13 @@ class TecnicoRepositoryArrayTest extends TestCase
         $this->assertEquals($tecnico, $repo->getViaId(1));
         $this->assertEquals($tecnico, $repo->getViaEmail('john@example.com'));
     }
+
+    public function testGetViaIdReturnsNull(): void
+    {
+        $tecnicoRepository = new TecnicoRepositoryArray();
+
+        $tecnicoEncontrado = $tecnicoRepository->getViaId(1);
+
+        $this->assertNull($tecnicoEncontrado);
+    }
 }
