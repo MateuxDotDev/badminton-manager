@@ -2,7 +2,7 @@ name: Build
 
 on:
   workflow_run:
-    workflows: ["Tests & Quality Check"]
+    workflows: ["Tests and Quality Check"]
     branches:
       - main
     types:
