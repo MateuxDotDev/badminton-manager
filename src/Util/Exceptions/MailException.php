@@ -7,18 +7,11 @@ use Exception;
 class MailException extends Exception
 {
     private array $mailData;
-    private Exception $previous;
 
-    public function __construct(string $message, array $mailData = [], Exception $previous = null)
+    public function __construct(Exception $exception, array $mailData = [])
     {
-        parent::__construct($message);
+        parent::__construct($exception);
         $this->mailData = $mailData;
-        $this->previous = $previous;
-    }
-
-    public function previous(): Exception
-    {
-        return $this->previous;
     }
 
     public function mailData(): array
@@ -28,6 +21,6 @@ class MailException extends Exception
 
     public function __toString(): string
     {
-        return json_encode($this->mailData, JSON_PRETTY_PRINT);
+        return parent::__toString() . PHP_EOL . json_encode($this->mailData, JSON_PRETTY_PRINT);
     }
 }

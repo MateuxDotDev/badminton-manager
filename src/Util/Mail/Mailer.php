@@ -22,6 +22,8 @@ class Mailer implements MailerInterface
         $this->mail->Password   = Environment::getMailPassword();
         $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $this->mail->Port       = 587;
+        $this->mail->encodeHeader('UTF-8');
+        $this->mail->CharSet = 'UTF-8';
     }
 
     /**
@@ -48,16 +50,16 @@ class Mailer implements MailerInterface
             return true;
         } catch (Exception $exception) {
             throw new MailException(
-                "A mensagem não pôde ser enviada. Erro do Mailer: {$this->mail->ErrorInfo}",
+                $exception,
                 [
                     'from' => $this->mail->Username,
                     'to' => "{$toName} <{$toEmail}>",
                     'subject' => $subject,
                     'body' => $body,
                     'altBody' => $altBody,
-                    'isHTML' => $isHTML
+                    'isHTML' => $isHTML,
+                    'mailerError' => $this->mail->ErrorInfo
                 ],
-                $exception
             );
         }
     }
