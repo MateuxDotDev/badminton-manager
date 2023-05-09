@@ -17,6 +17,13 @@ function agendarAlerta(alerta) {
     sessionStorage.setItem(_chave_alerta_storage, JSON.stringify(alerta));
 }
 
+function alertaErro(mensagem) {
+    Toast.fire({
+        icon: 'error',
+        text: mensagem
+    });
+}
+
 function agendarAlertaSucesso(mensagem) {
     agendarAlerta({
         icon: 'success',

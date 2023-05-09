@@ -1,43 +1,54 @@
 <?php
 
-require('../../vendor/autoload.php');
-
-use App\Admin\Login\Login;
-use App\Admin\Login\LoginRepository;
+use App\Admin\AdminRepository;
 use App\Util\Database\Connection;
+use App\Util\Exceptions\ValidatorException;
+use App\Util\General\UserSession;
+use App\Util\Http\HttpStatus;
 use App\Util\Http\Request;
 use App\Util\Http\Response;
-use App\Util\Session;
+
+require('../../vendor/autoload.php');
 
 loginAdminController()->enviar();
 
 function loginAdminController(): Response
 {
     $req = Request::getJson();
+    $pdo = Connection::getInstance();
 
     $acao = array_key_exists('acao', $req) ? $req['acao'] : '';
     return match ($acao) {
-        'login' => acaoLogin($req),
+        'login' => acaoLogin($pdo, $req),
         default => Response::erro('Ação inválida', ['acao' => $acao])
     };
 }
 
-function acaoLogin(array $req): Response
+function acaoLogin(PDO $pdo, array $req): Response
 {
     try {
-        Request::camposSaoValidos($req, ['usuario', 'senha']);
+        Request::camposRequeridos($req, ['usuario', 'senha']);
 
-        $login = new Login($req['usuario'], $req['senha']);
-        $repo = new LoginRepository(Connection::getInstance());
-        if ($repo->validateLogin($login)) {
-            Session::iniciar();
-            Session::setAdmin();
-            return Response::justOk();
-        } else {
-            return Response::erro('Usuário ou senha incorretos');
+        $repo = new AdminRepository($pdo);
+        $admin = $repo->getViaNome($req['usuario']);
+        if ($admin === null) {
+            throw new ValidatorException('Usuário administrador não encontrado', HttpStatus::NOT_FOUND);
         }
+
+        $ok = $admin->senhaCriptografada()->validar($req['usuario'], $req['senha']);
+
+        if ($ok) {
+            $session = UserSession::obj();
+            $session->setAdmin();
+            return Response::ok();
+        } else {
+            return throw new ValidatorException('Senha incorreta', HttpStatus::UNAUTHORIZED);
+        }
+
+    } catch (ValidatorException $exception) {
+        return $exception->toResponse() ?? Response::erro($exception);
     } catch (Exception $e) {
-        return Response::erroException($e);
+        return Response::erro($e);
     }
 }
 

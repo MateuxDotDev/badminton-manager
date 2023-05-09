@@ -2,11 +2,15 @@
 
 namespace App\Competicoes;
 
-use DateTimeImmutable;
-use DateTimeInterface;
+use App\Util\Traits\TemDataAlteracao;
+use App\Util\Traits\TemDataCriacao;
+use \DateTimeImmutable;
+use \DateTimeInterface;
 
 class Competicao
 {
+    use TemDataAlteracao, TemDataCriacao;
+
     private int $id;
     private string $nome;
     private DateTimeInterface $prazo;

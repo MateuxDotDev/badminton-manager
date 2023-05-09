@@ -1,4 +1,2 @@
 <?php
-
-phpinfo();
-
+require 'login/index.php';

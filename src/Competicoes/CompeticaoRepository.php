@@ -2,7 +2,7 @@
 
 namespace App\Competicoes;
 
-use DateTimeImmutable;
+use App\Util\General\Dates;
 use PDO;
 
 readonly class CompeticaoRepository
@@ -20,18 +20,22 @@ readonly class CompeticaoRepository
             SELECT id,
                    nome,
                    prazo,
-                   descricao
+                   descricao,
+                   criado_em,
+                   alterado_em
               FROM competicao
-          ORDER BY prazo
-              DESC
+          ORDER BY prazo DESC
         ");
         $competicoes = [];
         foreach ($qry as $linha) {
             $competicoes[] = (new Competicao)
                 ->setId((int) $linha['id'])
                 ->setNome($linha['nome'])
-                ->setPrazo(DateTimeImmutable::createFromFormat('Y-m-d', $linha['prazo']))
-                ->setDescricao($linha['descricao']);
+                ->setDescricao($linha['descricao'])
+                ->setPrazo(Dates::parseDay($linha['prazo']))
+                ->setDataAlteracao(Dates::parseMicro($linha['alterado_em']))
+                ->setDataCriacao(Dates::parseMicro($linha['criado_em']))
+                ;
         }
         return $competicoes;
     }
@@ -52,9 +56,9 @@ readonly class CompeticaoRepository
             $competicoes[] = (new Competicao)
                 ->setId((int) $linha['id'])
                 ->setNome($linha['nome'])
-                // TODO usar Dates::parseDay após merge
-                ->setPrazo(DateTimeImmutable::createFromFormat('Y-m-d', $linha['prazo']))
-                ->setDescricao($linha['descricao']);
+                ->setPrazo(Dates::parseDay($linha['prazo']))
+                ->setDescricao($linha['descricao'])
+                ;
         }
         return $competicoes;
     }
