@@ -57,6 +57,9 @@ RUN chown -R nonroot:nonroot /var/www/html
 # Expõe a porta 80 para acesso externo
 EXPOSE 80
 
+# Cria o arquivo de log de erro do Nginx e altera as permissões
+RUN touch /var/lib/nginx/logs/error.log && chown nonroot:nonroot /var/lib/nginx/logs/error.log
+
 # Muda para o usuário nonroot
 USER nonroot
 
