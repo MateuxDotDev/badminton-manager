@@ -1,6 +1,7 @@
 <?php
 use App\Competicoes\CompeticaoRepository;
 use App\Util\Database\Connection;
+use App\Util\General\UserSession;
 use App\Util\Template\Template;
 
 require_once __DIR__ . '/../../vendor/autoload.php';
@@ -8,13 +9,16 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 $pdo = Connection::getInstance();
 $repo = new CompeticaoRepository($pdo);
 $competicoes = $repo->competicoesAbertas();
+$session = UserSession::obj();
 
 $displayAlerta = empty($competicoes) ? 'block' : 'none';
 $displayTabela = empty($competicoes) ? 'none' : 'table';
 
 Template::head('Competições abertas');
 
-// TODO if tecnico logado { mostrar nav de técnico }
+if ($session->isTecnico()) {
+    Template::navTecnico();
+}
 ?>
 
 <main class="container">
