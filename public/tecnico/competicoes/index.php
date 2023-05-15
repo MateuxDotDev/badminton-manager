@@ -4,7 +4,7 @@ use App\Util\Database\Connection;
 use App\Util\General\UserSession;
 use App\Util\Template\Template;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 $pdo = Connection::getInstance();
 $repo = new CompeticaoRepository($pdo);
@@ -81,6 +81,6 @@ if ($session->isTecnico()) {
     const competicoes = <?= json_encode(array_map(fn($c) => $c->toJson(), $competicoes)) ?>;
 </script>
 
-<script src="/tecnico/competicoes.js"></script>
+<script src="/tecnico/competicoes/competicoes.js"></script>
 
 <?php Template::footer() ?>

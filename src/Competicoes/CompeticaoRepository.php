@@ -42,7 +42,7 @@ readonly class CompeticaoRepository
 
     public function competicoesAbertas(): array
     {
-        $qry = $this->pdo->query("
+        $qry = $this->pdo->query(<<<SQL
             SELECT id,
                    nome,
                    prazo,
@@ -50,7 +50,7 @@ readonly class CompeticaoRepository
               FROM competicao
              WHERE prazo >= NOW()
           ORDER BY prazo DESC
-        ");
+        SQL);
         $competicoes = [];
         foreach ($qry as $linha) {
             $competicoes[] = (new Competicao)

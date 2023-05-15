@@ -4,6 +4,7 @@ namespace Tests\Competicoes;
 
 use App\Competicoes\Competicao;
 use App\Competicoes\CompeticaoRepository;
+use ArrayIterator;
 use \DateTimeImmutable;
 use \PDO;
 use \PDOStatement;
@@ -28,7 +29,7 @@ class CompeticaoRepositoryTest extends TestCase
         ];
 
         $stmt->method('getIterator')
-            ->willReturn(new \ArrayIterator($data));
+            ->willReturn(new ArrayIterator($data));
 
         $repo = new CompeticaoRepository($pdo);
         $competicoes = $repo->todasAsCompeticoes();
@@ -132,7 +133,39 @@ class CompeticaoRepositoryTest extends TestCase
 
         $repo = new CompeticaoRepository($pdo);
         $repo->excluirCompeticao(10);
+    }
 
-        // Não há nenhum retorno para verificar neste caso. Se o método foi chamado com o parâmetro correto, o teste passará.
+    /**
+     * @throws Exception
+     */
+    public function testCompeticoesAbertas()
+    {
+        $pdo = $this->createMock(PDO::class);
+        $stmt = $this->createMock(PDOStatement::class);
+        $pdo->method('query')
+            ->willReturn($stmt);
+
+        $data = [
+            ['id' => '1', 'nome' => 'Competicao 1', 'prazo' => '2023-01-01', 'descricao' => 'teste descrição 1'],
+            ['id' => '2', 'nome' => 'Competicao 2', 'prazo' => '2023-02-01', 'descricao' => '']
+        ];
+
+        $stmt->method('getIterator')
+            ->willReturn(new ArrayIterator($data));
+
+        $repo = new CompeticaoRepository($pdo);
+        $competicoes = $repo->competicoesAbertas();
+
+        $this->assertCount(2, $competicoes);
+
+        $this->assertEquals(1, $competicoes[0]->id());
+        $this->assertEquals('Competicao 1', $competicoes[0]->nome());
+        $this->assertEquals('2023-01-01', $competicoes[0]->prazo()->format('Y-m-d'));
+        $this->assertEquals('teste descrição 1', $competicoes[0]->descricao());
+
+        $this->assertEquals(2, $competicoes[1]->id());
+        $this->assertEquals('Competicao 2', $competicoes[1]->nome());
+        $this->assertEquals('2023-02-01', $competicoes[1]->prazo()->format('Y-m-d'));
+        $this->assertEquals('', $competicoes[1]->descricao());
     }
 }

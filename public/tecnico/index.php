@@ -2,4 +2,4 @@
 
 // TODO tela inicial no futuro
 
-header('Location: /tecnico/competicoes.php');
+header('Location: /tecnico/competicoes');
