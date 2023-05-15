@@ -1,4 +1,4 @@
-# Imagem base oficial do PHP 8.1 com Apache
+# Imagem base oficial do PHP 8.2 com Apache
 FROM php:8.2-apache
 
 # Criar um grupo e usuário nonroot e instala as dependências necessárias
