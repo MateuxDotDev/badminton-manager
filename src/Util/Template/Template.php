@@ -45,4 +45,9 @@ class Template
     {
         echo file_get_contents(__DIR__. "/common/adminNav.html");
     }
+
+    public static function navTecnico(): void
+    {
+        echo file_get_contents(__DIR__. "/common/tecnicoNav.html");
+    }
 }

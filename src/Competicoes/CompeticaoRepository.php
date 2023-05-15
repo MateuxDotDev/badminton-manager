@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Admin\Competicoes;
+namespace App\Competicoes;
 
 use App\Util\General\Dates;
 use PDO;
@@ -35,6 +35,29 @@ readonly class CompeticaoRepository
                 ->setPrazo(Dates::parseDay($linha['prazo']))
                 ->setDataAlteracao(Dates::parseMicro($linha['alterado_em']))
                 ->setDataCriacao(Dates::parseMicro($linha['criado_em']))
+                ;
+        }
+        return $competicoes;
+    }
+
+    public function competicoesAbertas(): array
+    {
+        $qry = $this->pdo->query(<<<SQL
+            SELECT id,
+                   nome,
+                   prazo,
+                   descricao
+              FROM competicao
+             WHERE prazo >= NOW()
+          ORDER BY prazo DESC
+        SQL);
+        $competicoes = [];
+        foreach ($qry as $linha) {
+            $competicoes[] = (new Competicao)
+                ->setId((int) $linha['id'])
+                ->setNome($linha['nome'])
+                ->setPrazo(Dates::parseDay($linha['prazo']))
+                ->setDescricao($linha['descricao'])
                 ;
         }
         return $competicoes;

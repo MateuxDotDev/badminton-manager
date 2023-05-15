@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\Admin\Competicoes;
+namespace Tests\Competicoes;
 
-use App\Admin\Competicoes\Competicao;
+use App\Competicoes\Competicao;
 use DateTimeImmutable;
 use PHPUnit\Framework\TestCase;
 
