@@ -36,7 +36,7 @@ class Mailer implements MailerInterface
         string $body,
         string $altBody = '',
         bool $isHTML = true
-    ) : true {
+    ) : bool {
         try {
             $this->mail->setFrom($this->mail->Username, 'Suporte | MatchPoint');
             $this->mail->addAddress($toEmail, $toEmail);
