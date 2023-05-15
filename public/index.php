@@ -1,2 +1,2 @@
 <?php
-require 'login/index.php';
+require_once 'login/index.php';
