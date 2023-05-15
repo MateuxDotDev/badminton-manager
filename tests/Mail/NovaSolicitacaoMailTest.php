@@ -8,6 +8,7 @@ use App\Util\Mail\MailerInterface;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 class NovaSolicitacaoMailTest extends TestCase
 {
@@ -64,5 +65,30 @@ class NovaSolicitacaoMailTest extends TestCase
         $result = $mail->send();
 
         $this->assertTrue($result);
+    }
+
+    public function testFillTemplate()
+    {
+        $mail = new NovaSolicitacaoMail($this->mailerMock);
+
+        $templateData = [
+            'nome_tecnico' => 'John Doe',
+            'convite_atleta' => 'John Doe',
+            'convite_clube' => 'Clube A',
+            'convite_tecnico' => 'John Doe',
+            'convite_sexo' => 'Masculino',
+        ];
+
+        foreach ($templateData as $key => $value) {
+            $this->assertStringContainsString($key, $mail->getBody());
+            $this->assertStringNotContainsString($value, $mail->getBody());
+        }
+
+        $mail->fillTemplate($templateData);
+
+        foreach ($templateData as $key => $value) {
+            $this->assertStringContainsString($value, $mail->getBody());
+            $this->assertStringNotContainsString($key, $mail->getBody());
+        }
     }
 }

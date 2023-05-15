@@ -61,4 +61,9 @@ abstract class MailTemplate
         $this->altBody = $altBody;
         return $this;
     }
+
+    public function getBody(): string
+    {
+        return $this->body;
+    }
 }
