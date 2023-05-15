@@ -168,4 +168,65 @@ class CompeticaoRepositoryTest extends TestCase
         $this->assertEquals('2023-02-01', $competicoes[1]->prazo()->format('Y-m-d'));
         $this->assertEquals('', $competicoes[1]->descricao());
     }
+
+    /**
+     * @throws Exception
+     */
+    public function testGetViaId()
+    {
+        $pdo = $this->createMock(PDO::class);
+        $stmt = $this->createMock(PDOStatement::class);
+
+        $pdo->method('prepare')
+            ->willReturn($stmt);
+
+        $data = [
+            'id' => '1',
+            'nome' => 'Competicao 1',
+            'descricao' => 'Descrição da Competição 1',
+            'prazo' => '2023-01-01',
+            'criado_em' => '2022-12-12 01:01:01.123456',
+            'alterado_em' => '2023-12-12 02:02:03.121233'
+        ];
+
+        $stmt->method('fetchAll')
+            ->willReturn([$data]);
+
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->with(['id' => 1]);
+
+        $repo = new CompeticaoRepository($pdo);
+        $competicao = $repo->getViaId(1);
+
+        $this->assertInstanceOf(Competicao::class, $competicao);
+        $this->assertEquals(1, $competicao->id());
+        $this->assertEquals('Competicao 1', $competicao->nome());
+        $this->assertEquals('Descrição da Competição 1', $competicao->descricao());
+        $this->assertEquals('2023-01-01', $competicao->prazo()->format('Y-m-d'));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testGetViaIdNotFound()
+    {
+        $pdo = $this->createMock(PDO::class);
+        $stmt = $this->createMock(PDOStatement::class);
+
+        $pdo->method('prepare')
+            ->willReturn($stmt);
+
+        $stmt->method('fetchAll')
+            ->willReturn([]);
+
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->with(['id' => 999]);
+
+        $repo = new CompeticaoRepository($pdo);
+        $competicao = $repo->getViaId(999);
+
+        $this->assertNull($competicao);
+    }
 }

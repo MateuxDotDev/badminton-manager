@@ -123,7 +123,9 @@ readonly class CompeticaoRepository
         $stmt->execute(['id' => $id]);
 
         $rows = $stmt->fetchAll();
-        if (count($rows) < 1) return null;
+        if (empty($rows)) {
+            return null;
+        }
 
         $row = $rows[0];
 
