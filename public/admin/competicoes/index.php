@@ -30,7 +30,8 @@ $competicoes = $repository->todasAsCompeticoes();
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Nome</th>
+                <th>Competição</th>
+                <th>Situação</th>
                 <th>Prazo</th>
                 <th></th>
                 <th></th>
@@ -45,6 +46,17 @@ $competicoes = $repository->todasAsCompeticoes();
                             <span><?= $competicao->nome() ?></span>
                             <small><?= $competicao->descricao() ?></small>
                         </div>
+                    </td>
+                    <td>
+                        <?php
+                            [$classe, $texto]
+                              = $competicao->prazoPassou()
+                              ? ['bg-secondary', 'Passou do prazo']
+                              : ['bg-success', 'No prazo'];
+                        ?>
+                        <span class="badge <?=$classe?>">
+                            <?=$texto?>
+                        </span>
                     </td>
                     <td><?= $competicao->prazo()->format('d/m/Y') ?></td>
                     <td class="td-botao">

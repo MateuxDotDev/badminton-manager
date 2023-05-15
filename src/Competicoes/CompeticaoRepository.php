@@ -106,4 +106,36 @@ readonly class CompeticaoRepository
           ");
         $stmt->execute(['id' => $id]);
     }
+
+    public function getViaId(int $id): ?Competicao
+    {
+        $sql = <<<SQL
+            SELECT id,
+                   nome,
+                   descricao,
+                   prazo,
+                   criado_em,
+                   alterado_em
+              FROM competicao
+             WHERE id = :id
+        SQL;
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $id]);
+
+        $rows = $stmt->fetchAll();
+        if (empty($rows)) {
+            return null;
+        }
+
+        $row = $rows[0];
+
+        return (new Competicao)
+            ->setId((int) $row['id'])
+            ->setNome($row['nome'])
+            ->setDescricao($row['descricao'])
+            ->setPrazo(Dates::parseDay($row['prazo']))
+            ->setDataCriacao(Dates::parseMicro($row['criado_em']))
+            ->setDataAlteracao(Dates::parseMicro($row['alterado_em']))
+            ;
+    }
 }

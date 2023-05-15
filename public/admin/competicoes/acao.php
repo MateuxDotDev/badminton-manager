@@ -9,6 +9,7 @@ use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use App\Util\General\OldSession;
 use App\Util\Http\Request;
+use App\Util\Http\HttpStatus;
 use App\Util\Http\Response;
 
 OldSession::iniciar();
@@ -91,6 +92,12 @@ function alterarCompeticao(array $req): Response
     try {
         Request::camposRequeridos($req, ['id', 'nome', 'prazo']);
 
+        $repo = new CompeticaoRepository(Connection::getInstance());
+
+        $existente = $repo->getViaId($req['id']);
+
+        if ($existente == null) throw new ValidatorException("Competição não encontrada", HttpStatus::NOT_FOUND);
+
         $id = $req['id'];
         $nome = $req['nome'];
         $prazo = Dates::parseDay($req['prazo']);
@@ -99,18 +106,17 @@ function alterarCompeticao(array $req): Response
             throw new ValidatorException("Prazo inválido");
         }
 
-        $competicao = (new Competicao)
+        $atualizada = (new Competicao)
             ->setId($id)
             ->setNome($nome)
             ->setPrazo($prazo)
             ->setDescricao($descricao);
 
-        if ($competicao->prazoPassou()) {
-            throw new ValidatorException("Prazo deve ser no futuro");
+        if (!$existente->prazoPassou() && $atualizada->prazoPassou()) {
+            throw new ValidatorException("Novo prazo deve ser no futuro");
         }
 
-        $repo = new CompeticaoRepository(Connection::getInstance());
-        if ($repo->alterarCompeticao($competicao)) {
+        if ($repo->alterarCompeticao($atualizada)) {
             return Response::ok('Competição alterada com sucesso');
         } else {
             return Response::notFound();
