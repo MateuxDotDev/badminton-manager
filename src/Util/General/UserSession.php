@@ -10,6 +10,9 @@ class UserSession
 
     public static function obj(): UserSession
     {
+        if (session_status() != PHP_SESSION_ACTIVE) {
+            session_start();
+        }
         return new self($_SESSION);
     }
 

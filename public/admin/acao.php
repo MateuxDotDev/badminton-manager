@@ -1,11 +1,8 @@
 <?php
 
 use App\Admin\AdminRepository;
-use App\Admin\Login\Login;
-use App\Admin\Login\LoginRepository;
 use App\Util\Database\Connection;
 use App\Util\Exceptions\ValidatorException;
-use App\Util\General\OldSession;
 use App\Util\General\UserSession;
 use App\Util\Http\HttpStatus;
 use App\Util\Http\Request;
@@ -41,8 +38,7 @@ function acaoLogin(PDO $pdo, array $req): Response
         $ok = $admin->senhaCriptografada()->validar($req['usuario'], $req['senha']);
 
         if ($ok) {
-            session_start();
-            $session = new UserSession($_SESSION);
+            $session = UserSession::obj();
             $session->setAdmin();
             return Response::ok();
         } else {

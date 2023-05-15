@@ -1,18 +1,22 @@
 <?php
 
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use App\Util\Environment\Environment;
+
 function initPdo(): PDO
 {
     $dsn = sprintf(
         'pgsql:host=%s;port=%d;dbname=%s',
-        getenv('POSTGRES_HOST'),
-        getenv('POSTGRES_PORT'),
-        getenv('POSTGRES_DB')
+        Environment::getPostgresHost(),
+        Environment::getPostgresPort(),
+        Environment::getPostgresDb()
     );
 
     $pdo = new PDO(
         $dsn,
-        getenv('POSTGRES_USER'),
-        getenv('POSTGRES_PASSWORD'),
+        Environment::getPostgresUser(),
+        Environment::getPostgresPassword(),
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
