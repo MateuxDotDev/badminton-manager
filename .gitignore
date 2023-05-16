@@ -6,7 +6,6 @@ vendor/
 .idea/
 .DS_Store
 Docker/**/data/
-Docker/server/pgadmin_data/
 .phpunit.cache
 coverage.xml
 .run/
