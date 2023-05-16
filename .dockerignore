@@ -1,9 +1,9 @@
 .vscode
 .idea
 .git
-scripts
-Docker/database/data
+Docker/server/data
 Docker/dev/data
+Docker/server/pgadmin_data
 LICENSE
 README.md
 example.env
