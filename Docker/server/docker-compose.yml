@@ -2,6 +2,9 @@
 
 version: "3.9"
 
+volumes:
+  pgadmin_data:
+
 services:
   web:
     container_name: matchpoint-web
@@ -55,6 +58,6 @@ services:
       PGADMIN_SETUP_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
       PGADMIN_SERVER_JSON_FILE: /servers.json
     volumes:
-      - ./pgadmin_data:/var/lib/pgadmin
+      - pgadmin_data:/var/lib/pgadmin
       - ./servers.json:/servers.json
       - ./pgpassfile:/pgpassfile
