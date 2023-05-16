@@ -21,7 +21,7 @@ services:
 
   database:
     image: postgres:15
-    container_name: badminton-server
+    container_name: badminton-database
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}

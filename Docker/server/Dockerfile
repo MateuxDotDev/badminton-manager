@@ -16,10 +16,10 @@ WORKDIR /var/www/html
 
 # Copie os scripts para o diretório de trabalho no container
 COPY --chown=nonroot:nonroot ../../scripts ./scripts
-COPY --chown=nonroot:nonroot ../../src ./src
+#COPY --chown=nonroot:nonroot ../../src ./src
 
 WORKDIR /var/www/html/scripts
 
 # Execute o script de inicialização quando o container iniciar
 CMD ["php", "migrate.php"]
-CMD ["php", "createAdmin.php", "admin", "7!k*dV2WTUtUk6BKPyWujj!L"]
+#CMD ["php", "createAdmin.php", "<admin>", "<senha-admin>"]
