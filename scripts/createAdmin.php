@@ -17,7 +17,7 @@ Este comando cria um usuário admin com o nome 'nome_do_usuario' e a senha 'senh
 */
 
 require_once __DIR__ . '/initPDO.php';
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../src/Util/General/SenhaCriptografada.php';
 
 use App\Util\General\SenhaCriptografada;
 
@@ -28,12 +28,25 @@ function generateAdmin(string $nome, string $senha): bool
 {
     $pdo = initPdo();
 
+    $stmt = $pdo->prepare(<<<SQL
+        SELECT hash_senha, salt_senha
+          FROM "admin"
+         WHERE "user" = :user
+    SQL);
+    $stmt->bindParam(':user', $nome);
+    $stmt->execute();
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($row !== false) {
+        echo "Atenção: Usuário '{$nome}' já existe.\n";
+        exit(1);
+    }
+
     $senhaCripto = SenhaCriptografada::criptografar($nome, $senha);
 
-    $stmt = $pdo->prepare('
+    $stmt = $pdo->prepare(<<<SQL
         INSERT INTO "admin" ("user", hash_senha, salt_senha)
                    VALUES (:user, :hash_senha, :salt_senha)
-     ');
+    SQL);
     $hash = $senhaCripto->hash();
     $salt = $senhaCripto->salt();
     $stmt->bindParam(':user', $nome);
@@ -44,7 +57,7 @@ function generateAdmin(string $nome, string $senha): bool
 }
 
 if (empty($argv[1]) || empty($argv[2])) {
-    echo "Error: Usuário e senha não podem ser vazios.\n";
+    echo "Erro: Usuário e senha não podem ser vazios.\n";
     exit(1);
 }
 
