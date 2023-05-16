@@ -60,7 +60,6 @@ class AtletaRepository implements AtletaRepositoryInterface
 
             $sql = <<<SQL
                 INSERT INTO atleta (
-                    id,
                     id_tecnico,
                     nome_completo,
                     sexo,
@@ -69,7 +68,6 @@ class AtletaRepository implements AtletaRepositoryInterface
                     caminho_foto
                 )
                 VALUES (
-                    :id,
                     :id_tecnico,
                     :nome_completo,
                     :sexo,
@@ -81,13 +79,12 @@ class AtletaRepository implements AtletaRepositoryInterface
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
-                'id' => $atleta->id(),
                 'id_tecnico' => $atleta->tecnico()->id(),
                 'nome_completo' => $atleta->nomeCompleto(),
                 'sexo' => $atleta->sexo()->value,
                 'data_nascimento' => $atleta->dataNascimento()->format('Y-m-d'),
                 'informacoes_adicionais' => $atleta->informacoesAdicionais(),
-                'caminho_foto' => $atleta->foto()()
+                'caminho_foto' => $atleta->foto()
             ]);
 
             $atleta->setId($pdo->lastInsertId());

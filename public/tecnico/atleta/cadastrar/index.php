@@ -5,9 +5,9 @@ require_once __DIR__ . '/../../../../vendor/autoload.php';
 use App\Util\General\UserSession;
 use App\Util\Template\Template;
 
-Template::head('Cadastrar atleta');
-
 $session = UserSession::obj();
+
+Template::head('Cadastrar atleta');
 
 if ($session->isTecnico()) {
     Template::navTecnico();
@@ -62,17 +62,36 @@ if ($session->isTecnico()) {
 <?php Template::scripts() ?>
 
 <script>
-
     const form = document.forms['form-cadastro'];
 
     form.addEventListener('submit', (event) => {
         event.preventDefault();
+        const formData = new FormData(form);
+        formData.append('acao', 'cadastrar');
+        cadastrarConta(formData);
     });
 
-    function cadastrarConta(
-        nomeCompleto,
-        sexo,
-    )
+    async function cadastrarConta(dados) {
+        try {
+            const response = await fetch('/tecnico/atleta/cadastrar/acao.php', {
+                method: 'POST',
+                body: dados
+            });
+            const text = await response.text();
+            const retorno = JSON.parse(text);
+            if (response.ok) {
+                agendarAlertaSucesso('Atleta criado com sucesso! Você já pode adicioná-lo em uma competição.');
+                location.assign('/tecnico/atletas');
+            } else {
+                Toast.fire({
+                    icon: 'error',
+                    text: retorno.mensagem,
+                });
+            }
+        } catch (error) {
+            console.error('erro', error)
+        }
+    }
 </script>
 
 <?php Template::footer() ?>

@@ -7,6 +7,7 @@ use App\Util\General\Dates;
 use App\Util\Traits\TemDataAlteracao;
 use App\Util\Traits\TemDataCriacao;
 use DateTime;
+use DateTimeInterface;
 
 class Atleta
 {
@@ -16,7 +17,7 @@ class Atleta
     private Tecnico $tecnico;
     private string $nomeCompleto;
     private Sexo $sexo;
-    private DateTime $dataNascimento;
+    private DateTimeInterface $dataNascimento;
     private string $informacoesAdicionais = '';
     private string $foto = '';
 
@@ -44,7 +45,7 @@ class Atleta
         return $this;
     }
 
-    public function setDataNascimento(DateTime $dataNascimento): Atleta
+    public function setDataNascimento(DateTimeInterface $dataNascimento): Atleta
     {
         $this->dataNascimento = $dataNascimento;
         return $this;
@@ -82,7 +83,7 @@ class Atleta
         return $this->sexo;
     }
 
-    public function dataNascimento(): DateTime
+    public function dataNascimento(): DateTimeInterface
     {
         return $this->dataNascimento;
     }
@@ -123,7 +124,7 @@ class Atleta
             ->setId($data['id'])
             ->setTecnico($tecnico)
             ->setNomeCompleto($data['nomeCompleto'])
-            ->setSexo($data['sexo']->value)
+            ->setSexo(Sexo::from($data['sexo']))
             ->setDataNascimento($dataNascimento)
             ->setInformacoesAdicionais($data['informacoesAdicionais'])
             ->setFoto($data['foto'])
