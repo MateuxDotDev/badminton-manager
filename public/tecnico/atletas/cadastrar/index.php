@@ -17,7 +17,7 @@ if ($session->isTecnico()) {
 ?>
 
 <div class="container">
-    <h2>Cadastrar atleta</h2>
+    <h1>Cadastrar atleta</h1>
     <div class="card">
         <form name="form-cadastro" action="#" method="GET">
             <div class="card-body">
@@ -29,9 +29,8 @@ if ($session->isTecnico()) {
                     <div class="col">
                         <label class="form-label" for="sexo">Sexo</label>
                         <select class="form-control" id="sexo" name="sexo" required>
-                            <option value="Masculino">Masculino</option>
-                            <option value="Feminino">Feminino</option>
-                            <option value="Não Declarado">Não Declarado</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Feminino</option>
                         </select>
                     </div>
                     <div class="col">

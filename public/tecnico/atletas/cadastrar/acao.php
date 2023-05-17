@@ -5,13 +5,13 @@ require_once(__DIR__ . '/../../../../vendor/autoload.php');
 use App\Tecnico\Atleta\Atleta;
 use App\Tecnico\Atleta\AtletaRepository;
 use App\Tecnico\Atleta\Sexo;
-use App\Tecnico\Atleta\UploadImagemService;
 use App\Tecnico\Tecnico;
 use App\Util\Database\Connection;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use App\Util\General\UserSession;
 use App\Util\Http\Response;
+use App\Util\Services\UploadImagemService\UploadImagemService;
 
 try {
     cadastroController()->enviar();
@@ -38,21 +38,19 @@ function cadastroController(): Response
  */
 function realizarCadastro(): Response
 {
-    try {
-        $imagemService = new UploadImagemService();
-        if ($imagemService->upload($_FILES["foto"])) {
-            $atleta = validaAtleta();
-            $atleta->setFoto($imagemService->getNomeImagem());
-            $repo = new AtletaRepository(Connection::getInstance());
-            $criado = $repo->criarAtleta($atleta);
-            if ($criado > 0) {
-                return Response::ok('Atleta cadastrado com sucesso');
-            }
-        }
+    $atleta = validaAtleta();
+    $imagemService = new UploadImagemService();
 
-    } catch (Exception $e) {
-        $imagemService->removerImagem();
-        throw $e;
+    if (isset($_FILES["foto"]) && !empty($_FILES["foto"]["name"])) {
+        $atleta->setFoto($imagemService->upload($_FILES["foto"]));
+    } else {
+        $atleta->setFoto('default.png');
+    }
+
+    $repo = new AtletaRepository(Connection::getInstance(), $imagemService);
+    $criado = $repo->criarAtleta($atleta);
+    if ($criado > 0) {
+        return Response::ok('Atleta cadastrado com sucesso');
     }
 
     return Response::erro('Erro ao cadastrar atleta');

@@ -1,7 +1,7 @@
 DO $$
     BEGIN
         IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'sexo') THEN
-            CREATE TYPE sexo AS ENUM ('Masculino', 'Feminino', 'Não Declarado');
+            CREATE TYPE sexo AS ENUM ('Masculino', 'Feminino');
         END IF;
     END
 $$;

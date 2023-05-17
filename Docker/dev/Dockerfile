@@ -4,9 +4,8 @@ FROM php:8.2-apache
 # Criar um grupo e usuário nonroot e instala as dependências necessárias
 RUN groupadd -r nonroot && useradd -r -g nonroot -m nonroot \
     && apt-get update && apt-get upgrade -y \
-    && apt-get install -y --no-install-recommends libpq-dev git zip unzip fish libjpeg62-turbo-dev libpng-dev libfreetype6-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo_pgsql opcache gd \
+    && apt-get install -y --no-install-recommends libpq-dev git zip unzip fish \
+    && docker-php-ext-install pdo_pgsql opcache \
     && echo 'opcache.enable=1' >> /usr/local/etc/php/conf.d/opcache.ini \
     && apt-get clean && rm -rf /var/lib/apt/lists/* \
     && a2enmod rewrite \

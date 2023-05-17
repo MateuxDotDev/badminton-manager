@@ -1,16 +1,18 @@
-<?php
+<?php  /** @noinspection PhpClassCanBeReadonlyInspection */
 
 namespace App\Tecnico\Atleta;
 
 use App\Util\Exceptions\ValidatorException;
 use App\Util\Http\HttpStatus;
+use App\Util\Services\UploadImagemService\UploadImagemServiceInterface;
 use Exception;
 use PDO;
 
 class AtletaRepository implements AtletaRepositoryInterface
 {
     public function __construct(
-        private readonly PDO $pdo
+        private readonly PDO $pdo,
+        private readonly UploadImagemServiceInterface $uploadImagemService
     ) {}
 
     /**
@@ -19,7 +21,6 @@ class AtletaRepository implements AtletaRepositoryInterface
     public function criarAtleta(Atleta $atleta): int
     {
         $pdo = $this->pdo;
-
 
         $pdo->beginTransaction();
         try {
@@ -35,26 +36,6 @@ class AtletaRepository implements AtletaRepositoryInterface
                 throw new ValidatorException(
                     "Técnico '{$atleta->tecnico()->nomeCompleto()}' não existe",
                     HttpStatus::NOT_FOUND
-                );
-            }
-
-            $sql = <<<SQL
-                SELECT id
-                  FROM atleta
-                 WHERE nome_completo = :nome_completo
-                   AND id_tecnico = :tecnico_id
-            SQL;
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                'nome_completo' => $atleta->nomeCompleto(),
-                'tecnico_id' => $atleta->tecnico()->id()
-            ]);
-            $rows = $stmt->fetchAll();
-            if (!empty($rows)) {
-                throw new ValidatorException(
-                    "Atleta '{$atleta->nomeCompleto()}' já existe",
-                    HttpStatus::CONFLICT
                 );
             }
 
@@ -92,6 +73,7 @@ class AtletaRepository implements AtletaRepositoryInterface
 
             return $atleta->id();
         } catch (Exception $e) {
+            $this->uploadImagemService->removerImagem($atleta->foto());
             $pdo->rollback();
             throw $e;
         }
