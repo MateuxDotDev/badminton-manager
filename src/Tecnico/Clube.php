@@ -4,29 +4,18 @@ namespace App\Tecnico;
 
 use App\Util\General\Dates;
 use App\Util\Traits\TemDataCriacao;
+use App\Util\Traits\TemId;
 
 class Clube
 {
-    use TemDataCriacao;
+    use TemDataCriacao, TemId;
 
-    private ?int $id = null;
     private ?string $nome = null;
-
-    public function setId(?int $id): Clube
-    {
-        $this->id = $id;
-        return $this;
-    }
 
     public function setNome(string $nome): Clube
     {
         $this->nome = $nome;
         return $this;
-    }
-
-    public function id(): ?int
-    {
-        return $this->id;
     }
 
     public function nome(): ?string

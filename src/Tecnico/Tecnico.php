@@ -6,23 +6,17 @@ use App\Util\General\Dates;
 use App\Util\General\SenhaCriptografada;
 use App\Util\Traits\TemDataAlteracao;
 use App\Util\Traits\TemDataCriacao;
+use App\Util\Traits\TemId;
 
 class Tecnico
 {
-    use TemDataCriacao, TemDataAlteracao;
+    use TemDataCriacao, TemDataAlteracao, TemId;
 
-    private ?int $id = null;
     private string $email;
     private string $nomeCompleto;
     private string $informacoes = '';
     private Clube $clube;
     private ?SenhaCriptografada $senhaCriptografada = null;
-
-    public function setId(int $id): Tecnico
-    {
-        $this->id = $id;
-        return $this;
-    }
 
     public function setEmail(string $email): Tecnico
     {
@@ -52,11 +46,6 @@ class Tecnico
     {
         $this->senhaCriptografada = $senhaCriptografada;
         return $this;
-    }
-
-    public function id(): ?int
-    {
-        return $this->id;
     }
 
     public function email(): string
