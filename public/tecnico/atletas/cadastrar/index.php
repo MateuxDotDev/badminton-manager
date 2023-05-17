@@ -72,7 +72,7 @@ if ($session->isTecnico()) {
 
     async function cadastrarConta(dados) {
         try {
-            const response = await fetch('/tecnico/atleta/cadastrar/acao.php', {
+            const response = await fetch('/tecnico/atletas/cadastrar/acao.php', {
                 method: 'POST',
                 body: dados
             });

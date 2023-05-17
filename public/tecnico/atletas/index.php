@@ -1,3 +1,3 @@
 <?php
 
-header('Location: /tecnico/atletass/cadastrar/');
+header('Location: /tecnico/atletas/cadastrar/');
