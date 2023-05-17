@@ -53,7 +53,7 @@ class UploadImagemService implements UploadImagemServiceInterface
         $targetFile = $this->imagesFolder . basename($file["name"]);
         if (!in_array(pathinfo($targetFile, PATHINFO_EXTENSION), self::ALLOWED_EXTENSIONS)) {
             throw new ValidatorException(
-                'Formato de arquivo inválido. Permitidos' . implode(', ', self::ALLOWED_EXTENSIONS)
+                'Formato de arquivo inválido. Permitidos: ' . implode(', ', self::ALLOWED_EXTENSIONS)
             );
         }
     }
