@@ -41,31 +41,31 @@ class AtletaRepository implements AtletaRepositoryInterface
 
             $sql = <<<SQL
                 INSERT INTO atleta (
-                    id_tecnico,
+                    tecnico_id,
                     nome_completo,
                     sexo,
                     data_nascimento,
-                    informacoes_adicionais,
-                    caminho_foto
+                    informacoes,
+                    path_foto
                 )
                 VALUES (
-                    :id_tecnico,
+                    :tecnico_id,
                     :nome_completo,
                     :sexo,
                     :data_nascimento,
-                    :informacoes_adicionais,
-                    :caminho_foto
+                    :informacoes,
+                    :path_foto
                 )
             SQL;
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
-                'id_tecnico' => $atleta->tecnico()->id(),
+                'tecnico_id' => $atleta->tecnico()->id(),
                 'nome_completo' => $atleta->nomeCompleto(),
                 'sexo' => $atleta->sexo()->value,
                 'data_nascimento' => $atleta->dataNascimento()->format('Y-m-d'),
-                'informacoes_adicionais' => $atleta->informacoesAdicionais(),
-                'caminho_foto' => $atleta->foto()
+                'informacoes' => $atleta->informacoesAdicionais(),
+                'path_foto' => $atleta->foto()
             ]);
 
             $atleta->setId($pdo->lastInsertId());
