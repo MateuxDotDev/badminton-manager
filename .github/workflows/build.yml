@@ -42,10 +42,14 @@ jobs:
         env:
           DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
         run: |
           response=$(curl -s -w "\n%{http_code}" -X POST \
             "$DEPLOY_URL" \
             -H 'Content-Type: application/json' \
+            -H 'CF-Access-Client-Id: "$CF_ACCESS_CLIENT_ID"' \
+            -H 'CF-Access-Client-Secret: "$CF_ACCESS_CLIENT_SECRET"' \
             -d '{
               "token": "'"$DEPLOY_TOKEN"'"
             }')
