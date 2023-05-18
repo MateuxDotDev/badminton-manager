@@ -43,14 +43,19 @@ jobs:
           DEPLOY_URL: ${{ secrets.DEPLOY_URL }}
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
         run: |
-          status_code=$(curl -s -o /dev/null -w "%{http_code}" -X POST \
+          response=$(curl -s -w "\n%{http_code}" -X POST \
             "$DEPLOY_URL" \
             -H 'Content-Type: application/json' \
             -d '{
               "token": "'"$DEPLOY_TOKEN"'"
             }')
 
+          status_code=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n-1)
+
           if [ "$status_code" -ne 200 ]; then
             echo "Error: Request to deploy endpoint returned status code $status_code"
+            echo "Response body:"
+            echo "$body"
             exit 1
           fi
