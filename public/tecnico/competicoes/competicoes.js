@@ -39,7 +39,7 @@ function pesquisar(termos) {
     nenhumaEncontrada.style.display = algumaEncontrada ? 'none' : 'block';
 }
 
-inputPesquisa.addEventListener('keydown', throttle(500, (evento) => {
+inputPesquisa.addEventListener('keydown', debounce(300, () => {
     const termos = (inputPesquisa.value ?? '').split(/\s+/);
     pesquisar(termos)
 }));
