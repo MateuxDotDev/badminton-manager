@@ -39,14 +39,7 @@ function pesquisar(termos) {
     nenhumaEncontrada.style.display = algumaEncontrada ? 'none' : 'block';
 }
 
-// debounce
-let timeoutPesquisa = null;
-inputPesquisa.addEventListener('keydown', () => {
-    if (timeoutPesquisa) {
-        clearTimeout(timeoutPesquisa);
-    }
-    timeoutPesquisa = setTimeout(() => {
-        const termos = (inputPesquisa.value ?? '').split(/\s+/);
-        pesquisar(termos)
-    }, 200);
-});
+inputPesquisa.addEventListener('keydown', throttle(500, (evento) => {
+    const termos = (inputPesquisa.value ?? '').split(/\s+/);
+    pesquisar(termos)
+}));
