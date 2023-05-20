@@ -9,9 +9,6 @@ use App\Tecnico\TecnicoRepositoryArray;
 use PHPUnit\Framework\TestCase;
 use App\Util\Exceptions\ValidatorException;
 
-// TODO quando implementar funcionalidade de vincular técnico
-// com clube existente, testar
-
 class CadastrarTest extends TestCase
 {
     private Cadastrar $cadastrar;
@@ -21,18 +18,13 @@ class CadastrarTest extends TestCase
         $repo = new TecnicoRepositoryArray();
 
         $data1 = Dates::parseMicro("2023-10-10 12:13:14.999999");
-        $clube1 = (new Clube)
-            ->setNome('Clube de Rio do Sul')
-            ->setDataCriacao($data1)
-            ;
         $tec1 = (new Tecnico)
             ->setEmail('tecnico@badminton.com')
             ->setNomeCompleto('Fulano da Silva')
             ->setDataCriacao($data1)
             ->setDataAlteracao($data1)
-            ->setClube($clube1)
             ;
-        $repo->criarTecnico($tec1);
+        $repo->criarTecnico($tec1, 'Clube de Rio do Sul');
 
         $this->cadastrar = new Cadastrar($repo);
     }
@@ -45,8 +37,7 @@ class CadastrarTest extends TestCase
                 email: 'tecnico@badminton.com',
                 nomeCompleto: 'Outro técnico',
                 senha: 'senhaSegura123',
-                nomeClubeNovo: 'Outro clube',
-                idClubeExistente: null,
+                nomeClube: 'Outro clube',
                 informacoes: '',
             );
             ($this->cadastrar)($dto);
@@ -64,8 +55,7 @@ class CadastrarTest extends TestCase
                 email: 'email@novo.com',
                 nomeCompleto: 'Outro técnico',
                 senha: 'senhaSegura123',
-                nomeClubeNovo: 'Outro clube',
-                idClubeExistente: null,
+                nomeClube: 'Outro clube',
                 informacoes: '',
             );
             $data = ($this->cadastrar)($dto);
@@ -73,8 +63,8 @@ class CadastrarTest extends TestCase
         $this->assertNull($e);
         $this->assertArrayHasKey('id', $data);
         $this->assertArrayHasKey('idClube', $data);
-        $this->assertEquals($data['id'], 2);
-        $this->assertEquals($data['idClube'], 2);
+        $this->assertEquals(2, $data['id']);
+        $this->assertEquals(2, $data['idClube']);
     }
 
     public function testCadastraComClubeExistente(): void
@@ -85,8 +75,7 @@ class CadastrarTest extends TestCase
                 email: 'email@novo.com',
                 nomeCompleto: 'Beltrano',
                 senha: 'senhaMuitoSegura123',
-                nomeClubeNovo: null,
-                idClubeExistente: 1,
+                nomeClube: 'Clube de Rio do Sul',
                 informacoes: '',
             );
             $data = ($this->cadastrar)($dto);
@@ -94,7 +83,7 @@ class CadastrarTest extends TestCase
         $this->assertNull($e);
         $this->assertArrayHasKey('id', $data);
         $this->assertArrayHasKey('idClube', $data);
-        $this->assertEquals($data['id'], 2);
-        $this->assertEquals($data['idClube'], 1);
+        $this->assertEquals(2, $data['id']);
+        $this->assertEquals(1, $data['idClube']);
     }
 }

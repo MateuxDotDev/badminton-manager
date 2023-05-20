@@ -2,7 +2,6 @@
 
 namespace Tests\Tecnico;
 
-use App\Tecnico\Clube;
 use App\Tecnico\Tecnico;
 use App\Tecnico\TecnicoRepository;
 use App\Util\Exceptions\ValidatorException;
@@ -139,17 +138,15 @@ class TecnicoRepositoryTest extends TestCase
 
     public function testCriarTecnico()
     {
-        $clube = (new Clube)
-            ->setId(1)
-            ->setNome('Clube A');
         $senha = SenhaCriptografada::existente('hashed_password', 'salt');
 
         $tecnico = (new Tecnico)
             ->setEmail('john@example.com')
             ->setSenhaCriptografada($senha)
             ->setNomeCompleto('John Doe')
-            ->setInformacoes('Informações sobre o técnico')
-            ->setClube($clube);
+            ->setInformacoes('Informações sobre o técnico');
+
+        $nomeClube = 'Clube A';
 
         $this->pdoMock->expects($this->once())
             ->method('beginTransaction');
@@ -157,22 +154,31 @@ class TecnicoRepositoryTest extends TestCase
         $this->pdoMock->expects($this->once())
             ->method('commit');
 
-        $this->pdoMock->expects($this->once())
-            ->method('prepare')
-            ->willReturnCallback(function () {
-                $stmtMock = $this->createMock(PDOStatement::class);
-                $stmtMock->expects($this->any())
-                    ->method('execute')
-                    ->willReturn(true);
-                return $stmtMock;
-            });
+        $stmtSelectClube = $this->createMock(PDOStatement::class);
+        $stmtSelectClube->method('execute')->willReturn(true); 
+        $stmtSelectClube->method('fetchAll')->willReturn([
+            [
+                'id' => '1',
+                'nome' => 'Clube A'
+            ]
+        ]);
 
-        $this->pdoMock->expects($this->once())
+        $stmtInsertTecnico = $this->createMock(PDOStatement::class);
+        $stmtInsertTecnico->method('execute')->willReturn(true);
+
+        $this->pdoMock->expects($this->exactly(2))
+            ->method('prepare')
+            ->willReturn(
+                $stmtSelectClube,
+                $stmtInsertTecnico,
+            );
+
+        $this->pdoMock->expects($this->exactly(1))
             ->method('lastInsertId')
             ->willReturn('1');
 
         try {
-            $this->tecnicoRepository->criarTecnico($tecnico);
+            $this->tecnicoRepository->criarTecnico($tecnico, $nomeClube);
             $this->assertEquals(1, $tecnico->id());
         } catch (Exception $e) {
             $this->fail('Unexpected exception thrown: ' . $e->getMessage());
@@ -181,16 +187,15 @@ class TecnicoRepositoryTest extends TestCase
 
     public function testCriarTecnicoComNovoClube()
     {
-        $clube = (new Clube)
-            ->setNome('Clube B');
         $senha = SenhaCriptografada::existente('hashed_password', 'salt');
 
         $tecnico = (new Tecnico)
             ->setEmail('jane@example.com')
             ->setSenhaCriptografada($senha)
             ->setNomeCompleto('Jane Doe')
-            ->setInformacoes('Informações sobre a técnica')
-            ->setClube($clube);
+            ->setInformacoes('Informações sobre a técnica');
+
+        $nomeClube = 'Clube B';
 
         $this->pdoMock->expects($this->once())
             ->method('beginTransaction');
@@ -198,23 +203,31 @@ class TecnicoRepositoryTest extends TestCase
         $this->pdoMock->expects($this->once())
             ->method('commit');
 
-        $this->pdoMock->expects($this->exactly(2))
+        $stmtSelectClube = $this->createMock(PDOStatement::class);
+        $stmtSelectClube->method('execute')->willReturn(true);
+        $stmtSelectClube->method('fetchAll')->willReturn([]);
+
+        $stmtInsertClube = $this->createMock(PDOStatement::class);
+        $stmtInsertClube->method('execute')->willReturn(true);
+
+        $stmtInsertTecnico = $this->createMock(PDOStatement::class);
+        $stmtInsertTecnico->method('execute')->willReturn(true);
+        
+        $this->pdoMock->expects($this->exactly(3))
             ->method('prepare')
-            ->willReturnCallback(function () {
-                $stmtMock = $this->createMock(PDOStatement::class);
-                $stmtMock->expects($this->any())
-                    ->method('execute')
-                    ->willReturn(true);
-                return $stmtMock;
-            });
+            ->willReturn(
+                $stmtSelectClube,
+                $stmtInsertClube,
+                $stmtInsertTecnico
+            );
 
         $this->pdoMock->expects($this->exactly(2))
             ->method('lastInsertId')
             ->willReturn('1', '2');
 
         try {
-            $this->tecnicoRepository->criarTecnico($tecnico);
-            $this->assertEquals(1, $clube->id());
+            $this->tecnicoRepository->criarTecnico($tecnico, $nomeClube);
+            $this->assertEquals(1, $tecnico->clube()->id());
             $this->assertEquals(2, $tecnico->id());
         } catch (Exception $e) {
             $this->fail('Unexpected exception thrown: ' . $e->getMessage());
@@ -240,17 +253,15 @@ class TecnicoRepositoryTest extends TestCase
 
     public function testCriarTecnicoException()
     {
-        $clube = (new Clube)
-            ->setId(1)
-            ->setNome('Clube A');
         $senha = SenhaCriptografada::existente('hashed_password', 'salt');
 
         $tecnico = (new Tecnico)
             ->setEmail('john@example.com')
             ->setSenhaCriptografada($senha)
             ->setNomeCompleto('John Doe')
-            ->setInformacoes('Informações sobre o técnico')
-            ->setClube($clube);
+            ->setInformacoes('Informações sobre o técnico');
+
+        $nomeClube = 'Clube A';
 
         $this->pdoMock->expects($this->once())
             ->method('beginTransaction');
@@ -267,6 +278,6 @@ class TecnicoRepositoryTest extends TestCase
 
         $this->expectException(Exception::class);
 
-        $this->tecnicoRepository->criarTecnico($tecnico);
+        $this->tecnicoRepository->criarTecnico($tecnico, $nomeClube);
     }
 }

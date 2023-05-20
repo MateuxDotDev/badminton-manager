@@ -22,23 +22,15 @@ class TecnicoRepositoryArrayTest extends TestCase
             ->setId(1)
             ->setEmail('tecnico1@example.com')
             ->setSenhaCriptografada(SenhaCriptografada::criptografar('tecnico1@example.com', 'senha1'))
-            ->setNomeCompleto('Tecnico 1')
-            ->setClube((new Clube())
-                ->setId(1)
-                ->setNome('Clube A')
-            );
+            ->setNomeCompleto('Tecnico 1');
         $tecnico2 = (new Tecnico())
             ->setId(2)
             ->setEmail('tecnico2@example.com')
             ->setSenhaCriptografada(SenhaCriptografada::criptografar('tecnico2@example.com', 'senha2'))
-            ->setNomeCompleto('Tecnico 2')
-            ->setClube((new Clube())
-                ->setId(2)
-                ->setNome('Clube B')
-            );
+            ->setNomeCompleto('Tecnico 2');
 
-        $tecnicoRepository->criarTecnico($tecnico1);
-        $tecnicoRepository->criarTecnico($tecnico2);
+        $tecnicoRepository->criarTecnico($tecnico1, 'Clube A');
+        $tecnicoRepository->criarTecnico($tecnico2, 'Clube B');
 
         $tecnicoEncontrado = $tecnicoRepository->getViaEmail('tecnico2@example.com');
 
@@ -56,23 +48,15 @@ class TecnicoRepositoryArrayTest extends TestCase
             ->setId(1)
             ->setEmail('tecnico1@example.com')
             ->setSenhaCriptografada(SenhaCriptografada::criptografar('tecnico1@example.com', 'senha1'))
-            ->setNomeCompleto('Tecnico 1')
-            ->setClube((new Clube())
-                ->setId(1)
-                ->setNome('Clube A')
-            );
+            ->setNomeCompleto('Tecnico 1');
         $tecnico2 = (new Tecnico())
             ->setId(2)
             ->setEmail('tecnico2@example.com')
             ->setSenhaCriptografada(SenhaCriptografada::criptografar('tecnico2@example.com', 'senha2'))
-            ->setNomeCompleto('Tecnico 2')
-            ->setClube((new Clube())
-                ->setId(2)
-                ->setNome('Clube B')
-            );
+            ->setNomeCompleto('Tecnico 2');
 
-        $tecnicoRepository->criarTecnico($tecnico1);
-        $tecnicoRepository->criarTecnico($tecnico2);
+        $tecnicoRepository->criarTecnico($tecnico1, 'Clube A');
+        $tecnicoRepository->criarTecnico($tecnico2, 'Clube B');
 
         $tecnicoEncontrado = $tecnicoRepository->getViaId(2);
 
@@ -82,24 +66,48 @@ class TecnicoRepositoryArrayTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testCriarTecnico()
+    public function testCriarTecnicoClubeNovo()
     {
-        $clube = (new Clube)
-            ->setId(1)
-            ->setNome('Clube A');
-
         $tecnico = (new Tecnico)
             ->setEmail('john@example.com')
             ->setSenhaCriptografada(SenhaCriptografada::criptografar('john@example.com', 'senha123'))
             ->setNomeCompleto('John Doe')
-            ->setInformacoes('Informações sobre o técnico')
-            ->setClube($clube);
+            ->setInformacoes('Informações sobre o técnico');
 
         $repo = new TecnicoRepositoryArray();
-        $repo->criarTecnico($tecnico);
+        $repo->criarTecnico($tecnico, 'Clube A');
 
         $this->assertEquals($tecnico, $repo->getViaId(1));
         $this->assertEquals($tecnico, $repo->getViaEmail('john@example.com'));
+        $this->assertNotNull($tecnico->clube());
+        $this->assertEquals(1, $tecnico->clube()->id());
+        $this->assertEquals('Clube A', $tecnico->clube()->nome());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testCriarTecnicoClubeExistente()
+    {
+        $repo = new TecnicoRepositoryArray();
+
+        $t1 = (new Tecnico)
+            ->setEmail('john@example.com')
+            ->setSenhaCriptografada(SenhaCriptografada::criptografar('john@example.com', 'senha123'))
+            ->setNomeCompleto('John Doe')
+            ->setInformacoes('Informações sobre o técnico');
+        $repo->criarTecnico($t1, 'Clube A');
+
+        $t2 = (new Tecnico)
+            ->setEmail('jane@example.com')
+            ->setSenhaCriptografada(SenhaCriptografada::criptografar('jane@example.com', 'senhaExtremamenteSegura'))
+            ->setNomeCompleto('Jane Doe')
+            ->setInformacoes('Informações sobre a técnica');
+        $repo->criarTecnico($t2, 'Clube A');
+
+        $this->assertNotNull($t2->clube());
+        $this->assertEquals(1, $t2->clube()->id());
+        $this->assertEquals('Clube A', $t2->clube()->nome());
     }
 
     public function testGetViaIdReturnsNull(): void

@@ -3,9 +3,6 @@ use App\Util\Template\Template;
 
 require_once(__DIR__.'/../../vendor/autoload.php');
 
-// TODO para clube a implementação inicial é sempre criar o clube
-// só depois fazer a funcionalidade de escolher clube existente
-
 Template::head('Cadastre-se');
 ?>
 
@@ -59,16 +56,12 @@ Template::head('Cadastre-se');
 
     form.addEventListener('submit', (event) => {
         event.preventDefault();
-        const clube = {
-            novo: true,
-            nome: form.clube.value,
-        }
         criarContaTecnico(
             form.email.value,
             form.senha.value,
             form.nome.value,
             form.informacoes.value,
-            clube,
+            form.clube.value,
         );
     });
 
