@@ -45,6 +45,10 @@ function realizarCadastro(array $req): Response
 
 function pesquisarClubes(array $req): Response
 {
+    // TODO trazer somente os 20 resultados mais similares
+    // atualmente busca os 20 por ordem de qtd de técnicos
+    // pode tb trazer só 10 ou outro numero
+
     $termos = [];
     if (!empty($req) && isset($req['termos'])) {
         $termos = $req['termos'];
@@ -63,15 +67,23 @@ function pesquisarClubes(array $req): Response
     );
 
     $sql = <<<SQL
-        SELECT id, nome
-          FROM clube
-         WHERE $filtro
+          SELECT c.id, c.nome, count(t.id) qtd_tecnicos
+            FROM clube c
+            JOIN tecnico t
+              ON t.clube_id = c.id
+           WHERE $filtro
+        GROUP BY c.id, c.nome
+        ORDER BY qtd_tecnicos DESC
+           LIMIT 20
     SQL;
 
     try {
         $pdo = Connection::getInstance();
         $stmt = $pdo->query($sql);
-        $resultados = $stmt->fetchAll();
+        $resultados = [];
+        while ($row = $stmt->fetch()) {
+            $resultados[] = $row;
+        }
         return Response::ok('', ['resultados' => $resultados]);
     } catch (Exception $e) {
         return Response::erroException($e);
