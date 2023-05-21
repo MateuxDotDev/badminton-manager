@@ -190,9 +190,10 @@ Template::head('Cadastre-se');
             alertaDigitar.style.display = 'none';
             opcaoClubeDigitado.elem.style.display = 'block';
 
-            opcaoClubeDigitado.input.value = value;
             opcaoClubeDigitado.label.innerText = value;
-            opcaoClubeDigitado.input.dispatchEvent(new Event('click'));
+            opcaoClubeDigitado.input.value = value;
+            opcaoClubeDigitado.input.checked = true;
+            opcaoClubeDigitado.input.dispatchEvent(new Event('change'));
 
             if (timeoutPesquisa) clearTimeout(timeoutPesquisa);
 
