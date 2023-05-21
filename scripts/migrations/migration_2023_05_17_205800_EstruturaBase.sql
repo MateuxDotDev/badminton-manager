@@ -18,7 +18,8 @@ create table if not exists atleta (
 --
 /* sub15, sub17 etc. */
 create table if not exists categoria (
-    descricao text primary key,
+    id serial primary key,
+    descricao text,
     /* a partir dessa idade não pode mais jogar
        (começa a partir do ano que o atleta faz aniversário
        p.ex. mesmo que a competição ocorra quando ele ainda tiver 16, se ele fizer 17 no mesmo ano, não pode mais na sub17) */
@@ -41,8 +42,8 @@ create table if not exists atleta_competicao (
 create table if not exists atleta_competicao_categoria (
     atleta_id     bigint,
     competicao_id bigint,
-    categoria     text references categoria(descricao),
-    primary key (atleta_id, competicao_id, categoria),
+    categoria_id  bigint references categoria(id),
+    primary key (atleta_id, competicao_id, categoria_id),
     foreign key (atleta_id, competicao_id) references atleta_competicao (atleta_id, competicao_id)
 );
 
@@ -68,18 +69,18 @@ create table if not exists solicitacao_dupla_pendente (
     atleta_origem_id  bigint references atleta(id),
     atleta_destino_id bigint references atleta(id),
     informacoes       text not null default '',
-    categoria         text references categoria(descricao),
+    categoria_id      bigint references categoria(id),
     tipo_dupla        sexo not null,
     criado_em         timestamp not null default now(),
     alterado_em       timestamp not null default now(),
 
-    unique (competicao_id, atleta_origem_id, atleta_destino_id, categoria),
+    unique (competicao_id, atleta_origem_id, atleta_destino_id, categoria_id),
 
-    foreign key (atleta_origem_id, competicao_id, categoria)
-    references atleta_competicao_categoria (atleta_id, competicao_id, categoria),
+    foreign key (atleta_origem_id, competicao_id, categoria_id)
+    references atleta_competicao_categoria (atleta_id, competicao_id, categoria_id),
 
-    foreign key (atleta_destino_id, competicao_id, categoria)
-    references atleta_competicao_categoria (atleta_id, competicao_id, categoria),
+    foreign key (atleta_destino_id, competicao_id, categoria_id)
+    references atleta_competicao_categoria (atleta_id, competicao_id, categoria_id),
 
     foreign key (atleta_origem_id, competicao_id, tipo_dupla)
     references atleta_competicao_tipo_dupla (atleta_id, competicao_id, tipo_dupla),
@@ -98,7 +99,7 @@ create table if not exists solicitacao_dupla_concluida (
     atleta_origem_id  bigint references atleta(id),
     atleta_destino_id bigint references atleta(id),
     informacoes       text not null,
-    categoria         text references categoria(descricao),
+    categoria_id      bigint references categoria(id),
     tipo_dupla        sexo not null,
     criado_em         timestamp not null,
     alterado_em       timestamp not null,
@@ -126,7 +127,7 @@ create table if not exists solicitacao_dupla_concluida (
 create table if not exists dupla (
     id             serial primary key,
     competicao_id  bigint references competicao(id),
-    categoria      text references categoria(descricao),
+    categoria_id   bigint references categoria(id),
     atleta1_id     bigint references atleta(id),
     atleta2_id     bigint references atleta(id),
     solicitacao_id bigint references solicitacao_dupla_concluida(id),

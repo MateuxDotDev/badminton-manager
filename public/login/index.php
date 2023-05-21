@@ -29,11 +29,7 @@ Template::head('Login');
 <?php Template::scripts() ?>
 
 <main id="container-login">
-    <!-- TODO logo -->
-    <h1 class="my-5">
-        MatchPoint
-        <small>| Login de técnico</small>
-    </h1>
+    <span class="titulo-pagina">Login de Técnico</span>
 
     <div id="etapa-email" style="display: none">
         <form name="form-email">

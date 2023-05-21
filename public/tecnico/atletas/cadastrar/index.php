@@ -10,14 +10,14 @@ $session = UserSession::obj();
 Template::head('Cadastrar atleta');
 
 if ($session->isTecnico()) {
-    Template::navTecnico();
+    Template::navTecnicoLogado();
 } else {
     Template::naoAutorizado();
 }
 ?>
 
 <div class="container">
-    <h1>Cadastrar atleta</h1>
+    <span class="titulo-pagina">Cadastrar atleta</span>
     <div class="card">
         <form name="form-cadastro" action="#" method="GET">
             <div class="card-body">

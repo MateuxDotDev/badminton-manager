@@ -19,11 +19,7 @@ Template::head('Cadastre-se');
 </style>
 
 <main class="container">
-    <h1 class="my-5">
-        <!-- TODO logo -->
-        MatchPoint
-        <small> | Cadastro de técnico</small>
-    </h1>
+    <span class="titulo-pagina">Cadastro de Técnico </span>
     <form name="form-cadastro" action="#" method="GET">
         <div class="mb-3">
             <label class="form-label">E-mail</label>

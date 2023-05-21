@@ -16,13 +16,13 @@ $displayTabela = empty($competicoes) ? 'none' : 'table';
 
 Template::head('Competições abertas');
 
-if ($session->isTecnico()) {
-    Template::navTecnico();
-}
+if ($session->isTecnico()) Template::navTecnicoLogado();
+else Template::navTecnicoNaoLogado();
+
 ?>
 
 <main class="container">
-    <h1 class="mt-3">MatchPoint <small>| Competições abertas</small></h1>
+    <span class="titulo-pagina">Competições abertas</span>
     <div class="input-group mt-5">
         <input class="form-control" type="search" id="pesquisa" placeholder="Digite o nome ou descrição de uma competição..."/>
         <span class="input-group-text input-group-prepend">
@@ -58,10 +58,10 @@ if ($session->isTecnico()) {
 
                     <!-- TODO após implementar essas telas, colocar os links aqui -->
                     <td class="td-botao">
-                        <button class="btn btn-outline-primary">
+                        <a href="/tecnico/competicoes/atletas/?competicao=<?= $competicao->id() ?>" class="btn btn-outline-primary">
                             <i class="bi bi-person"></i>
                             Ver atletas
-                        </button>
+                        </a>
                     </td>
                     <td class="td-botao">
                         <button class="btn btn-outline-success">
