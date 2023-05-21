@@ -86,5 +86,20 @@ class Atleta
     {
         return $this->foto;
     }
+
+    public function toJson(): array
+    {
+        return [
+            'id' => $this->id(),
+            'nomeCompleto' => $this->nomeCompleto(),
+            'sexo' => $this->sexo()->toString(),
+            'dataNascimento' => $this->dataNascimento()->format('d/m/Y'),
+            'informacoesAdicionais' => $this->informacoesAdicionais(),
+            'foto' => $this->foto(),
+            'idade' => Dates::age($this->dataNascimento()),
+            'dataCriacao' => Dates::formatBr($this->dataCriacao()),
+            'dataAlteracao' => Dates::formatBr($this->dataAlteracao())
+        ];
+    }
 }
 
