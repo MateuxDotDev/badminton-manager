@@ -63,6 +63,17 @@ foreach ($categorias as $categoria) {
 
 ?>
 
+<style>
+    #btn-marcar-todas-categorias, #btn-desmarcar-todas-categorias {
+        color: black;
+        opacity: 0.4;
+    }
+    #btn-marcar-todas-categorias:hover, #btn-desmarcar-todas-categorias:hover {
+        color: var(--bs-primary);
+        opacity: 1.0;
+    }
+</style>
+
 <div class="container">
     <span class="titulo-pagina">Consulta de atletas precisando de duplas</span>
     <div class="card">
@@ -104,7 +115,15 @@ foreach ($categorias as $categoria) {
 
             <div class="row mb-3">
                 <div class="col-12 col-md-6 mb-3 mb-md-0">
-                    <label class="form-label">Categorias</label>
+                    <span class="form-label d-flex flex-row gap-3 align-items-center">
+                        <span>Categorias</span>
+                        <button id="btn-marcar-todas-categorias" class="btn btn-link btn-sm" title="Marcar todas">
+                            <i class="bi bi-check-square-fill fs-5"></i>
+                        </button>
+                        <button id="btn-desmarcar-todas-categorias" class="btn btn-link btn-sm" title="Desmarcar todas">
+                            <i class="bi bi-x-square fs-5"></i>
+                        </button>
+                    </span>
                     <div class="d-flex flex-row gap-5">
                         <div>
                             <?= implode('', array_slice($inputsCategorias, 0, 7)) ?>
@@ -138,11 +157,31 @@ foreach ($categorias as $categoria) {
                 </div>
             </div>
 
-            <div class="d-flex flex-row justify-content-end">
-                <button id="btn-filtrar" class="btn btn-outline-success">
-                    <i class="bi bi-filter"></i>&nbsp;
-                    Filtrar
-                </button>
+            <div class="d-flex flex-column flex-md-row gap-3">
+                <div class="d-flex flex-row gap-3 align-items-center">
+                    <span>
+                        Ordenação
+                    </span>
+                    <div>
+                        <button id="btn-ordenacao-tipo" class="btn btn-outline-secondary" data-ordenacao="asc" style="width: 120px">
+                            Crescente
+                        </button>
+                    </div>
+                    <div>
+                        <select id="ordenacao-campo" class="form-control">
+                            <option value="nome-atleta">Nome do atleta</option>
+                            <option value="nome-tecnico">Nome do técnico</option>
+                            <option value="clube">Clube</option>
+                            <option value="idade">Idade</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="ms-auto">
+                    <button id="btn-filtrar" class="btn btn-outline-success">
+                        <i class="bi bi-filter"></i>&nbsp;
+                        Filtrar
+                    </button>
+                </div>
             </div>
 
         </div>
@@ -150,5 +189,33 @@ foreach ($categorias as $categoria) {
 </div>
 
 <?php Template::scripts(); ?>
+
+<script>
+    const inputsCategorias = document.querySelectorAll('.input-categoria');
+    const btnOrdenacaoTipo = document.querySelector('#btn-ordenacao-tipo');
+
+    btnOrdenacaoTipo.addEventListener('click', () => {
+        const btn = btnOrdenacaoTipo;
+        if (btn.getAttribute('data-ordenacao') == 'asc') {
+            btn.setAttribute('data-ordenacao', 'desc');
+            btn.innerText = 'Decrescente';
+        } else {
+            btn.setAttribute('data-ordenacao', 'asc');
+            btn.innerText = 'Crescente';
+        }
+    });
+
+    document.querySelector('#btn-marcar-todas-categorias').addEventListener('click', () => {
+        for (const input of inputsCategorias) {
+            input.checked = true;
+        }
+    });
+
+    document.querySelector('#btn-desmarcar-todas-categorias').addEventListener('click', () => {
+        for (const input of inputsCategorias) {
+            input.checked = false;
+        }
+    });
+</script>
 
 <?php Template::footer(); ?>
