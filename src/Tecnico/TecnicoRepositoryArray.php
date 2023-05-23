@@ -28,12 +28,19 @@ class TecnicoRepositoryArray implements TecnicoRepositoryInterface
         return null;
     }
 
-    public function criarTecnico(Tecnico $tecnico): void
+    public function criarTecnico(Tecnico $tecnico, string $nomeClube): void
     {
-        $tecnico->setId($this->proximoIdTecnico++);
-        if ($tecnico->clube()->id() == null) {
-            $tecnico->clube()->setId($this->proximoIdClube++);
+        $clube = null;
+        foreach ($this->tecnicos as $t) {
+            if ($t->clube()->nome() == $nomeClube) {
+                $clube = $t->clube();
+                break;
+            }
         }
+        $clube ??= (new Clube)->setNome($nomeClube)->setId($this->proximoIdClube++);
+
+        $tecnico->setId($this->proximoIdTecnico++);
+        $tecnico->setClube($clube);
         $this->tecnicos[] = $tecnico;
     }
 }

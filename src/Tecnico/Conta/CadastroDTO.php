@@ -10,8 +10,7 @@ readonly class CadastroDTO
         public string $email,
         public string $nomeCompleto,
         public string $senha,
-        public ?string $nomeClubeNovo,
-        public ?int $idClubeExistente,
+        public string $nomeClube,
         public ?string $informacoes,
     ) {}
 
@@ -26,20 +25,7 @@ readonly class CadastroDTO
             }
         }
         
-        $clube = $req['clube'];
-        if (!array_key_exists('novo', $req['clube'])) {
-            throw new ValidatorException("Campo 'novo' em 'clube' está faltando");
-        }
-        if ($clube['novo'] && !array_key_exists('nome', $clube)) {
-            throw new ValidatorException("Nome do clube novo está faltando");
-        }
-        if (!$clube['novo'] && !array_key_exists('id', $clube)) {
-            throw new ValidatorException("Id do clube existente está faltando");
-        }
-
-        $idClubeExistente = $clube['novo'] ? null : $clube['id'];
-        $nomeClubeNovo    = $clube['novo'] ? $clube['nome'] : null;
-
+        $nomeClube    = $req['clube'];
         $senha        = $req['senha'];
         $informacoes  = array_key_exists('informacoes', $req) ? $req['informacoes'] : '';
 
@@ -47,6 +33,6 @@ readonly class CadastroDTO
             throw new ValidatorException('E-mail inválido');
         }
 
-        return new self($email, $req['nome'], $senha, $nomeClubeNovo, $idClubeExistente, $informacoes);
+        return new self($email, $req['nome'], $senha, $nomeClube, $informacoes);
     }
 }
