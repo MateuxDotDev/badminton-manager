@@ -100,9 +100,8 @@ class TecnicoRepository implements TecnicoRepositoryInterface
 
     /**
      * Caso exista um clube com o nome informado, esse clube é retornado; caso contrário, o clube é criado e retornado.
-     * 
-     * @throws Exception
-     * 
+     *
+     * @param string $nome
      * @return Clube
      */
     public function buscarOuCriarClube(string $nome): Clube
@@ -134,9 +133,12 @@ class TecnicoRepository implements TecnicoRepositoryInterface
 
     /**
      * @throws Exception
-     * 
+     *
      * @param Tecnico $tecnico Técnico a ser cadastrado, sem atributo clube necessário
-     * @param string $nomeClube Nome do clube do técnico. Caso já existe um clube com esse nome, o técnico será vinculado e esse clube; caso contrário, iremos criar um clube com esse nome e vincular o técnico ao clube criado. A instância de técnico passada terá o clube buscado ou criado vinculado a ela.
+     * @param string $nomeClube Nome do clube do técnico.
+     * Caso já existe um clube com esse nome, o técnico será vinculado e esse clube;
+     * Caso contrário, iremos criar um clube com esse nome e vincular o técnico ao clube criado.
+     * A instância de técnico passada terá o clube buscado ou criado vinculado a ela.
      */
     public function criarTecnico(Tecnico $tecnico, string $nomeClube): void
     {
