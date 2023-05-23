@@ -99,20 +99,54 @@ class TecnicoRepository implements TecnicoRepositoryInterface
     }
 
     /**
-     * @throws Exception
+     * Caso exista um clube com o nome informado, esse clube é retornado; caso contrário, o clube é criado e retornado.
+     *
+     * @param string $nome
+     * @return Clube
      */
-    public function criarTecnico(Tecnico $tecnico): void
+    public function buscarOuCriarClube(string $nome): Clube
+    {
+        $pdo  = $this->pdo;
+
+        $sql  = "SELECT id FROM clube WHERE nome ILIKE :nome";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['nome' => $nome]);
+
+        $rows = $stmt->fetchAll();
+
+        $clube = (new Clube)->setNome($nome);
+
+        if (!empty($rows)) {
+            $id = $rows[0]['id'];
+
+            $clube->setId((int) $id);
+        } else {
+            $sql  = "INSERT INTO clube (nome) VALUES (:nome)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(['nome' => $nome]);
+
+            $clube->setId((int) $pdo->lastInsertId());
+        }
+
+        return $clube;
+    }
+
+    /**
+     * @throws Exception
+     *
+     * @param Tecnico $tecnico Técnico a ser cadastrado, sem atributo clube necessário
+     * @param string $nomeClube Nome do clube do técnico.
+     * Caso já existe um clube com esse nome, o técnico será vinculado e esse clube;
+     * Caso contrário, iremos criar um clube com esse nome e vincular o técnico ao clube criado.
+     * A instância de técnico passada terá o clube buscado ou criado vinculado a ela.
+     */
+    public function criarTecnico(Tecnico $tecnico, string $nomeClube): void
     {
         $pdo = $this->pdo;
 
         $pdo->beginTransaction();
         try {
-            $clube = $tecnico->clube();
-            if ($clube->id() === null) {
-                $sql = 'INSERT INTO clube (nome) VALUES (:nome)';
-                $pdo->prepare($sql)->execute(['nome' => $clube->nome()]);
-                $clube->setId($pdo->lastInsertId());
-            }
+            $tecnico->setClube($this->buscarOuCriarClube($nomeClube));
 
             $sql = <<<SQL
                 INSERT INTO tecnico (email, nome_completo, informacoes, clube_id, hash_senha, salt_senha)
