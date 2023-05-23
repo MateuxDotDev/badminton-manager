@@ -58,28 +58,28 @@ function pesquisarClubes(array $req): Response
         return Response::erro('Informe pelo menos um termo de busca');
     }
 
-    $filtro = implode(
-        ' AND ',
-        array_map(
-            fn($termo) => "nome like '%" . addslashes($termo) . "%'",
-            $termos
-        ),
-    );
+    $condicoes  = array_fill(0, count($termos), 'nome ILIKE ?');
+    $parametros = array_map(fn($t) => "%$t%", $termos);
+
+    $where = implode(' AND ', $condicoes);
 
     $sql = <<<SQL
-          SELECT c.id, c.nome, count(t.id) qtd_tecnicos
-            FROM clube c
-            JOIN tecnico t
-              ON t.clube_id = c.id
-           WHERE $filtro
-        GROUP BY c.id, c.nome
-        ORDER BY qtd_tecnicos DESC
-           LIMIT 20
+           SELECT c.id, c.nome, COUNT(t.id) qtd_tecnicos
+             FROM clube c
+        LEFT JOIN tecnico t
+               ON t.clube_id = c.id
+            WHERE $where
+         GROUP BY c.id, c.nome
+         ORDER BY qtd_tecnicos DESC
+            LIMIT 20
     SQL;
 
     try {
         $pdo = Connection::getInstance();
-        $stmt = $pdo->query($sql);
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($parametros);
+
         $resultados = [];
         while ($row = $stmt->fetch()) {
             $resultados[] = $row;

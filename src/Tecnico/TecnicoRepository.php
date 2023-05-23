@@ -109,7 +109,7 @@ class TecnicoRepository implements TecnicoRepositoryInterface
     {
         $pdo  = $this->pdo;
 
-        $sql  = "SELECT id FROM clube WHERE nome = :nome";
+        $sql  = "SELECT id FROM clube WHERE nome ILIKE :nome";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['nome' => $nome]);
 

@@ -193,7 +193,6 @@ Template::head('Cadastre-se');
             opcaoClubeDigitado.label.innerText = value;
             opcaoClubeDigitado.input.value = value;
             opcaoClubeDigitado.input.checked = true;
-            opcaoClubeDigitado.input.dispatchEvent(new Event('change'));
 
             if (timeoutPesquisa) clearTimeout(timeoutPesquisa);
 
@@ -205,7 +204,7 @@ Template::head('Cadastre-se');
 
                 limparResultadosPesquisa();
                 for (const clube of clubes) {
-                    if (clube.nome == value) continue;
+                    if (clube.nome.toUpperCase() == value.toUpperCase()) continue;
                     containerOpcoesClubes.append(opcaoClube(clube.id, clube.nome));
                 }
             });
