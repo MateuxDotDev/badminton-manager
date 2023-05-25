@@ -82,8 +82,9 @@ try {
     </section>
 </main>
 
-<?php Template::scripts() ?>
+<?php require_once './atleta-card.html'; ?>
 
+<?php Template::scripts() ?>
 
 <script>
     const atletas = <?= json_encode(array_map(fn($a) => $a->toJson(), $atletas)) ?>;
@@ -91,41 +92,41 @@ try {
     const conteudo = document.querySelector('#conteudo');
     const inputPesquisa = document.querySelector('#pesquisa');
     const componentesAtletas = [];
+    const template = document.querySelector('#atleta-card-template');
 
-    // On load page, show all atletas
+    const createAtletaCard = (atleta) => {
+        let card = template.content.cloneNode(true);
+
+        card.querySelector('.atleta-card').id = `atleta-${atleta.id}`;
+        card.querySelector('.nome_completo').textContent = atleta.nomeCompleto;
+        card.querySelector('.idade').textContent = `${atleta.idade} anos`;
+        card.querySelector('.data_nascimento').textContent = atleta.dataNascimento;
+        card.querySelector('.sexo').textContent = atleta.sexo;
+        if (atleta.informacoesAdicionais) {
+            card.querySelector('.informacoes_adicionais').textContent = atleta.informacoesAdicionais;
+        } else {
+            card.querySelector('.informacoes_adicionais').classList.add('d-none');
+            card.querySelector('.info-adicional-titulo').innerText = 'Sem informações adicionais';
+        }
+        card.querySelector('.criado_em').title = `Criado em: ${atleta.dataCriacao}`;
+        card.querySelector('.ultima_alteracao').title = `Última alteração: ${atleta.dataAlteracao}`;
+
+        const img = card.querySelector('.profile-pic');
+        img.src = `/assets/images/profile/${atleta.foto}`;
+        img.alt = `Foto de perfil de ${atleta.nomeCompleto}`;
+
+        return card;
+    }
+
     window.addEventListener('load', () => {
         atletas.forEach(atleta => {
-            conteudo.insertAdjacentHTML('beforeend', createAtletaCard(atleta));
-            if (!atleta.informacoesAdicionais) {
-                const infoAdicionais = document.querySelector(`#atleta-${atleta.id} .info-adicional-titulo`);
-                infoAdicionais.innerText = 'Sem informações adicionais';
-            }
+            conteudo.appendChild(createAtletaCard(atleta));
         });
-
         componentesAtletas.push(...document.querySelectorAll('.atleta-card'));
-
         inputPesquisa.addEventListener('keydown', debounce(300, () => {
             pesquisar(inputPesquisa.value.trim() ?? '');
         }));
     });
-
-    const atletaCardString = `<?= file_get_contents('./atleta-card.html') ?>`;
-
-    function createAtletaCard(atleta) {
-        let newCard = structuredClone(atletaCardString);
-
-        newCard = replaceKeyInString(newCard, 'id', atleta.id);
-        newCard = replaceKeyInString(newCard, 'imagem_perfil', atleta.foto);
-        newCard = replaceKeyInString(newCard, 'nome_completo', atleta.nomeCompleto);
-        newCard = replaceKeyInString(newCard, 'idade', atleta.idade);
-        newCard = replaceKeyInString(newCard, 'data_nascimento', atleta.dataNascimento);
-        newCard = replaceKeyInString(newCard, 'sexo', atleta.sexo);
-        newCard = replaceKeyInString(newCard, 'informacoes_adicionais', atleta.informacoesAdicionais);
-        newCard = replaceKeyInString(newCard, 'criado_em', atleta.dataCriacao);
-        newCard = replaceKeyInString(newCard, 'ultima_alteracao', atleta.dataAlteracao);
-
-        return newCard;
-    }
 
     const chavesPesquisa = ['nomeCompleto', 'idade', 'dataNascimento', 'sexo', 'informacoesAdicionais'];
 
