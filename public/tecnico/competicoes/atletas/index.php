@@ -55,7 +55,7 @@ foreach ($categorias as $categoria) {
 
     $inputsCategorias[] = "
         <div class='form-check'>
-            <input name='categoria[]' checked class='form-check-input input-categoria' type='checkbox' id='categoria-$id'>
+            <input checked class='form-check-input input-categoria' type='checkbox' id='categoria-$id' value='$id'>
             <label for='categoria-$id' class='form-check-label'>$descricao</label>
         </div>
     ";
@@ -102,9 +102,9 @@ foreach ($categorias as $categoria) {
                     <label class="form-label">Idade</label>
                     <div class="input-group">
                         <div class="input-group-text">Entre</div>
-                        <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*" id="idade-minimo"/>
+                        <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*" id="idade-maior-que"/>
                         <div class="input-group-text">e</div>
-                        <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*" id="idade-maximo"/>
+                        <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*" id="idade-menor-que"/>
                     </div>
                 </div>
                 <div class="col">
@@ -136,22 +136,22 @@ foreach ($categorias as $categoria) {
                 <div class="col-12 col-md-3 mb-3 mb-md-0">
                     <label class="form-label">Sexo</label>
                     <div class='form-check'>
-                        <input checked class='form-check-input' type='checkbox' id='sexo-masculino'>
+                        <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='M'>
                         <label for='sexo-masculino' class='form-check-label'>Masculino</label>
                     </div>
                     <div class='form-check'>
-                        <input checked class='form-check-input' type='checkbox' id='sexo-feminino'>
+                        <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='F'>
                         <label for='sexo-feminino' class='form-check-label'>Feminino</label>
                     </div>
                 </div>
                 <div class="col-12 col-md-3 mb-3 mb-md-0">
                     <label class="form-label">Buscando dupla</label>
                     <div class='form-check'>
-                        <input checked class='form-check-input' type='checkbox' id='dupla-masculina'>
+                        <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='M'>
                         <label for='dupla-masculina' class='form-check-label'>Masculina</label>
                     </div>
                     <div class='form-check'>
-                        <input checked class='form-check-input' type='checkbox' id='dupla-feminina'>
+                        <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='F'>
                         <label for='dupla-feminina' class='form-check-label'>Feminina</label>
                     </div>
                 </div>
@@ -169,10 +169,11 @@ foreach ($categorias as $categoria) {
                     </div>
                     <div>
                         <select id="ordenacao-campo" class="form-control">
-                            <option value="nome-atleta">Nome do atleta</option>
-                            <option value="nome-tecnico">Nome do técnico</option>
+                            <option value="nomeAtleta">Nome do atleta</option>
+                            <option value="nomeTecnico">Nome do técnico</option>
                             <option value="clube">Clube</option>
                             <option value="idade">Idade</option>
+                            <option value="dataAlteracao">Data da última atualização</option>
                         </select>
                     </div>
                 </div>
@@ -191,31 +192,114 @@ foreach ($categorias as $categoria) {
 <?php Template::scripts(); ?>
 
 <script>
-    const inputsCategorias = document.querySelectorAll('.input-categoria');
-    const btnOrdenacaoTipo = document.querySelector('#btn-ordenacao-tipo');
 
-    btnOrdenacaoTipo.addEventListener('click', () => {
-        const btn = btnOrdenacaoTipo;
-        if (btn.getAttribute('data-ordenacao') == 'asc') {
-            btn.setAttribute('data-ordenacao', 'desc');
-            btn.innerText = 'Decrescente';
+const baseUrl = location.origin;
+
+const inputsCategorias = qsa('.input-categoria');
+const btnOrdenacaoTipo = qs('#btn-ordenacao-tipo');
+
+const idCompeticao = <?= $_GET['competicao'] ?>;
+
+btnOrdenacaoTipo.addEventListener('click', () => {
+    const btn = btnOrdenacaoTipo;
+    if (btn.getAttribute('data-ordenacao') == 'asc') {
+        btn.setAttribute('data-ordenacao', 'desc');
+        btn.innerText = 'Decrescente';
+    } else {
+        btn.setAttribute('data-ordenacao', 'asc');
+        btn.innerText = 'Crescente';
+    }
+});
+
+qs('#btn-marcar-todas-categorias').addEventListener('click', () => {
+    for (const input of inputsCategorias) {
+        input.checked = true;
+    }
+});
+
+qs('#btn-desmarcar-todas-categorias').addEventListener('click', () => {
+    for (const input of inputsCategorias) {
+        input.checked = false;
+    }
+});
+
+qs('#btn-filtrar').addEventListener('click', async () => {
+    const filtros = getFiltros();
+    const resultados = await pesquisarAtletas(filtros);
+    console.log('resultados', resultados);
+});
+
+
+function getFiltros() {
+    // TODO
+    const pagina = 1;
+    const porPagina = 25;
+
+    const filtros = {};
+
+    function addFiltroText(nome, input) {
+        if (!input) return
+        if (!input.value) return
+        const value = input.value.trim();
+        if (!value) return
+        filtros[nome] = value;
+    }
+
+    function addFiltroCheckbox(nome, inputs) {
+        const selecionados = inputs.filter(x => x.checked).map(x => x.value)
+        const todos        = inputs.map(x => x.value)
+        filtros[nome] = selecionados.length == 0 ? todos : selecionados;
+    }
+
+    addFiltroText('nomeAtleta', qs('#nome-atleta'));
+    addFiltroText('nomeTecnico', qs('#nome-tecnico'));
+    addFiltroText('clube', qs('#clube'));
+    addFiltroText('idadeMaiorQue', qs('#idade-maior-que'));
+    addFiltroText('idadeMenorQue', qs('#idade-menor-que'));
+
+    addFiltroCheckbox('categorias', Array.from(qsa('.input-categoria')));
+    addFiltroCheckbox('sexoAtleta', Array.from(qsa('.input-sexo-atleta')));
+    addFiltroCheckbox('sexoDupla', Array.from(qsa('.input-sexo-dupla')));
+
+    filtros.idCompeticao = idCompeticao;
+    filtros.ordenacao = qs('#btn-ordenacao-tipo').getAttribute('data-ordenacao');
+    filtros.colunaOrdenacao = qs('#ordenacao-campo').selectedOptions[0].value;
+
+    filtros.limit = porPagina;
+    filtros.offset = (pagina - 1) * porPagina;
+
+    return filtros;
+}
+
+
+async function pesquisarAtletas(filtros) {
+    const url = new URL(baseUrl + '/tecnico/competicoes/atletas/controller.php');
+
+    for (const chave in filtros) {
+        const valor = filtros[chave];
+        if (Array.isArray(valor)) {
+            const chaveArray = chave + '[]';
+            for (const elem of valor) {
+                url.searchParams.append(chaveArray, elem)
+            }
         } else {
-            btn.setAttribute('data-ordenacao', 'asc');
-            btn.innerText = 'Crescente';
+            url.searchParams.append(chave, valor)
         }
-    });
+    }
 
-    document.querySelector('#btn-marcar-todas-categorias').addEventListener('click', () => {
-        for (const input of inputsCategorias) {
-            input.checked = true;
-        }
-    });
+    url.searchParams.append('acao', 'pesquisar');
 
-    document.querySelector('#btn-desmarcar-todas-categorias').addEventListener('click', () => {
-        for (const input of inputsCategorias) {
-            input.checked = false;
-        }
-    });
+    const response = await fetch(url);
+    const text     = await response.text();
+
+    try {
+        return JSON.parse(text);
+    } catch (err) {
+        console.error('text', text);
+        console.error('err', err);
+    }
+}
+
 </script>
 
 <?php Template::footer(); ?>
