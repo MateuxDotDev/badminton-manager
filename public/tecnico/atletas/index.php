@@ -21,15 +21,18 @@ if ($session->isTecnico()) {
 }
 
 $hasError = false;
+$atletas = [];
 
+try {
+    $repo = new AtletaRepository(Connection::getInstance(), new UploadImagemService());
+    $atletas = $repo->getViaTecnico($session->getTecnico()->id());
+} catch (Exception $e) {
+    $hasError = true;
+}
 ?>
 
 <style>
     .profile-pic {
-        min-width: 24px;
-        min-height: 24px;
-        max-width: 128px;
-        max-height: 128px;
         border-radius: 50%;
         object-fit: cover;
         object-position: center;
@@ -59,11 +62,13 @@ $hasError = false;
         <input class="form-control" type="search" id="pesquisa" placeholder="Digite aqui informações do atleta que deseja buscar..."/>
     </section>
 
-    <section id="sem-atletas" class="d-none alert alert-info">
-        <p class="mb-0">
-            <i class="bi bi-info-circle"></i> Nenhum atleta cadastrado. <a href="/tecnico/atletas/cadastrar">Clique aqui</a> para cadastrar um novo atleta.
-        </p>
-    </section>
+    <?php if (empty($atletas)): ?>
+        <section id="sem-atletas" class="d-none alert alert-info">
+            <p class="mb-0">
+                <i class="bi bi-info-circle"></i> Nenhum atleta cadastrado. <a href="/tecnico/atletas/cadastrar">Clique aqui</a> para cadastrar um novo atleta.
+            </p>
+        </section>
+    <?php endif ?>
 
     <?php if ($hasError): ?>
         <section class="alert alert-danger">
@@ -77,20 +82,7 @@ $hasError = false;
     </section>
 </main>
 
-<?php
-
-Template::scripts();
-
-$atletas = [];
-
-try {
-    $repo = new AtletaRepository(Connection::getInstance(), new UploadImagemService());
-    $atletas = $repo->getViaTecnico($session->getTecnico()->id());
-} catch (Exception $e) {
-    $hasError = true;
-}
-
-?>
+<?php Template::scripts() ?>
 
 
 <script>
@@ -98,22 +90,23 @@ try {
 
     const conteudo = document.querySelector('#conteudo');
     const inputPesquisa = document.querySelector('#pesquisa');
-    const semAtletas = document.querySelector('#sem-atletas');
     const componentesAtletas = [];
 
     // On load page, show all atletas
     window.addEventListener('load', () => {
-        if (atletas.length === 0) {
-            semAtletas.classList.remove('d-none');
-        } else {
-            semAtletas.classList.add('d-none');
-        }
-
         atletas.forEach(atleta => {
             conteudo.insertAdjacentHTML('beforeend', createAtletaCard(atleta));
+            if (!atleta.informacoesAdicionais) {
+                const infoAdicionais = document.querySelector(`#atleta-${atleta.id} .info-adicional-titulo`);
+                infoAdicionais.innerText = 'Sem informações adicionais';
+            }
         });
 
         componentesAtletas.push(...document.querySelectorAll('.atleta-card'));
+
+        inputPesquisa.addEventListener('keydown', debounce(300, () => {
+            pesquisar(inputPesquisa.value.trim() ?? '');
+        }));
     });
 
     const atletaCardString = `<?= file_get_contents('./atleta-card.html') ?>`;
@@ -133,18 +126,6 @@ try {
 
         return newCard;
     }
-
-    // debounce
-    let timeoutPesquisa = null;
-    inputPesquisa.addEventListener('keydown', () => {
-        if (timeoutPesquisa) {
-            clearTimeout(timeoutPesquisa);
-        }
-
-        timeoutPesquisa = setTimeout(() => {
-            pesquisar(inputPesquisa.value ?? '');
-        }, 200);
-    });
 
     const chavesPesquisa = ['nomeCompleto', 'idade', 'dataNascimento', 'sexo', 'informacoesAdicionais'];
 

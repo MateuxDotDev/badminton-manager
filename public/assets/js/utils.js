@@ -6,10 +6,14 @@ const filterByMultipleKeys = (array, keys, value) => {
     return array.filter(item => {
         return keys.some(key => {
             const itemValue = item[key];
-            if (typeof itemValue === "string") {
-                return itemValue.toLowerCase().includes(value.toLowerCase());
+            switch (typeof itemValue) {
+                case "string":
+                    return itemValue.toLowerCase().includes(value.toLowerCase());
+                case "number":
+                    return itemValue === Number(value);
+                default:
+                    return false;
             }
-            return false;
         });
     });
 }
