@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand navbar-dark bg-success mb-4 text-light">
+<nav class="navbar navbar-expand navbar-dark bg-success mb-4 text-light fixed-top">
   <div class="container">
     <a class="navbar-brand" href="/">
       <img src="/assets/images/brand/light-full-logo.svg" alt="MatchPoint" height="32">
@@ -35,7 +35,17 @@
             navItem.classList.add('active');
           }
         });
+
+        window.addEventListener("resize", adjustPadding);
+        adjustPadding();
+
+        function adjustPadding() {
+          const navHeight = document.querySelector('.navbar').offsetHeight;
+          document.body.style.paddingTop = navHeight + 'px';
+        }
       });
     </script>
   </div>
 </nav>
+
+<div class="mt-4"></div>
