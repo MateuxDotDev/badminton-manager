@@ -101,4 +101,51 @@ class AtletaRepositoryTest extends TestCase
 
         $this->atletaRepository->criarAtleta($this->atleta);
     }
+
+    public function testGetViaTecnico(): void
+    {
+        $expectedData = [
+            [
+                'id' => 1,
+                'nome_completo' => 'Teste Atleta',
+                'sexo' => Sexo::MASCULINO->value,
+                'data_nascimento' => '2000-01-01',
+                'informacoes' => 'Teste Informacoes',
+                'path_foto' => 'Teste Foto',
+                'criado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
+                'alterado_em' => (new DateTime())->format('Y-m-d H:i:s.u')
+            ]
+        ];
+
+        $this->pdo->method('prepare')->willReturn($this->pdoStatement);
+        $this->pdoStatement->method('execute')->with(['tecnico_id' => $this->tecnico->id()])->willReturn(true);
+        $this->pdoStatement->method('fetchAll')->willReturn($expectedData);
+
+        $atletas = $this->atletaRepository->getViaTecnico($this->tecnico->id());
+
+        $this->assertCount(1, $atletas);
+
+        /** @var Atleta $atleta */
+        $atleta = $atletas[0];
+        $this->assertSame($expectedData[0]['id'], $atleta->id());
+        $this->assertSame($expectedData[0]['nome_completo'], $atleta->nomeCompleto());
+        $this->assertSame(Sexo::from($expectedData[0]['sexo']), $atleta->sexo());
+        $this->assertSame($expectedData[0]['data_nascimento'], $atleta->dataNascimento()->format('Y-m-d'));
+        $this->assertSame($expectedData[0]['informacoes'], $atleta->informacoesAdicionais());
+        $this->assertSame($expectedData[0]['path_foto'], $atleta->foto());
+        $this->assertSame($expectedData[0]['criado_em'], $atleta->dataCriacao()->format('Y-m-d H:i:s.u'));
+        $this->assertSame($expectedData[0]['alterado_em'], $atleta->dataAlteracao()->format('Y-m-d H:i:s.u'));
+    }
+
+    public function testGetViaTecnicoThrowsExceptionOnQueryError(): void
+    {
+        $this->pdo->method('prepare')->willReturn($this->pdoStatement);
+        $this->pdoStatement->method('execute')->with(['tecnico_id' => $this->tecnico->id()])
+            ->will($this->throwException(new PDOException('Error Message')));
+
+        $this->expectException(PDOException::class);
+        $this->expectExceptionMessage('Error Message');
+
+        $this->atletaRepository->getViaTecnico($this->tecnico->id());
+    }
 }

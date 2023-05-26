@@ -15,3 +15,7 @@ pre.sf-dump {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+.mw-384 {
+    max-width: 384px !important;
+}

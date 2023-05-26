@@ -22,7 +22,7 @@ if ($session->isTecnico()) {
 ?>
 
 <main class="container">
-    <h1 class="mt-3">MatchPoint <small>| Competições abertas</small></h1>
+    <h1 class="mt-3">Competições abertas</small></h1>
     <div class="input-group mt-5">
         <input class="form-control" type="search" id="pesquisa" placeholder="Digite o nome ou descrição de uma competição..."/>
         <span class="input-group-text input-group-prepend">

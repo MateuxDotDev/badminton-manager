@@ -9,12 +9,9 @@ enum Sexo: string
 
     public function toString(): string
     {
-        if ($this == self::MASCULINO) {
-            return 'Masculino';
-        } elseif ($this == self::FEMININO) {
-            return 'Feminino';
-        } else {
-            return 'Não informado';
-        }
+        return match ($this) {
+            self::MASCULINO => 'Masculino',
+            self::FEMININO => 'Feminino',
+        };
     }
 }
