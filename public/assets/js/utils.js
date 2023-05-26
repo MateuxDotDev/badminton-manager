@@ -1,7 +1,21 @@
-const replaceKeyInString = (string, key, value) => string.replaceAll(`{{ ${key} }}`, value);
+/**
+ * Set the value of an attribute of an element
+ *
+ * @param {HTMLElement} element - The element to be modified
+ * @param {string} attribute    - The attribute to be modified
+ * @param {string} value        - The value to be set
+ */
+const setInAttribute = (element, attribute, value) => {
+    element.setAttribute(attribute, value);
+}
 
-const filterBy = (array, key, value) => array.filter(item => item[key] === value);
-
+/**
+ * Filters an array of objects by a single key
+ *
+ * @param {Array} array  - The array to be filtered
+ * @param {Array} keys   - The keys to be searched
+ * @param {string} value - The value to be searched
+ */
 const filterByMultipleKeys = (array, keys, value) => {
     return array.filter(item => {
         return keys.some(key => {
@@ -18,6 +32,13 @@ const filterByMultipleKeys = (array, keys, value) => {
     });
 }
 
+/**
+ * Creates a timeout that will be cleared if the function is called again
+ *
+ * @param {number} t   - The timeout in milliseconds
+ * @param {function} f - The function to be called
+ * @returns {function} - The debounced function
+ */
 function debounce(t, f) {
     let timeout = null
     return (...args) => {
@@ -26,6 +47,13 @@ function debounce(t, f) {
     }
 }
 
+/**
+ * Slows down the execution of a function
+ *
+ * @param {number} t   - The timeout in milliseconds
+ * @param {function} f - The function to be called
+ * @returns {function} - The throttled function
+ */
 function throttle(t, f) {
     let lastTime = null
     return (...args) => {

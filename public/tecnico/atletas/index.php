@@ -109,11 +109,11 @@ try {
             card.querySelector('.info-adicional-titulo').innerText = 'Sem informações adicionais';
         }
         const botaoInfo = card.querySelector('.botao-info');
-        botaoInfo.setAttribute('data-bs-content', `Criado em: ${atleta.dataCriacao}.\nAlterado em: ${atleta.dataAlteracao}.`);
-
         const img = card.querySelector('.profile-pic');
-        img.src = `/assets/images/profile/${atleta.foto}`;
-        img.alt = `Foto de perfil de ${atleta.nomeCompleto}`;
+
+        setInAttribute(botaoInfo, 'data-bs-content', `Criado em: ${atleta.dataCriacao}.\nAlterado em: ${atleta.dataAlteracao}.`);
+        setInAttribute(img, 'src', `/assets/images/profile/${atleta.foto}`);
+        setInAttribute(img, 'alt', `Foto de perfil de ${atleta.nomeCompleto}`);
 
         return card;
     }
