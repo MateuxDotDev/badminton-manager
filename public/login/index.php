@@ -7,32 +7,14 @@ use App\Util\Template\Template;
 Template::head('Login');
 ?>
 
-<style>
-    @media (max-width: 700px) {
-        #container-login {
-            width: 90vw;
-        }
-    }
-    @media not (max-width: 700px) {
-        #container-login {
-            width: 40vw;
-        }
-    }
-    #container-login {
-        margin: auto;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-</style>
-
 <?php Template::scripts() ?>
 
-<main id="container-login">
-    <!-- TODO logo -->
-    <h1 class="my-5">
-        MatchPoint
-        <small>| Login de técnico</small>
+<main class="container-sm d-flex flex-column justify-content-center m-auto" style="max-width: 360px;">
+    <header class="d-flex flex-column text-center">
+        <img src="/assets/images/brand/favicon.svg" alt="MatchPoint" class="mb-4" height="48vw">
+        <h1 class="fs-2">Acesse a plataforma</h1>
+        <p class="text-muted mb-4">Encontre parceiros de jogo e participe de competições emocionantes com nossas funcionalidades exclusivas</p>
+    </header>
     </h1>
 
     <div id="etapa-email" style="display: none">
@@ -41,9 +23,9 @@ Template::head('Login');
                 <label class="form-label">E-mail</label>
                 <input name="email" type="email" class="form-control" required/>
             </div>
-            <div class="d-flex flex-column gap-3">
-                <button id="btn-continuar" type="submit" class="btn btn-primary">Continuar</button>
-                <small>Não tem uma conta? <a href="/cadastro">cadastre-se</a>.</small>
+            <div class="d-flex flex-column gap-3 text-center">
+                <button id="btn-continuar" type="submit" class="btn btn-success">Continuar</button>
+                <small>Ainda não possui cadastro? <a href="/cadastro">Crie sua conta aqui</a>.</small>
             </div>
         </form>
     </div>
@@ -58,13 +40,12 @@ Template::head('Login');
                 <label class="form-label" for="senha">Senha</label>
                 <input class="form-control" type="password" id="senha" name="senha" required/>
             </div>
-            <div class="d-flex flex-column gap-3">
-                <button id="btn-entrar" type="submit" class="btn btn-primary">Entrar</button>
-                <small><a href="#" id="link-voltar">Voltar</a>.</small>
+            <div class="d-flex flex-row gap-3">
+                <button id="link-voltar" type="button" class="btn btn-outline-secondary" style="width: 48px; height: 48px;" title="Voltar"><i class="bi bi-arrow-left"></i></button>
+                <button id="btn-entrar" type="submit" class="btn btn-success w-100">Entrar</button>
             </div>
         </form>
     </div>
-
 </main>
 
 <script>

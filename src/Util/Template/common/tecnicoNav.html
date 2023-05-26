@@ -1,24 +1,26 @@
-<nav class="navbar navbar-expand bg-light">
-  <div class="container-fluid">
-    <span class="navbar-brand">MatchPoint</span>
+<nav class="navbar navbar-expand navbar-dark bg-success mb-4 text-light fixed-top">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <img src="/assets/images/brand/light-full-logo.svg" alt="MatchPoint" height="32">
+    </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-tecnico">
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="nav-tecnico">
       <ul class="navbar-nav">
         <li class="nav-item" id="tecnico-links-list">
-          <a href="/tecnico/competicoes" class="nav-link">
+          <a href="/tecnico/competicoes/" class="nav-link">
             Competições
           </a>
         </li>
-        <li>
-          <a href="/tecnico/atletas" class="nav-link">
-            Atletas
+        <li class="nav-item">
+          <a href="/tecnico/atletas/" class="nav-link">
+            Meus atletas
           </a>
         </li>
       </ul>
-      <a href="/tecnico/sair.php" class="ms-auto nav-link">
-        Sair
+      <a href="/tecnico/sair.php" class="ms-auto nav-link" title="Sair">
+        <i class="bi bi-box-arrow-in-left fs-4"></i>
       </a>
     </div>
     <script>
@@ -26,14 +28,24 @@
         const navItems = document.querySelectorAll('.navbar-nav .nav-item .nav-link');
         const currentPath = window.location.pathname;
 
-        navItems.forEach(function (navItem) {
+        navItems.forEach((navItem) => {
           const navItemHref = navItem.getAttribute('href');
 
-          if (currentPath.startsWith(navItemHref)) {
+          if (currentPath === navItemHref) {
             navItem.classList.add('active');
           }
         });
+
+        window.addEventListener("resize", adjustPadding);
+        adjustPadding();
+
+        function adjustPadding() {
+          const navHeight = document.querySelector('.navbar').offsetHeight;
+          document.body.style.paddingTop = navHeight + 'px';
+        }
       });
     </script>
   </div>
 </nav>
+
+<div class="mt-4"></div>

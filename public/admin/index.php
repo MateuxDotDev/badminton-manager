@@ -47,7 +47,6 @@ Template::head('Administrador | Login');
                 })
             });
             const texto = await response.text();
-            console.log('texto', texto)
             const json = JSON.parse(texto);
 
             if (response.ok) {

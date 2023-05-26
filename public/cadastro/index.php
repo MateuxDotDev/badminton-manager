@@ -6,21 +6,13 @@ require_once(__DIR__.'/../../vendor/autoload.php');
 Template::head('Cadastre-se');
 ?>
 
-<style>
-    @media (max-width: 768px) {
-        .btn {
-            width: 100%;
-        }
-    }
-        
-</style>
+<main class="container-sm d-flex flex-column justify-content-center m-auto" style="max-width: 512px;">
+    <header class="d-flex flex-column text-center mt-5">
+        <img src="/assets/images/brand/favicon.svg" alt="MatchPoint" class="mb-4" height="48vw">
+        <h1 class="fs-2">Crie sua conta</h1>
+        <p class="text-muted mb-4">Encontre parceiros de jogo e participe de competições emocionantes com nossas funcionalidades exclusivas</p>
+    </header>
 
-<main class="container">
-    <h1 class="my-5">
-        <!-- TODO logo -->
-        MatchPoint
-        <small> | Cadastro de técnico</small>
-    </h1>
     <form name="form-cadastro" action="#" method="GET">
         <div class="mb-3">
             <label class="form-label">E-mail</label>
@@ -60,9 +52,9 @@ Template::head('Cadastre-se');
                 </div>
             </div>
         </div>
-        <div class="d-flex flex-row gap-3 align-items-center" style="margin-bottom: 500px">
+        <div class="d-flex flex-column gap-3 text-center mb-4">
             <button type="submit" class="btn btn-success" id="btn-criar-conta">Criar conta</button>
-            <small>Já tem uma conta? faça o <a href="/login">login</a>.</small>
+            <small>Já é um técnico cadastrado? <a href="/login">Entre aqui</a>.</small>
         </div>
     </form>
 </main>
