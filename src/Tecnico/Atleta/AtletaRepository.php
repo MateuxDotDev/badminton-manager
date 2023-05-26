@@ -3,6 +3,7 @@
 namespace App\Tecnico\Atleta;
 
 use App\Util\Exceptions\ValidatorException;
+use App\Util\General\Dates;
 use App\Util\Http\HttpStatus;
 use App\Util\Services\UploadImagemService\UploadImagemServiceInterface;
 use Exception;
@@ -77,5 +78,33 @@ class AtletaRepository implements AtletaRepositoryInterface
             $pdo->rollback();
             throw $e;
         }
+    }
+
+    public function getViaTecnico(int $tecnicoId): array
+    {
+        $sql = <<<SQL
+            SELECT id, nome_completo, sexo, data_nascimento, informacoes, path_foto, criado_em, alterado_em
+              FROM atleta
+             WHERE tecnico_id = :tecnico_id
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['tecnico_id' => $tecnicoId]);
+        $rows = $stmt->fetchAll();
+
+        $atletas = [];
+        foreach ($rows as $row) {
+            $atletas[] = (new Atleta())
+                ->setId($row['id'])
+                ->setNomeCompleto($row['nome_completo'])
+                ->setSexo(Sexo::from($row['sexo']))
+                ->setDataNascimento(Dates::parseDay($row['data_nascimento']))
+                ->setInformacoesAdicionais($row['informacoes'])
+                ->setDataCriacao(Dates::parseMicro($row['criado_em']))
+                ->setDataAlteracao(Dates::parseMicro($row['alterado_em']))
+                ->setFoto($row['path_foto']);
+        }
+
+        return $atletas;
     }
 }

@@ -17,7 +17,7 @@ if ($session->isTecnico()) {
 ?>
 
 <div class="container">
-    <span class="titulo-pagina">Cadastrar atleta</span>
+    <h1 class="mb-4">Cadastrar atleta</h1>
     <div class="card">
         <form name="form-cadastro" action="#" method="GET">
             <div class="card-body">
@@ -35,7 +35,8 @@ if ($session->isTecnico()) {
                     </div>
                     <div class="col">
                         <label class="form-label" for="dataNascimento">Data de nascimento</label>
-                        <input class="form-control" type="date" id="dataNascimento" name="dataNascimento" required />
+                        <!-- TODO: descobrir a necessidade do 1.2rem em type date -->
+                        <input style="line-height: 1.2rem" class="form-control" type="date" id="dataNascimento" name="dataNascimento" required />
                     </div>
                 </div>
                 <div class="mb-3">
@@ -56,7 +57,6 @@ if ($session->isTecnico()) {
         </form>
     </div>
 </div>
-
 
 <?php Template::scripts() ?>
 

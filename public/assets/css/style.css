@@ -8,10 +8,14 @@ pre.sf-dump {
     font: 14px monospace !important;
 }
 
-span.titulo-pagina {
-    display: block;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    font-size: 24px;
-    font-weight: 600;
+.max-3-lines {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mw-384 {
+    max-width: 384px !important;
 }

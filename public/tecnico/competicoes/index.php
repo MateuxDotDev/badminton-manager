@@ -22,7 +22,7 @@ else Template::navTecnicoNaoLogado();
 ?>
 
 <main class="container">
-    <span class="titulo-pagina">Competições abertas</span>
+    <h1 class="mt-3">Competições abertas</small></h1>
     <div class="input-group mt-5">
         <input class="form-control" type="search" id="pesquisa" placeholder="Digite o nome ou descrição de uma competição..."/>
         <span class="input-group-text input-group-prepend">

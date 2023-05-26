@@ -75,6 +75,13 @@ function validaAtleta(): Atleta
         throw new ValidatorException('Data de nascimento inválida');
     }
 
+    $dataNascimento->setTime(0, 0);
+    $currentDate = new DateTime();
+    $currentDate->setTime(0, 0);
+    if ($dataNascimento >= $currentDate) {
+        throw new ValidatorException('Data de nascimento não pode estar no futuro');
+    }
+
     $session = UserSession::obj();
     $tecnico = $session->getTecnico();
 

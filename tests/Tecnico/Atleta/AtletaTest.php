@@ -5,6 +5,7 @@ namespace Tests\Tecnico\Atleta;
 use App\Tecnico\Atleta\Atleta;
 use App\Tecnico\Tecnico;
 use App\Tecnico\Atleta\Sexo;
+use App\Util\General\Dates;
 use DateTime;
 use PHPUnit\Framework\TestCase;
 
@@ -57,5 +58,40 @@ class AtletaTest extends TestCase
     {
         $this->atleta->setFoto('Teste Foto');
         $this->assertSame('Teste Foto', $this->atleta->foto());
+    }
+
+    public function testToJson(): void
+    {
+        // Set up the state for the athlete.
+        $tecnico = new Tecnico();
+        $nomeCompleto = 'Teste Nome';
+        $sexo = Sexo::MASCULINO;
+        $dataNascimento = new DateTime('2000-01-01');
+        $informacoesAdicionais = 'Teste Informacoes';
+        $foto = 'Teste Foto';
+
+        $this->atleta->setTecnico($tecnico)
+            ->setNomeCompleto($nomeCompleto)
+            ->setSexo($sexo)
+            ->setDataNascimento($dataNascimento)
+            ->setInformacoesAdicionais($informacoesAdicionais)
+            ->setFoto($foto)
+            ->setDataCriacao(new DateTime())
+            ->setDataAlteracao(new DateTime());
+
+        // Test toJson.
+        $expectedJson = [
+            'id' => $this->atleta->id(),
+            'nomeCompleto' => $nomeCompleto,
+            'sexo' => $sexo->toString(),
+            'dataNascimento' => $dataNascimento->format('d/m/Y'),
+            'informacoesAdicionais' => $informacoesAdicionais,
+            'foto' => $foto,
+            'idade' => Dates::age($dataNascimento),
+            'dataCriacao' => Dates::formatBr($this->atleta->dataCriacao()),
+            'dataAlteracao' => Dates::formatBr($this->atleta->dataAlteracao())
+        ];
+
+        $this->assertSame($expectedJson, $this->atleta->toJson());
     }
 }

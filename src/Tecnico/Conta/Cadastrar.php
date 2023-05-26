@@ -30,22 +30,14 @@ readonly class Cadastrar
     
         $senha = SenhaCriptografada::criptografar($dto->email, $dto->senha);
 
-        $clube = new Clube;
-        if ($dto->idClubeExistente != null) {
-            $clube->setId($dto->idClubeExistente);
-        } else {
-            $clube->setNome($dto->nomeClubeNovo);
-        }
-    
         $tecnico = (new Tecnico)
             ->setEmail($dto->email)
             ->setNomeCompleto($dto->nomeCompleto)
             ->setInformacoes($dto->informacoes)
-            ->setClube($clube)
             ->setSenhaCriptografada($senha)
             ;
     
-        $repo->criarTecnico($tecnico);
+        $repo->criarTecnico($tecnico, $dto->nomeClube);
     
         return [
             'id' => $tecnico->id(),

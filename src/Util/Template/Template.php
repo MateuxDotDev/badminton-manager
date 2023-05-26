@@ -30,6 +30,7 @@ class Template
     public static function footer(): void
     {
         $footer = file_get_contents(__DIR__. "/common/footer.html");
+        $footer = self::put('ano', date('Y'), $footer);
         echo $footer;
     }
 

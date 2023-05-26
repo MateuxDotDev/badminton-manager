@@ -14,10 +14,7 @@ class CadastroDTOTest extends TestCase
             'email' => 'john.doe@example.com',
             'nome' => 'John Doe',
             'senha' => 'senha',
-            'clube' => [
-                'novo' => true,
-                'nome' => 'Clube novo'
-            ],
+            'clube' => 'Clube novo',
             'informacoes' => 'Informações do John Doe',
         ];
 
@@ -26,8 +23,7 @@ class CadastroDTOTest extends TestCase
         $this->assertEquals('john.doe@example.com', $cadastroDTO->email);
         $this->assertEquals('John Doe', $cadastroDTO->nomeCompleto);
         $this->assertEquals('senha', $cadastroDTO->senha);
-        $this->assertEquals('Clube novo', $cadastroDTO->nomeClubeNovo);
-        $this->assertNull($cadastroDTO->idClubeExistente);
+        $this->assertEquals('Clube novo', $cadastroDTO->nomeClube);
         $this->assertEquals('Informações do John Doe', $cadastroDTO->informacoes);
     }
 
@@ -41,70 +37,13 @@ class CadastroDTOTest extends TestCase
         CadastroDTO::parse($req);
     }
 
-    public function testParseClubeCampoNovoFaltando()
-    {
-        $req = [
-            'email' => 'john.doe@example.com',
-            'nome' => 'John Doe',
-            'senha' => 'senha',
-            'clube' => [
-                'nome' => 'Clube novo'
-            ],
-            'informacoes' => 'Informações do John Doe',
-        ];
-
-        $this->expectException(ValidatorException::class);
-        $this->expectExceptionMessage("Campo 'novo' em 'clube' está faltando");
-
-        CadastroDTO::parse($req);
-    }
-
-    public function testParseClubeNomeFaltando()
-    {
-        $req = [
-            'email' => 'john.doe@example.com',
-            'nome' => 'John Doe',
-            'senha' => 'senha',
-            'clube' => [
-                'novo' => true,
-            ],
-            'informacoes' => 'Informações do John Doe',
-        ];
-
-        $this->expectException(ValidatorException::class);
-        $this->expectExceptionMessage("Nome do clube novo está faltando");
-
-        CadastroDTO::parse($req);
-    }
-
-    public function testParseClubeIdFaltando()
-    {
-        $req = [
-            'email' => 'john.doe@example.com',
-            'nome' => 'John Doe',
-            'senha' => 'senha',
-            'clube' => [
-                'novo' => false,
-            ],
-            'informacoes' => 'Informações do John Doe',
-        ];
-
-        $this->expectException(ValidatorException::class);
-        $this->expectExceptionMessage("Id do clube existente está faltando");
-
-        CadastroDTO::parse($req);
-    }
-
     public function testParseEmailInvalido()
     {
         $req = [
             'email' => 'john.doe',
             'nome' => 'John Doe',
             'senha' => 'senha',
-            'clube' => [
-                'novo' => true,
-                'nome' => 'Clube novo'
-            ],
+            'clube' => 'Clube novo',
             'informacoes' => 'Informações do John Doe',
         ];
 
