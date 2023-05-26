@@ -75,18 +75,23 @@ foreach ($categorias as $categoria) {
 </style>
 
 <div class="container">
-    <span class="titulo-pagina">Consulta de atletas precisando de duplas</span>
+    <h1 class="mb-4">Atletas na competição</h1>
+
+
+    <div class="mb-3">
+        <label class="form-label">Competição</label>
+        <input type="text" class="form-control" readonly disabled
+            value="<?=$competicao->nome()?>">
+    </div>
+
     <div class="card">
         <div class="card-body">
-            <h5 class="card-title">Filtros</h5>
-
-            <div class="mb-3">
-                <label class="form-label">Competição</label>
-                <input type="text" class="form-control" readonly disabled
-                    value="<?=$competicao->nome()?>">
+            <div class="d-flex flex-row gap-2 align-items-baseline">
+                <h5 class="card-title">Filtros</h5>
+                <button class="btn btn-link" id="ver-mais-filtros" data-estado="escondidos">Ver mais</button>
             </div>
 
-            <div class="row mb-3">
+            <div class="row mb-3 mais-filtros d-none">
                 <div class="col">
                     <label class="form-label">Nome do atleta</label>
                     <input class="form-control" id="nome-atleta" type="text">
@@ -97,7 +102,7 @@ foreach ($categorias as $categoria) {
                 </div>
             </div>
 
-            <div class="row mb-3">
+            <div class="row mb-3 mais-filtros d-none">
                 <div class="col-12 col-md-6 mb-3 mb-md-0">
                     <label class="form-label">Idade</label>
                     <div class="input-group">
@@ -113,7 +118,7 @@ foreach ($categorias as $categoria) {
                 </div>
             </div>
 
-            <div class="row mb-3">
+            <div class="row mb-3 mais-filtros d-none">
                 <div class="col-12 col-md-6 mb-3 mb-md-0">
                     <span class="form-label d-flex flex-row gap-3 align-items-center">
                         <span>Categorias</span>
@@ -192,13 +197,31 @@ foreach ($categorias as $categoria) {
 <?php Template::scripts(); ?>
 
 <script>
-
 const baseUrl = location.origin;
+
+const btnVerMais = qs('#ver-mais-filtros');
+const maisFiltros = qsa('.mais-filtros');
+
+console.log(maisFiltros)
 
 const inputsCategorias = qsa('.input-categoria');
 const btnOrdenacaoTipo = qs('#btn-ordenacao-tipo');
 
 const idCompeticao = <?= $_GET['competicao'] ?>;
+
+btnVerMais.addEventListener('click', (event) => {
+    event.preventDefault();
+    const estado = btnVerMais.getAttribute('data-estado');
+    if (estado == 'escondidos') {
+        btnVerMais.setAttribute('data-estado', 'mostrados');
+        btnVerMais.innerText = 'Ver menos';
+        toggleMaisFiltros(true);
+    } else {
+        btnVerMais.setAttribute('data-estado', 'escondidos');
+        btnVerMais.innerText = 'Ver mais';
+        toggleMaisFiltros(false);
+    }
+});
 
 btnOrdenacaoTipo.addEventListener('click', () => {
     const btn = btnOrdenacaoTipo;
@@ -228,6 +251,15 @@ qs('#btn-filtrar').addEventListener('click', async () => {
     const resultados = await pesquisarAtletas(filtros);
     console.log('resultados', resultados);
 });
+
+
+
+function toggleMaisFiltros(mostrar) {
+    for (const elem of maisFiltros) {
+        if (mostrar) elem.classList.remove('d-none');
+        else         elem.classList.add('d-none');
+    }
+}
 
 
 function getFiltros() {

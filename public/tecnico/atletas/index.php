@@ -14,11 +14,7 @@ $session = UserSession::obj();
 
 Template::head('Atletas');
 
-if ($session->isTecnico()) {
-    Template::navTecnico();
-} else {
-    Template::naoAutorizado();
-}
+Template::nav($session);
 
 $hasError = false;
 $atletas = [];
