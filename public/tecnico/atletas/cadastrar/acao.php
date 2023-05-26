@@ -79,7 +79,7 @@ function validaAtleta(): Atleta
     $currentDate = new DateTime();
     $currentDate->setTime(0, 0);
     if ($dataNascimento >= $currentDate) {
-        throw new ValidatorException('Data de nascimento não pode ser maior ou igual que a data atual');
+        throw new ValidatorException('Data de nascimento não pode estar no futuro');
     }
 
     $session = UserSession::obj();

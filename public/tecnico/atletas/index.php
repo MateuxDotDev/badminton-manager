@@ -111,9 +111,9 @@ try {
         const botaoInfo = card.querySelector('.botao-info');
         const img = card.querySelector('.profile-pic');
 
-        setInAttribute(botaoInfo, 'data-bs-content', `Criado em: ${atleta.dataCriacao}.\nAlterado em: ${atleta.dataAlteracao}.`);
-        setInAttribute(img, 'src', `/assets/images/profile/${atleta.foto}`);
-        setInAttribute(img, 'alt', `Foto de perfil de ${atleta.nomeCompleto}`);
+        botaoInfo.setAttribute('data-bs-content', `Criado em: ${atleta.dataCriacao}.\nAlterado em: ${atleta.dataAlteracao}.`);
+        img.setAttribute('src', `/assets/images/profile/${atleta.foto}`);
+        img.setAttribute('alt', `Foto de perfil de ${atleta.nomeCompleto}`);
 
         return card;
     }

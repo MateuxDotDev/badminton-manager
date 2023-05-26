@@ -1,15 +1,4 @@
 /**
- * Set the value of an attribute of an element
- *
- * @param {HTMLElement} element - The element to be modified
- * @param {string} attribute    - The attribute to be modified
- * @param {string} value        - The value to be set
- */
-const setInAttribute = (element, attribute, value) => {
-    element.setAttribute(attribute, value);
-}
-
-/**
  * Filters an array of objects by a single key
  *
  * @param {Array} array  - The array to be filtered

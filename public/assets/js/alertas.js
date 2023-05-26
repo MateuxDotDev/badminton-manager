@@ -20,7 +20,8 @@ function agendarAlerta(alerta) {
 function alertaErro(mensagem) {
     Toast.fire({
         icon: 'error',
-        text: mensagem
+        text: mensagem,
+        timer: 5000,
     });
 }
 
