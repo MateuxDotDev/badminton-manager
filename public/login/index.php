@@ -41,7 +41,7 @@ Template::head('Login');
                 <input class="form-control" type="password" id="senha" name="senha" required/>
             </div>
             <div class="d-flex flex-row gap-3">
-                <button id="link-voltar" class="btn btn-outline-secondary" style="width: 48px; height: 48px;" title="Voltar"><i class="bi bi-arrow-left"></i></button>
+                <button id="link-voltar" type="button" class="btn btn-outline-secondary" style="width: 48px; height: 48px;" title="Voltar"><i class="bi bi-arrow-left"></i></button>
                 <button id="btn-entrar" type="submit" class="btn btn-success w-100">Entrar</button>
             </div>
         </form>

@@ -108,8 +108,7 @@ try {
             card.querySelector('.informacoes_adicionais').classList.add('d-none');
             card.querySelector('.info-adicional-titulo').innerText = 'Sem informações adicionais';
         }
-        card.querySelector('.criado_em').title = `Criado em: ${atleta.dataCriacao}`;
-        card.querySelector('.ultima_alteracao').title = `Última alteração: ${atleta.dataAlteracao}`;
+        card.querySelector('.botao-info').title = `Criado em: ${atleta.dataCriacao}.\nÚltima alteração: ${atleta.dataAlteracao}.`;
 
         const img = card.querySelector('.profile-pic');
         img.src = `/assets/images/profile/${atleta.foto}`;
