@@ -192,7 +192,66 @@ foreach ($categorias as $categoria) {
 
         </div>
     </div>
+
+    <!-- TODO foto de perfil ocupa bastante espaço, talvez colocar um botão pra mostrar/esconder as fotos de perfil ou sla
+        ou só fazer ela ocupar menos espaço mesmo e mostrar mais quando expandir o card do atleta -->
+
+    <!--
+        foto de perfil
+        nome
+        sexo  -- usar icone bi-gender-male ou bi-gender-female com cor azul/rosa, com tooltip mostrando a descrição
+        data de nascimento e idade
+        técnico
+        clube
+        em que categorias joga
+        que tipo de dupla precisa
+
+
+    -->
+
+    <div id="container-resultados">
+        <div class="border border-translucent rounded p-2 d-flex flex-column gap-2 flex-md-row gap-md-5 align-items-md-center">
+            <div class="d-flex flex-column">
+                <div class="d-flex flex-row gap-2 fs-5">
+                    <span>Nome do atleta</span>
+                    <i class="bi bi-gender-male text-blue" title="Sexo masculino"></i>
+                </div>
+                <span>17 anos <small>(18/02/2006)</small></span>
+            </div>
+            <div class="d-flex flex-row gap-5">
+                <div class="d-flex flex-column">
+                    <small class="text-secondary">Joga nas categorias</small>
+                    <span>Sub19, Sub21, Aberta</span>
+                </div>
+                <div class="d-flex flex-column">
+                    <small class="text-secondary">Busca dupla</small>
+                    <span class="d-flex flex-row gap-2">
+                        <i class="bi bi-gender-male text-blue fs-5" title="Masculina"></i>
+                        <i class="bi bi-gender-female text-pink fs-5" title="Feminina"></i>
+                    </span>
+                </div>
+            </div>
+            <div class="d-flex flex-column">
+                <small class="text-secondary">Técnico e clube</small>
+                <span>Márcio Medeiros</span>
+                <span>Clube de Rio do Sul</span>
+            </div>
+            <div class="ms-md-auto d-flex flex-row gap-2">
+                <button class="btn btn-outline-secondary flex-fill">
+                    <i class="bi bi-person-fill"></i>
+                    Detalhes
+                </button>
+                <button class="btn btn-outline-success flex-fill">
+                    <i class="bi bi-people-fill"></i>
+                    Formar dupla
+                </button>
+            </div>
+        </div>
+    </div>
+
+
 </div>
+
 
 <?php Template::scripts(); ?>
 
@@ -201,8 +260,6 @@ const baseUrl = location.origin;
 
 const btnVerMais = qs('#ver-mais-filtros');
 const maisFiltros = qsa('.mais-filtros');
-
-console.log(maisFiltros)
 
 const inputsCategorias = qsa('.input-categoria');
 const btnOrdenacaoTipo = qs('#btn-ordenacao-tipo');

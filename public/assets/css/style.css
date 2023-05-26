@@ -19,3 +19,16 @@ pre.sf-dump {
 .mw-384 {
     max-width: 384px !important;
 }
+
+/* Messma cor da borda dos class="card", pra ficar consistente */
+.border-translucent {
+    border-color: var(--bs-border-color-translucent) !important;
+}
+
+.text-blue {
+    color: var(--bs-blue);
+}
+
+.text-pink {
+    color: var(--bs-pink);
+}
