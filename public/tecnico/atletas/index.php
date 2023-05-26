@@ -82,9 +82,9 @@ try {
     </section>
 </main>
 
-<?php require_once './atleta-card.html'; ?>
-
 <?php Template::scripts() ?>
+
+<?php require_once './atleta-card.html'; ?>
 
 <script>
     const atletas = <?= json_encode(array_map(fn($a) => $a->toJson(), $atletas)) ?>;
@@ -108,7 +108,8 @@ try {
             card.querySelector('.informacoes_adicionais').classList.add('d-none');
             card.querySelector('.info-adicional-titulo').innerText = 'Sem informações adicionais';
         }
-        card.querySelector('.botao-info').title = `Criado em: ${atleta.dataCriacao}.\nÚltima alteração: ${atleta.dataAlteracao}.`;
+        const botaoInfo = card.querySelector('.botao-info');
+        botaoInfo.setAttribute('data-bs-content', `Criado em: ${atleta.dataCriacao}.\nAlterado em: ${atleta.dataAlteracao}.`);
 
         const img = card.querySelector('.profile-pic');
         img.src = `/assets/images/profile/${atleta.foto}`;
@@ -119,8 +120,13 @@ try {
 
     window.addEventListener('load', () => {
         atletas.forEach(atleta => {
-            conteudo.appendChild(createAtletaCard(atleta));
+            const card = createAtletaCard(atleta);
+            conteudo.appendChild(card);
         });
+
+        [...document.querySelectorAll('[data-bs-toggle="popover"]')]
+            .map(el => new bootstrap.Popover(el))
+
         componentesAtletas.push(...document.querySelectorAll('.atleta-card'));
         inputPesquisa.addEventListener('keydown', debounce(300, () => {
             pesquisar(inputPesquisa.value.trim() ?? '');
