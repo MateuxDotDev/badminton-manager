@@ -1,16 +1,15 @@
 <?php
-
 require_once('../../../vendor/autoload.php');
 
 use App\Competicoes\CompeticaoRepository;
 use App\Util\Database\Connection;
-use App\Util\General\OldSession;
 use App\Util\Template\Template;
+use App\Util\General\UserSession;
 
-OldSession::iniciar();
+$session = UserSession::obj();
 
 Template::head('Administrador | Competições');
-if (!OldSession::isAdmin()) {
+if (! $session->isAdmin()) {
     Template::naoAutorizado();
 }
 

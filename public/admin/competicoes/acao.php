@@ -1,4 +1,5 @@
 <?php
+use App\Util\General\UserSession;
 
 require_once('../../../vendor/autoload.php');
 
@@ -7,14 +8,13 @@ use App\Competicoes\CompeticaoRepository;
 use App\Util\Database\Connection;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
-use App\Util\General\OldSession;
 use App\Util\Http\Request;
 use App\Util\Http\HttpStatus;
 use App\Util\Http\Response;
 
-OldSession::iniciar();
+$session = UserSession::obj();
 
-if (!OldSession::isAdmin()) {
+if (! $session->isAdmin()) {
     return Response::erroNaoAutorizado();
 }
 
