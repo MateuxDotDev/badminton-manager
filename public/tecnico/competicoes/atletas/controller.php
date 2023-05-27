@@ -76,7 +76,7 @@ function pesquisarAtletas($req): Response
 
     if ($dados->nomeAtleta  != null) $pesquisaTermos('a.nome_completo', $dados->nomeAtleta);
     if ($dados->nomeTecnico != null) $pesquisaTermos('t.nome_completo', $dados->nomeTecnico);
-    if ($dados->clube       != null) $pesquisaTermos('c.nome',          $dados->clube);
+    if ($dados->clube       != null) $pesquisaTermos('clu.nome',        $dados->clube);
 
 
     $colunaIdade = 'extract(year from age(a.data_nascimento))';

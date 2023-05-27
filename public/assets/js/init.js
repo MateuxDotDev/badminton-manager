@@ -4,7 +4,7 @@ document.querySelectorAll('[data-click-switch]').forEach(elem => {
         1: elem.getAttribute('data-click-switch')
     };
     elem.setAttribute('data-state', 0);
-    const cooldownMs = 400;  // collapse animation duration
+    const cooldownMs = 400;
     elem.addEventListener('click', throttle(cooldownMs, () => {
         const state = elem.getAttribute('data-state');
         const newState = state == 0 ? 1 : 0;

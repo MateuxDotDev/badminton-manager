@@ -65,11 +65,11 @@ foreach ($categorias as $categoria) {
 
 <style>
   #btn-marcar-todas-categorias, #btn-desmarcar-todas-categorias {
-    color: black;
+    transition: 0.2s ease-in-out;
+    color: var(--bs-primary);
     opacity: 0.4;
   }
   #btn-marcar-todas-categorias:hover, #btn-desmarcar-todas-categorias:hover {
-    color: var(--bs-primary);
     opacity: 1.0;
   }
 </style>
@@ -86,7 +86,7 @@ foreach ($categorias as $categoria) {
 
   <div class="card">
     <div class="card-body">
-      <div class="d-flex flex-row gap-2 align-items-baseline">
+      <div class="d-flex flex-row gap-2 align-items-baseline mb-3">
         <h5 class="card-title">Filtros</h5>
         <button
           class="btn btn-link"
@@ -94,6 +94,10 @@ foreach ($categorias as $categoria) {
           data-bs-toggle="collapse"
           data-bs-target="#container-mais-filtros"
         >Ver mais</button>
+        <button class="ms-auto btn btn-outline-danger" id="btn-limpar">
+          <i class="bi bi-eraser-fill"></i>
+          Limpar
+        </button>
       </div>
 
       <div id="container-mais-filtros" class="collapse">
@@ -148,22 +152,22 @@ foreach ($categorias as $categoria) {
           <div class="col-12 col-md-3 mb-3 mb-md-0">
             <label class="form-label">Sexo</label>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='M'>
+              <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='M' id='sexo-masculino'>
               <label for='sexo-masculino' class='form-check-label'>Masculino</label>
             </div>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='F'>
+              <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='F' id='sexo-feminino'>
               <label for='sexo-feminino' class='form-check-label'>Feminino</label>
             </div>
           </div>
           <div class="col-12 col-md-3 mb-3 mb-md-0">
             <label class="form-label">Buscando dupla</label>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='M'>
+              <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='M' id='dupla-masculina>
               <label for='dupla-masculina' class='form-check-label'>Masculina</label>
             </div>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='F'>
+              <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='F' id='dupla-feminina'>
               <label for='dupla-feminina' class='form-check-label'>Feminina</label>
             </div>
           </div>
@@ -193,17 +197,24 @@ foreach ($categorias as $categoria) {
           </div>
         </div>
         <div class="ms-auto">
-          <button id="btn-filtrar" class="btn btn-outline-success">
-            <i class="bi bi-filter"></i>&nbsp;
-            Filtrar
-          </button>
+          <div class="d-flex flex-row gap-3 align-items-center">
+            <span id="carregando" class="d-none">Carregando...</span>
+            <button id="btn-filtrar" class="btn btn-outline-success">
+              <i class="bi bi-filter"></i>&nbsp;
+              Filtrar
+            </button>
+          </div>
         </div>
       </div>
 
     </div>
   </div>
 
-  <div class="pt-3 d-flex flex-column gap-3" id="container-atletas">
+  <div class="pt-3">
+    <div class="alert alert-warning d-none" id="nenhum-encontrado">
+      Nenhum atleta encontrado
+    </div>
+    <div id="container-atletas" class="d-flex flex-column gap-3"></div>
   </div>
 
 
@@ -236,6 +247,8 @@ btnOrdenacaoTipo.addEventListener('click', () => {
   }
 });
 
+qs('#btn-limpar').addEventListener('click', limparFiltros);
+
 qs('#btn-marcar-todas-categorias').addEventListener('click', () => {
   for (const input of inputsCategorias) {
     input.checked = true;
@@ -254,10 +267,24 @@ clicouFiltrar();
 
 async function clicouFiltrar() {
   const filtros = getFiltros();
+
+  const carregando = qs('#carregando');
+  carregando.classList.remove('d-none');
+
   const {resultados: atletas} = await pesquisarAtletas(filtros);
+
+  carregando.classList.add('d-none');
+
   esvaziar(containerAtletas);
-  for (const atleta of atletas) {
-    containerAtletas.append(criarElementoAtleta(atleta));
+
+  const alertaNenhumEncontrado = qs('#nenhum-encontrado');
+  if (atletas.length == 0) {
+    alertaNenhumEncontrado.classList.remove('d-none');
+  } else {
+    alertaNenhumEncontrado.classList.add('d-none');
+    for (const atleta of atletas) {
+      containerAtletas.append(criarElementoAtleta(atleta));
+    }
   }
 }
 
@@ -390,6 +417,19 @@ async function pesquisarAtletas(filtros) {
     console.error('text', text);
     console.error('err', err);
   }
+}
+
+function limparFiltros() {
+  qs('#nome-atleta').value = '';
+  qs('#nome-tecnico').value = '';
+  qs('#idade-maior-que').value = '';
+  qs('#idade-menor-que').value = '';
+  qs('#clube').value = '';
+
+  const uncheck = it => { it.checked = false };
+  qsa('.input-categoria').forEach(uncheck);
+  qsa('.input-sexo-atleta').forEach(uncheck)
+  qsa('.input-sexo-dupla').forEach(uncheck);
 }
 
 </script>
