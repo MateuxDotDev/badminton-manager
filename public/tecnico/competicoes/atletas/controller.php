@@ -100,9 +100,9 @@ function pesquisarAtletas($req): Response
         }
     };
 
-    $pesquisarIn('cat.id', $dados->idCategorias);
+    $pesquisarIn('acc_filtrar.categoria_id', $dados->idCategorias);
     $pesquisarIn('a.sexo', array_map(fn(Sexo $s): string => $s->value, $dados->sexoAtleta));
-    $pesquisarIn('acs.sexo_dupla', array_map(fn(Sexo $s): string => $s->value, $dados->sexoDupla));
+    $pesquisarIn('acs_filtrar.sexo_dupla', array_map(fn(Sexo $s): string => $s->value, $dados->sexoDupla));
 
 
     $where = implode(' AND ', $condicoes);
@@ -136,8 +136,10 @@ function pesquisarAtletas($req): Response
             join atleta_competicao ac on ac.atleta_id = a.id
             join tecnico t on t.id = a.tecnico_id
             join clube clu on clu.id = t.clube_id
+            join atleta_competicao_categoria acc_filtrar on (acc_filtrar.atleta_id, acc_filtrar.competicao_id) = (ac.atleta_id, ac.competicao_id)
             join atleta_competicao_categoria acc on (acc.atleta_id, acc.competicao_id) = (ac.atleta_id, ac.competicao_id)
             join categoria cat on cat.id = acc.categoria_id
+            join atleta_competicao_sexo_dupla acs_filtrar on (acs_filtrar.atleta_id, acs_filtrar.competicao_id) = (ac.atleta_id, ac.competicao_id)
             join atleta_competicao_sexo_dupla acs on (acs.atleta_id, acs.competicao_id) = (ac.atleta_id, ac.competicao_id)
            where $where
         group by ac.competicao_id, ac.atleta_id, a.id, t.id, clu.id
