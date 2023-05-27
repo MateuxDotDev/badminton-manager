@@ -32,3 +32,14 @@ pre.sf-dump {
 .text-pink {
     color: var(--bs-pink);
 }
+
+.profile-pic {
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+    border: 2px solid var(--bs-success);
+}
+
+.has-tooltip {
+    text-decoration: underline dotted 1px;
+}

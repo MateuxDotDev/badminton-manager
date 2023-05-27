@@ -15,7 +15,7 @@ Template::nav($session);
 
 $idCompeticao = null;
 if (array_key_exists('competicao', $_GET)) {
-    $idCompeticao = $_GET['competicao'];
+  $idCompeticao = $_GET['competicao'];
 }
 
 $pdo = Connection::getInstance();
@@ -24,369 +24,372 @@ $categoriaRepo  = new CategoriaRepository($pdo);
 
 $competicao = null;
 if ($idCompeticao != null) {
-    $competicao = $competicaoRepo->getViaId($idCompeticao);
+  $competicao = $competicaoRepo->getViaId($idCompeticao);
 }
 
 if ($competicao == null) {
-    ?>
-        <div class="container">
-            <div class="alert alert-danger d-flex flex-row gap-2 align-items-center" role="alert">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                <div>
-                    Competição não encontrada.
-                </div>
-            </div>
+  ?>
+    <div class="container">
+      <div class="alert alert-danger d-flex flex-row gap-2 align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div>
+          Competição não encontrada.
         </div>
-        <script>
-            setTimeout(history.back, 3000);
-        </script>
-    <?php
-    Template::footer();
+      </div>
+    </div>
+    <script>
+      setTimeout(history.back, 3000);
+    </script>
+  <?php
+  Template::footer();
 
-    return;
+  return;
 }
 
 $categorias = $categoriaRepo->buscarCategorias();
 
 $inputsCategorias = [];
 foreach ($categorias as $categoria) {
-    $id        = $categoria->id();
-    $descricao = $categoria->descricao();
+  $id        = $categoria->id();
+  $descricao = $categoria->descricao();
 
-    $inputsCategorias[] = "
-        <div class='form-check'>
-            <input checked class='form-check-input input-categoria' type='checkbox' id='categoria-$id' value='$id'>
-            <label for='categoria-$id' class='form-check-label'>$descricao</label>
-        </div>
-    ";
+  $inputsCategorias[] = "
+    <div class='form-check'>
+      <input checked class='form-check-input input-categoria' type='checkbox' id='categoria-$id' value='$id'>
+      <label for='categoria-$id' class='form-check-label'>$descricao</label>
+    </div>
+  ";
 }
 
 ?>
 
 <style>
-    #btn-marcar-todas-categorias, #btn-desmarcar-todas-categorias {
-        color: black;
-        opacity: 0.4;
-    }
-    #btn-marcar-todas-categorias:hover, #btn-desmarcar-todas-categorias:hover {
-        color: var(--bs-primary);
-        opacity: 1.0;
-    }
+  #btn-marcar-todas-categorias, #btn-desmarcar-todas-categorias {
+    color: black;
+    opacity: 0.4;
+  }
+  #btn-marcar-todas-categorias:hover, #btn-desmarcar-todas-categorias:hover {
+    color: var(--bs-primary);
+    opacity: 1.0;
+  }
 </style>
 
 <div class="container">
-    <h1 class="mb-4">Atletas na competição</h1>
+  <h1 class="mb-4">Atletas na competição</h1>
 
 
-    <div class="mb-3">
-        <label class="form-label">Competição</label>
-        <input type="text" class="form-control" readonly disabled
-            value="<?=$competicao->nome()?>">
-    </div>
+  <div class="mb-3">
+    <label class="form-label">Competição</label>
+    <input type="text" class="form-control" readonly disabled
+      value="<?=$competicao->nome()?>">
+  </div>
 
-    <div class="card">
-        <div class="card-body">
-            <div class="d-flex flex-row gap-2 align-items-baseline">
-                <h5 class="card-title">Filtros</h5>
-                <button class="btn btn-link" id="ver-mais-filtros" data-estado="escondidos">Ver mais</button>
-            </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="d-flex flex-row gap-2 align-items-baseline">
+        <h5 class="card-title">Filtros</h5>
+        <button
+          class="btn btn-link"
+          data-click-switch="Ver menos"
+          data-bs-toggle="collapse"
+          data-bs-target="#container-mais-filtros"
+        >Ver mais</button>
+      </div>
 
-            <div class="row mb-3 mais-filtros d-none">
-                <div class="col">
-                    <label class="form-label">Nome do atleta</label>
-                    <input class="form-control" id="nome-atleta" type="text">
-                </div>
-                <div class="col">
-                    <label class="form-label">Nome do técnico</label>
-                    <input class="form-control" id="nome-tecnico" type="text">
-                </div>
-            </div>
+      <div id="container-mais-filtros" class="collapse">
 
-            <div class="row mb-3 mais-filtros d-none">
-                <div class="col-12 col-md-6 mb-3 mb-md-0">
-                    <label class="form-label">Idade</label>
-                    <div class="input-group">
-                        <div class="input-group-text">Entre</div>
-                        <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*" id="idade-maior-que"/>
-                        <div class="input-group-text">e</div>
-                        <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*" id="idade-menor-que"/>
-                    </div>
-                </div>
-                <div class="col">
-                    <label class="form-label">Clube</label>
-                    <input type="text" class="form-control" id="clube"/>
-                </div>
-            </div>
-
-            <div class="row mb-3 mais-filtros d-none">
-                <div class="col-12 col-md-6 mb-3 mb-md-0">
-                    <span class="form-label d-flex flex-row gap-3 align-items-center">
-                        <span>Categorias</span>
-                        <button id="btn-marcar-todas-categorias" class="btn btn-link btn-sm" title="Marcar todas">
-                            <i class="bi bi-check-square-fill fs-5"></i>
-                        </button>
-                        <button id="btn-desmarcar-todas-categorias" class="btn btn-link btn-sm" title="Desmarcar todas">
-                            <i class="bi bi-x-square fs-5"></i>
-                        </button>
-                    </span>
-                    <div class="d-flex flex-row gap-5">
-                        <div>
-                            <?= implode('', array_slice($inputsCategorias, 0, 7)) ?>
-                        </div>
-                        <div>
-                            <?= implode('', array_slice($inputsCategorias, 7)) ?>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-md-3 mb-3 mb-md-0">
-                    <label class="form-label">Sexo</label>
-                    <div class='form-check'>
-                        <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='M'>
-                        <label for='sexo-masculino' class='form-check-label'>Masculino</label>
-                    </div>
-                    <div class='form-check'>
-                        <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='F'>
-                        <label for='sexo-feminino' class='form-check-label'>Feminino</label>
-                    </div>
-                </div>
-                <div class="col-12 col-md-3 mb-3 mb-md-0">
-                    <label class="form-label">Buscando dupla</label>
-                    <div class='form-check'>
-                        <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='M'>
-                        <label for='dupla-masculina' class='form-check-label'>Masculina</label>
-                    </div>
-                    <div class='form-check'>
-                        <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='F'>
-                        <label for='dupla-feminina' class='form-check-label'>Feminina</label>
-                    </div>
-                </div>
-            </div>
-
-            <div class="d-flex flex-column flex-md-row gap-3">
-                <div class="d-flex flex-row gap-3 align-items-center">
-                    <span>
-                        Ordenação
-                    </span>
-                    <div>
-                        <button id="btn-ordenacao-tipo" class="btn btn-outline-secondary" data-ordenacao="asc" style="width: 120px">
-                            Crescente
-                        </button>
-                    </div>
-                    <div>
-                        <select id="ordenacao-campo" class="form-control">
-                            <option value="nomeAtleta">Nome do atleta</option>
-                            <option value="nomeTecnico">Nome do técnico</option>
-                            <option value="clube">Clube</option>
-                            <option value="idade">Idade</option>
-                            <option value="dataAlteracao">Data da última atualização</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="ms-auto">
-                    <button id="btn-filtrar" class="btn btn-outline-success">
-                        <i class="bi bi-filter"></i>&nbsp;
-                        Filtrar
-                    </button>
-                </div>
-            </div>
-
+        <div class="row mb-3">
+          <div class="col">
+            <label class="form-label">Nome do atleta</label>
+            <input class="form-control" id="nome-atleta" type="text">
+          </div>
+          <div class="col">
+            <label class="form-label">Nome do técnico</label>
+            <input class="form-control" id="nome-tecnico" type="text">
+          </div>
         </div>
-    </div>
-
-    <!-- TODO foto de perfil ocupa bastante espaço, talvez colocar um botão pra mostrar/esconder as fotos de perfil ou sla
-        ou só fazer ela ocupar menos espaço mesmo e mostrar mais quando expandir o card do atleta -->
-
-    <!--
-        foto de perfil
-        nome
-        sexo  -- usar icone bi-gender-male ou bi-gender-female com cor azul/rosa, com tooltip mostrando a descrição
-        data de nascimento e idade
-        técnico
-        clube
-        em que categorias joga
-        que tipo de dupla precisa
-
-
-    -->
-
-    <div id="container-resultados">
-        <div class="border border-translucent rounded p-2 d-flex flex-column gap-2 flex-md-row gap-md-5 align-items-md-center">
-            <div class="d-flex flex-column">
-                <div class="d-flex flex-row gap-2 fs-5">
-                    <span>Nome do atleta</span>
-                    <i class="bi bi-gender-male text-blue" title="Sexo masculino"></i>
-                </div>
-                <span>17 anos <small>(18/02/2006)</small></span>
+  
+        <div class="row mb-3">
+          <div class="col-12 col-md-6 mb-3 mb-md-0">
+            <label class="form-label">Idade</label>
+            <div class="input-group">
+              <div class="input-group-text">Entre</div>
+              <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*" id="idade-maior-que"/>
+              <div class="input-group-text">e</div>
+              <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*" id="idade-menor-que"/>
             </div>
+          </div>
+          <div class="col">
+            <label class="form-label">Clube</label>
+            <input type="text" class="form-control" id="clube"/>
+          </div>
+        </div>
+  
+        <div class="row mb-3">
+          <div class="col-12 col-md-6 mb-3 mb-md-0">
+            <span class="form-label d-flex flex-row gap-3 align-items-center">
+              <span>Categorias</span>
+              <button id="btn-marcar-todas-categorias" class="btn btn-link btn-sm" title="Marcar todas">
+                <i class="bi bi-check-square-fill fs-5"></i>
+              </button>
+              <button id="btn-desmarcar-todas-categorias" class="btn btn-link btn-sm" title="Desmarcar todas">
+                <i class="bi bi-x-square fs-5"></i>
+              </button>
+            </span>
             <div class="d-flex flex-row gap-5">
-                <div class="d-flex flex-column">
-                    <small class="text-secondary">Joga nas categorias</small>
-                    <span>Sub19, Sub21, Aberta</span>
-                </div>
-                <div class="d-flex flex-column">
-                    <small class="text-secondary">Busca dupla</small>
-                    <span class="d-flex flex-row gap-2">
-                        <i class="bi bi-gender-male text-blue fs-5" title="Masculina"></i>
-                        <i class="bi bi-gender-female text-pink fs-5" title="Feminina"></i>
-                    </span>
-                </div>
+              <div>
+                <?= implode('', array_slice($inputsCategorias, 0, 7)) ?>
+              </div>
+              <div>
+                <?= implode('', array_slice($inputsCategorias, 7)) ?>
+              </div>
             </div>
-            <div class="d-flex flex-column">
-                <small class="text-secondary">Técnico e clube</small>
-                <span>Márcio Medeiros</span>
-                <span>Clube de Rio do Sul</span>
+          </div>
+          <div class="col-12 col-md-3 mb-3 mb-md-0">
+            <label class="form-label">Sexo</label>
+            <div class='form-check'>
+              <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='M'>
+              <label for='sexo-masculino' class='form-check-label'>Masculino</label>
             </div>
-            <div class="ms-md-auto d-flex flex-row gap-2">
-                <button class="btn btn-outline-secondary flex-fill">
-                    <i class="bi bi-person-fill"></i>
-                    Detalhes
-                </button>
-                <button class="btn btn-outline-success flex-fill">
-                    <i class="bi bi-people-fill"></i>
-                    Formar dupla
-                </button>
+            <div class='form-check'>
+              <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='F'>
+              <label for='sexo-feminino' class='form-check-label'>Feminino</label>
             </div>
+          </div>
+          <div class="col-12 col-md-3 mb-3 mb-md-0">
+            <label class="form-label">Buscando dupla</label>
+            <div class='form-check'>
+              <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='M'>
+              <label for='dupla-masculina' class='form-check-label'>Masculina</label>
+            </div>
+            <div class='form-check'>
+              <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='F'>
+              <label for='dupla-feminina' class='form-check-label'>Feminina</label>
+            </div>
+          </div>
         </div>
+
+      </div>
+
+
+      <div class="d-flex flex-column flex-md-row gap-3">
+        <div class="d-flex flex-row gap-3 align-items-center">
+          <span>
+            Ordenação
+          </span>
+          <div>
+            <button id="btn-ordenacao-tipo" class="btn btn-outline-secondary" data-ordenacao="asc" style="width: 120px">
+              Crescente
+            </button>
+          </div>
+          <div>
+            <select id="ordenacao-campo" class="form-control">
+              <option value="nomeAtleta">Nome do atleta</option>
+              <option value="nomeTecnico">Nome do técnico</option>
+              <option value="clube">Clube</option>
+              <option value="idade">Idade</option>
+              <option value="dataAlteracao">Data da última atualização</option>
+            </select>
+          </div>
+        </div>
+        <div class="ms-auto">
+          <button id="btn-filtrar" class="btn btn-outline-success">
+            <i class="bi bi-filter"></i>&nbsp;
+            Filtrar
+          </button>
+        </div>
+      </div>
+
     </div>
+  </div>
+
+  <div class="pt-3 d-flex flex-column gap-3" id="container-atletas">
+  </div>
 
 
 </div>
 
+<?php require 'template-atleta.html' ?> 
 
 <?php Template::scripts(); ?>
 
 <script>
-const baseUrl = location.origin;
 
-const btnVerMais = qs('#ver-mais-filtros');
-const maisFiltros = qsa('.mais-filtros');
+const baseUrl = location.origin;
 
 const inputsCategorias = qsa('.input-categoria');
 const btnOrdenacaoTipo = qs('#btn-ordenacao-tipo');
 
 const idCompeticao = <?= $_GET['competicao'] ?>;
 
-btnVerMais.addEventListener('click', (event) => {
-    event.preventDefault();
-    const estado = btnVerMais.getAttribute('data-estado');
-    if (estado == 'escondidos') {
-        btnVerMais.setAttribute('data-estado', 'mostrados');
-        btnVerMais.innerText = 'Ver menos';
-        toggleMaisFiltros(true);
-    } else {
-        btnVerMais.setAttribute('data-estado', 'escondidos');
-        btnVerMais.innerText = 'Ver mais';
-        toggleMaisFiltros(false);
-    }
-});
+const templateAtleta = qs('#template-atleta');
+const containerAtletas = qs('#container-atletas');
 
 btnOrdenacaoTipo.addEventListener('click', () => {
-    const btn = btnOrdenacaoTipo;
-    if (btn.getAttribute('data-ordenacao') == 'asc') {
-        btn.setAttribute('data-ordenacao', 'desc');
-        btn.innerText = 'Decrescente';
-    } else {
-        btn.setAttribute('data-ordenacao', 'asc');
-        btn.innerText = 'Crescente';
-    }
+  const btn = btnOrdenacaoTipo;
+  if (btn.getAttribute('data-ordenacao') == 'asc') {
+    btn.setAttribute('data-ordenacao', 'desc');
+    btn.innerText = 'Decrescente';
+  } else {
+    btn.setAttribute('data-ordenacao', 'asc');
+    btn.innerText = 'Crescente';
+  }
 });
 
 qs('#btn-marcar-todas-categorias').addEventListener('click', () => {
-    for (const input of inputsCategorias) {
-        input.checked = true;
-    }
+  for (const input of inputsCategorias) {
+    input.checked = true;
+  }
 });
 
 qs('#btn-desmarcar-todas-categorias').addEventListener('click', () => {
-    for (const input of inputsCategorias) {
-        input.checked = false;
-    }
+  for (const input of inputsCategorias) {
+    input.checked = false;
+  }
 });
 
-qs('#btn-filtrar').addEventListener('click', async () => {
-    const filtros = getFiltros();
-    const resultados = await pesquisarAtletas(filtros);
-    console.log('resultados', resultados);
-});
+qs('#btn-filtrar').addEventListener('click', clicouFiltrar);
+clicouFiltrar();
 
 
-
-function toggleMaisFiltros(mostrar) {
-    for (const elem of maisFiltros) {
-        if (mostrar) elem.classList.remove('d-none');
-        else         elem.classList.add('d-none');
-    }
+async function clicouFiltrar() {
+  const filtros = getFiltros();
+  const {resultados: atletas} = await pesquisarAtletas(filtros);
+  console.log('atletas', atletas)
+  for (const atleta of atletas) {
+    containerAtletas.append(criarElementoAtleta(atleta));
+  }
 }
 
+function criarElementoAtleta(atleta) {
+  const elem = templateAtleta.content.firstElementChild.cloneNode(true);
+
+  // Fica melhor com um ícone de info no lado
+  // talvez fazer isso e deixar disponível no utils.js
+  function criarTooltip(elem, title) {
+    title ??= '';
+    if (title.trim().length > 0) {
+      elem.setAttribute('title', title);
+      elem.classList.add('has-tooltip');
+      new bootstrap.Tooltip(elem);
+    }
+  }
+
+  {
+    const foto = qse(elem, '.atleta-foto')
+    foto.src = `/assets/images/profile/${atleta.pathFoto}`;
+    foto.alt = `Foto de perfil do atleta '${atleta.nome}'`;
+  }
+
+  {
+    const nome = qse(elem, '.atleta-nome');
+    nome.innerText = `${atleta.nome}`;
+    nome.append(iconeSexo(atleta.sexo));
+  
+    criarTooltip(nome, atleta.informacoes);
+  }
+
+  {
+    const idade = atleta.idade;
+    const nascimento = new Date(atleta.dataNascimento);
+    const html = `${pluralizar(idade, 'ano', 'anos')} <small>(${dataBr(nascimento)})</small>`;
+    qse(elem, '.atleta-idade-e-nascimento').innerHTML = html;
+  }
+
+  qse(elem, '.atleta-categorias').innerText = (atleta.categorias ?? []).map(cat => cat.descricao).join(', ');
+
+  {
+    const buscaDuplas = qse(elem, '.atleta-busca-duplas');
+    for (const sexo of atleta.sexoDupla) {
+      buscaDuplas.append(iconeSexo(sexo));
+    }
+  }
+
+  {
+    const tecnico = qse(elem, '.atleta-tecnico');
+    tecnico.innerText = atleta.tecnico.nome;
+
+    criarTooltip(tecnico, atleta.tecnico.informacoes);
+  }
+
+  qse(elem, '.atleta-clube').innerText = atleta.tecnico.clube.nome;
+
+  {
+    const containerInformacoes = qse(elem, '.atleta-container-informacoes');
+    const elementoInformacoes  = qse(elem, '.atleta-informacoes');
+
+    const informacoes = atleta.informacoesCompeticao.trim();
+    if (informacoes.length == 0) {
+      containerInformacoes.classList.add('d-none');
+    } else {
+      elementoInformacoes.innerText = informacoes;
+    }
+  }
+
+  return elem;
+}
 
 function getFiltros() {
-    // TODO
-    const pagina = 1;
-    const porPagina = 25;
+  const filtros = {};
 
-    const filtros = {};
+  function addFiltroText(nome, input) {
+    if (!input) return
+    if (!input.value) return
+    const value = input.value.trim();
+    if (!value) return
+    filtros[nome] = value;
+  }
 
-    function addFiltroText(nome, input) {
-        if (!input) return
-        if (!input.value) return
-        const value = input.value.trim();
-        if (!value) return
-        filtros[nome] = value;
-    }
+  function addFiltroCheckbox(nome, inputs) {
+    const selecionados = inputs.filter(x => x.checked).map(x => x.value)
+    const todos        = inputs.map(x => x.value)
+    filtros[nome] = selecionados.length == 0 ? todos : selecionados;
+  }
 
-    function addFiltroCheckbox(nome, inputs) {
-        const selecionados = inputs.filter(x => x.checked).map(x => x.value)
-        const todos        = inputs.map(x => x.value)
-        filtros[nome] = selecionados.length == 0 ? todos : selecionados;
-    }
+  addFiltroText('nomeAtleta', qs('#nome-atleta'));
+  addFiltroText('nomeTecnico', qs('#nome-tecnico'));
+  addFiltroText('clube', qs('#clube'));
+  addFiltroText('idadeMaiorQue', qs('#idade-maior-que'));
+  addFiltroText('idadeMenorQue', qs('#idade-menor-que'));
 
-    addFiltroText('nomeAtleta', qs('#nome-atleta'));
-    addFiltroText('nomeTecnico', qs('#nome-tecnico'));
-    addFiltroText('clube', qs('#clube'));
-    addFiltroText('idadeMaiorQue', qs('#idade-maior-que'));
-    addFiltroText('idadeMenorQue', qs('#idade-menor-que'));
+  addFiltroCheckbox('categorias', Array.from(qsa('.input-categoria')));
+  addFiltroCheckbox('sexoAtleta', Array.from(qsa('.input-sexo-atleta')));
+  addFiltroCheckbox('sexoDupla', Array.from(qsa('.input-sexo-dupla')));
 
-    addFiltroCheckbox('categorias', Array.from(qsa('.input-categoria')));
-    addFiltroCheckbox('sexoAtleta', Array.from(qsa('.input-sexo-atleta')));
-    addFiltroCheckbox('sexoDupla', Array.from(qsa('.input-sexo-dupla')));
+  filtros.idCompeticao = idCompeticao;
+  filtros.ordenacao = qs('#btn-ordenacao-tipo').getAttribute('data-ordenacao');
+  filtros.colunaOrdenacao = qs('#ordenacao-campo').selectedOptions[0].value;
 
-    filtros.idCompeticao = idCompeticao;
-    filtros.ordenacao = qs('#btn-ordenacao-tipo').getAttribute('data-ordenacao');
-    filtros.colunaOrdenacao = qs('#ordenacao-campo').selectedOptions[0].value;
-
-    filtros.limit = porPagina;
-    filtros.offset = (pagina - 1) * porPagina;
-
-    return filtros;
+  return filtros;
 }
 
 
 async function pesquisarAtletas(filtros) {
-    const url = new URL(baseUrl + '/tecnico/competicoes/atletas/controller.php');
+  const url = new URL(baseUrl + '/tecnico/competicoes/atletas/controller.php');
 
-    for (const chave in filtros) {
-        const valor = filtros[chave];
-        if (Array.isArray(valor)) {
-            const chaveArray = chave + '[]';
-            for (const elem of valor) {
-                url.searchParams.append(chaveArray, elem)
-            }
-        } else {
-            url.searchParams.append(chave, valor)
-        }
+  for (const chave in filtros) {
+    const valor = filtros[chave];
+    if (Array.isArray(valor)) {
+      const chaveArray = chave + '[]';
+      for (const elem of valor) {
+        url.searchParams.append(chaveArray, elem)
+      }
+    } else {
+      url.searchParams.append(chave, valor)
     }
+  }
 
-    url.searchParams.append('acao', 'pesquisar');
+  url.searchParams.append('acao', 'pesquisar');
 
-    const response = await fetch(url);
-    const text     = await response.text();
+  const response = await fetch(url);
+  const text     = await response.text();
 
-    try {
-        return JSON.parse(text);
-    } catch (err) {
-        console.error('text', text);
-        console.error('err', err);
-    }
+  try {
+    return JSON.parse(text);
+  } catch (err) {
+    console.error('text', text);
+    console.error('err', err);
+  }
 }
 
 </script>

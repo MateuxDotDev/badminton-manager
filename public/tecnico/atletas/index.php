@@ -28,13 +28,6 @@ try {
 ?>
 
 <style>
-    .profile-pic {
-        border-radius: 50%;
-        object-fit: cover;
-        object-position: center;
-        border: 2px solid var(--bs-success);
-    }
-
     #conteudo {
         display: grid;
         gap: 1rem;

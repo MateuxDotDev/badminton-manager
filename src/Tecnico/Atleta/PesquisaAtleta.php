@@ -19,8 +19,6 @@ readonly class PesquisaAtleta
         public array $sexoDupla,
         public string $colunaOrdenacao,
         public Ordenacao $ordenacao,
-        public int $offset,
-        public int $limit,
     ) {}
 
     /**
@@ -77,13 +75,6 @@ readonly class PesquisaAtleta
             throw new ValidatorException('Coluna de ordenação inválida, deve ser uma dentre: ' . implode(', ', $colunasOrdenacao));
         }
 
-        if (!array_key_exists('offset', $req) || !array_key_exists('limit', $req)) {
-            throw new ValidatorException('É obrigatório informar o `limit` e o `offset` ao pesquisar atletas');
-        }
-
-        $offset = (int) filter_var($req['offset'], FILTER_SANITIZE_NUMBER_INT);
-        $limit  = (int) filter_var($req['limit'], FILTER_SANITIZE_NUMBER_INT);
-
         return new self(
             $idCompeticao,
             $nomeAtleta,
@@ -96,8 +87,6 @@ readonly class PesquisaAtleta
             $sexoDupla,
             $colunaOrdenacao,
             $ordenacao,
-            $offset,
-            $limit,
         );
     }
 }

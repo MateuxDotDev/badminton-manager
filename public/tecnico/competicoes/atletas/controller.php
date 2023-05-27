@@ -107,10 +107,6 @@ function pesquisarAtletas($req): Response
 
     $where = implode(' AND ', $condicoes);
 
-    $limit     = $dados->limit;
-    $offset    = $dados->offset;
-
-
     // TODO ainda falta testar [[cada um]] dos filtros + ordenação + paginação
 
 
@@ -131,7 +127,11 @@ function pesquisarAtletas($req): Response
                     )
                  ) as categorias,
                  jsonb_agg(distinct acs.sexo_dupla) as sexo_dupla,
-                 ac.alterado_em
+                 ac.alterado_em,
+                 a.informacoes as informacoes_atleta,
+                 t.informacoes as informacoes_tecnico,
+                 ac.informacoes as informacoes_atleta_competicao,
+                 a.path_foto
             from atleta a
             join atleta_competicao ac on ac.atleta_id = a.id
             join tecnico t on t.id = a.tecnico_id
@@ -142,7 +142,6 @@ function pesquisarAtletas($req): Response
            where $where
         group by ac.competicao_id, ac.atleta_id, a.id, t.id, clu.id
         order by $colunaOrdenacao $ordenacaoString
-           limit $limit offset $offset
     SQL;
 
     $stmt = $pdo->prepare($sql);
@@ -160,12 +159,16 @@ function pesquisarAtletas($req): Response
             'dataNascimento' => $row['data_nascimento'],
             'idade' => $row['idade'],
             'sexo' => $row['sexo'],
+            'pathFoto' => $row['path_foto'],
+            'informacoes' => $row['informacoes_atleta'],
+            'informacoesCompeticao' => $row['informacoes_atleta_competicao'],
             'tecnico' => [
                 'id' => $row['tecnico_id'],
                 'nome' => $row['tecnico_nome_completo'],
+                'informacoes' => $row['informacoes_tecnico'],
                 'clube' => [
                     'id' => $row['clube_id'],
-                    'clube' => $row['clube_nome'],
+                    'nome' => $row['clube_nome'],
                 ],
             ],
             // alteração do cadastro do atleta na competição, não do atleta em si
