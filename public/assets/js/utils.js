@@ -148,3 +148,12 @@ function dataBr(date) {
 function pluralizar(qtd, singular, plural) {
     return qtd == 1 ? `${qtd} ${singular}` : `${qtd} ${plural}`;
 }
+
+/**
+ * Remove todos os elementos filhos
+ * 
+ * @param {HTMLElement} e
+ */
+function esvaziar(e) {
+    while (e.firstChild) e.firstChild.remove();
+}

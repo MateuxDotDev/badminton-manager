@@ -255,7 +255,7 @@ clicouFiltrar();
 async function clicouFiltrar() {
   const filtros = getFiltros();
   const {resultados: atletas} = await pesquisarAtletas(filtros);
-  console.log('atletas', atletas)
+  esvaziar(containerAtletas);
   for (const atleta of atletas) {
     containerAtletas.append(criarElementoAtleta(atleta));
   }
