@@ -22,7 +22,12 @@ class CategoriaRepository
 
         $categorias = [];
         foreach ($rows as $row) {
-            $categorias[] = new Categoria($row['id'], $row['descricao'], $row['idade_maior_que'], $row['idade_menor_que']);
+            $categorias[] = new Categoria(
+                $row['id'],
+                $row['descricao'],
+                $row['idade_maior_que'],
+                $row['idade_menor_que']
+            );
         }
 
         return $categorias;

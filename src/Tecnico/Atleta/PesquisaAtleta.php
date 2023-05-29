@@ -47,8 +47,9 @@ readonly class PesquisaAtleta
 
         $idCategorias = array_key_exists('categorias', $req)
                       ? array_map(
-                           fn($id) => (int) filter_var($id, FILTER_SANITIZE_NUMBER_INT),
-                           $req['categorias'])
+                           fn ($id) => (int) filter_var($id, FILTER_SANITIZE_NUMBER_INT),
+                           $req['categorias']
+                        )
                       : [];
     
         $sexoAtleta = array_key_exists('sexoAtleta', $req)
@@ -72,7 +73,10 @@ readonly class PesquisaAtleta
         static $colunasOrdenacao = ['nomeAtleta', 'nomeTecnico', 'clube', 'idade', 'dataAlteracao'];
 
         if (!in_array($colunaOrdenacao, $colunasOrdenacao)) {
-            throw new ValidatorException('Coluna de ordenação inválida, deve ser uma dentre: ' . implode(', ', $colunasOrdenacao));
+            throw new ValidatorException(
+                'Coluna de ordenação inválida, deve ser uma dentre: '
+                . implode(', ', $colunasOrdenacao)
+            );
         }
 
         return new self(
