@@ -36,13 +36,7 @@
           }
         });
 
-        window.addEventListener("resize", adjustPadding);
-        adjustPadding();
-
-        function adjustPadding() {
-          const navHeight = document.querySelector('.navbar').offsetHeight;
-          document.body.style.paddingTop = navHeight + 'px';
-        }
+        document.body.style.paddingTop = '60px';
       });
     </script>
   </div>

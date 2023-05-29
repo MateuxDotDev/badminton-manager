@@ -16,9 +16,9 @@ $displayTabela = empty($competicoes) ? 'none' : 'table';
 
 Template::head('Competições abertas');
 
-if ($session->isTecnico()) {
-    Template::navTecnico();
-}
+if ($session->isTecnico()) Template::navTecnicoLogado();
+else Template::navTecnicoNaoLogado();
+
 ?>
 
 <main class="container">
@@ -58,10 +58,10 @@ if ($session->isTecnico()) {
 
                     <!-- TODO após implementar essas telas, colocar os links aqui -->
                     <td class="td-botao">
-                        <button class="btn btn-outline-primary">
+                        <a href="/tecnico/competicoes/atletas/?competicao=<?= $competicao->id() ?>" class="btn btn-outline-primary">
                             <i class="bi bi-person"></i>
                             Ver atletas
-                        </button>
+                        </a>
                     </td>
                     <td class="td-botao">
                         <button class="btn btn-outline-success">

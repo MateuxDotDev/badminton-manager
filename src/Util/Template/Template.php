@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Util\Template;
+use App\Util\General\UserSession;
 
 class Template
 {
@@ -42,13 +43,25 @@ class Template
         die;
     }
 
+    public static function nav(UserSession $session): void
+    {
+        if      ($session->isAdmin())   self::navAdmin();
+        else if ($session->isTecnico()) self::navTecnicoLogado();
+        else                            self::navTecnicoNaoLogado();
+    }
+
     public static function navAdmin(): void
     {
         echo file_get_contents(__DIR__. "/common/adminNav.html");
     }
 
-    public static function navTecnico(): void
+    public static function navTecnicoLogado(): void
     {
-        echo file_get_contents(__DIR__. "/common/tecnicoNav.html");
+        echo file_get_contents(__DIR__. "/common/tecnicoNavLogado.html");
+    }
+
+    public static function navTecnicoNaoLogado(): void
+    {
+        echo file_get_contents(__DIR__. "/common/tecnicoNavNaoLogado.html");
     }
 }

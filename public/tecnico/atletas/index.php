@@ -14,11 +14,7 @@ $session = UserSession::obj();
 
 Template::head('Atletas');
 
-if ($session->isTecnico()) {
-    Template::navTecnico();
-} else {
-    Template::naoAutorizado();
-}
+Template::nav($session);
 
 $hasError = false;
 $atletas = [];
@@ -32,13 +28,6 @@ try {
 ?>
 
 <style>
-    .profile-pic {
-        border-radius: 50%;
-        object-fit: cover;
-        object-position: center;
-        border: 2px solid var(--bs-success);
-    }
-
     #conteudo {
         display: grid;
         gap: 1rem;

@@ -10,7 +10,7 @@ $session = UserSession::obj();
 Template::head('Cadastrar atleta');
 
 if ($session->isTecnico()) {
-    Template::navTecnico();
+    Template::navTecnicoLogado();
 } else {
     Template::naoAutorizado();
 }

@@ -1,0 +1,44 @@
+<template id="template-atleta">
+  <div class="border border-translucent rounded d-flex flex-column">
+    <div class="d-flex p-3 flex-column gap-2 flex-lg-row gap-lg-5 align-items-lg-center">
+      <div class="ratio ratio-1x1" style="max-width: 96px">
+        <img class="atleta-foto img-fluid rounded-circle profile-pic">
+      </div>
+      <div class="d-flex flex-row flex-wrap align-items-center" style="column-gap: 3rem; row-gap: 0.5rem;">
+        <div class="d-flex flex-column">
+          <div class="d-flex flex-row gap-2 fs-5">
+            <abbr class="atleta-nome d-flex flex-row gap-2">
+          </div>
+          <span class="atleta-idade-e-nascimento"></span>
+        </div>
+        <div class="d-flex flex-column">
+          <small class="text-secondary">Joga nas categorias</small>
+          <span class="atleta-categorias"></span>
+        </div>
+        <div class="d-flex flex-column">
+          <small class="text-secondary">Busca dupla</small>
+          <span class="d-flex flex-row gap-2 fs-5 atleta-busca-duplas">
+          </span>
+        </div>
+        <div class="d-flex flex-column">
+          <small class="text-secondary">Técnico</small>
+          <span class="atleta-tecnico"></span>
+        </div>
+        <div class="d-flex flex-column">
+          <small class="text-secondary">Clube</small>
+          <span class="atleta-clube"></span>
+        </div>
+      </div>
+      <div class="ms-md-auto d-flex flex-row gap-2">
+        <button class="btn btn-outline-success flex-fill">
+          <i class="bi bi-people-fill"></i>
+          Formar dupla
+        </button>
+      </div>
+    </div>
+    <div class="atleta-container-informacoes d-flex flex-column border-top border-translucent p-3 py-2">
+      <small class="text-secondary">Informações adicionais</small>
+      <span class="atleta-informacoes">Esse cara é muito bom confia</span>
+    </div>
+  </div>
+</template>
