@@ -93,4 +93,93 @@ class PesquisaAtletaTest extends TestCase
 
         PesquisaAtleta::parse($req);
     }
+
+    public function testParseSemOrdenacao(): void
+    {
+        $req = [
+            'idCompeticao' => 1,
+            'nomeAtleta' => 'Nome Atleta',
+            'nomeTecnico' => 'Nome Técnico',
+            'clube' => 'Clube',
+            'idadeMaiorQue' => 10,
+            'idadeMenorQue' => 20,
+            'categorias' => [1, 2, 3],
+            'sexoAtleta' => ['M'],
+            'sexoDupla' => ['F'],
+            'colunaOrdenacao' => 'nomeAtleta',
+        ];
+
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionMessage('É obrigatório informar a ordenação ao pesquisar atletas');
+
+        PesquisaAtleta::parse($req);
+    }
+
+    public function testParseComOrdenacaoInvalida(): void
+    {
+        $req = [
+            'idCompeticao' => 1,
+            'nomeAtleta' => 'Nome Atleta',
+            'nomeTecnico' => 'Nome Técnico',
+            'clube' => 'Clube',
+            'idadeMaiorQue' => 10,
+            'idadeMenorQue' => 20,
+            'categorias' => [1, 2, 3],
+            'sexoAtleta' => ['M'],
+            'sexoDupla' => ['F'],
+            'colunaOrdenacao' => 'nomeAtleta',
+            'ordenacao' => 'invalida',
+        ];
+
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionMessage('Ordenação inválida');
+
+        PesquisaAtleta::parse($req);
+    }
+
+    public function testParseComColunaOrdenacaoInvalida(): void
+    {
+        $req = [
+            'idCompeticao' => 1,
+            'nomeAtleta' => 'Nome Atleta',
+            'nomeTecnico' => 'Nome Técnico',
+            'clube' => 'Clube',
+            'idadeMaiorQue' => 10,
+            'idadeMenorQue' => 20,
+            'categorias' => [1, 2, 3],
+            'sexoAtleta' => ['M'],
+            'sexoDupla' => ['F'],
+            'colunaOrdenacao' => 'invalida',
+            'ordenacao' => 'asc',
+        ];
+
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionMessage('Coluna de ordenação inválida, deve ser uma dentre: nomeAtleta, nomeTecnico, clube, idade, dataAlteracao');
+
+        PesquisaAtleta::parse($req);
+    }
+
+    public function testParseComCamposNulos(): void
+    {
+        $req = [
+            'idCompeticao' => 1,
+            'colunaOrdenacao' => 'nomeAtleta',
+            'ordenacao' => 'asc',
+        ];
+
+        $pesquisa = PesquisaAtleta::parse($req);
+
+        $this->assertSame(1, $pesquisa->idCompeticao);
+        $this->assertNull($pesquisa->nomeAtleta);
+        $this->assertNull($pesquisa->nomeTecnico);
+        $this->assertNull($pesquisa->clube);
+        $this->assertNull($pesquisa->idadeMaiorQue);
+        $this->assertNull($pesquisa->idadeMenorQue);
+        $this->assertEmpty($pesquisa->idCategorias);
+        $this->assertEmpty($pesquisa->sexoAtleta);
+        $this->assertEmpty($pesquisa->sexoDupla);
+        $this->assertSame('nomeAtleta', $pesquisa->colunaOrdenacao);
+        $this->assertInstanceOf(Ordenacao::class, $pesquisa->ordenacao);
+        $this->assertSame(Ordenacao::ASC, $pesquisa->ordenacao);
+    }
 }
