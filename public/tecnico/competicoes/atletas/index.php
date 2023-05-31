@@ -4,6 +4,8 @@ require __DIR__ . '/../../../../vendor/autoload.php';
 
 use App\Competicoes\CompeticaoRepository;
 use App\Categorias\CategoriaRepository;
+use App\Tecnico\Atleta\AtletaRepository;
+use App\Tecnico\Atleta\Sexo;
 use App\Util\Database\Connection;
 use App\Util\General\UserSession;
 use App\Util\Template\Template;
@@ -25,6 +27,33 @@ $categoriaRepo  = new CategoriaRepository($pdo);
 $competicao = null;
 if ($idCompeticao != null) {
   $competicao = $competicaoRepo->getViaId($idCompeticao);
+}
+
+$atleta = null;
+if (array_key_exists('atleta', $_GET)) {
+  $idAtleta = $_GET['atleta'];
+  $atletaRepo = new AtletaRepository($pdo);
+  $atleta = $atletaRepo->getViaIdNaCompeticao($idAtleta, $idCompeticao);
+}
+
+// TODO!! quando um técnico X está na consulta
+// não devemos mostrar os atletas cadastrados pelo técnico X
+// (não faz sentido ele ver os próprios atleta)
+
+
+function categoriaChecked(int $idCategoria) {
+  global $atleta;
+  return $atleta == null || in_array($idCategoria, $atleta['categorias']);
+}
+
+function sexoAtletaChecked(Sexo $sexo) {
+  global $atleta;
+  return $atleta == null || in_array($sexo, $atleta['sexoDuplas']);
+}
+
+function sexoBuscadoChecked(Sexo $sexo) {
+  global $atleta;
+  return $atleta == null || $sexo == $atleta['sexo'];
 }
 
 if ($competicao == null) {
@@ -52,10 +81,11 @@ $inputsCategorias = [];
 foreach ($categorias as $categoria) {
   $id        = $categoria->id();
   $descricao = $categoria->descricao();
+  $checked   = categoriaChecked($id) ? 'checked' : '';
 
   $inputsCategorias[] = "
     <div class='form-check'>
-      <input checked class='form-check-input input-categoria' type='checkbox' id='categoria-$id' value='$id'>
+      <input $checked class='form-check-input input-categoria' type='checkbox' id='categoria-$id' value='$id'>
       <label for='categoria-$id' class='form-check-label'>$descricao</label>
     </div>
   ";
@@ -152,22 +182,26 @@ foreach ($categorias as $categoria) {
           <div class="col-12 col-md-3 mb-3 mb-md-0">
             <label class="form-label">Sexo</label>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='M' id='sexo-masculino'>
+              <input class='form-check-input input-sexo-atleta' type='checkbox' value='M' id='sexo-masculino'
+                     <?= sexoAtletaChecked(Sexo::from('M')) ? 'checked' : '' ?>>
               <label for='sexo-masculino' class='form-check-label'>Masculino</label>
             </div>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='F' id='sexo-feminino'>
+              <input class='form-check-input input-sexo-atleta' type='checkbox' value='F' id='sexo-feminino'
+                     <?= sexoAtletaChecked(Sexo::from('F')) ? 'checked' : '' ?>>
               <label for='sexo-feminino' class='form-check-label'>Feminino</label>
             </div>
           </div>
           <div class="col-12 col-md-3 mb-3 mb-md-0">
             <label class="form-label">Buscando dupla</label>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='M' id='dupla-masculina>
+              <input class='form-check-input input-sexo-dupla' type='checkbox' value='M' id='dupla-masculina'
+                     <?= sexoBuscadoChecked(Sexo::from('M')) ? 'checked' : '' ?>>
               <label for='dupla-masculina' class='form-check-label'>Masculina</label>
             </div>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='F' id='dupla-feminina'>
+              <input class='form-check-input input-sexo-dupla' type='checkbox' value='F' id='dupla-feminina'
+                     <?= sexoBuscadoChecked(Sexo::from('F')) ? 'checked' : '' ?>>
               <label for='dupla-feminina' class='form-check-label'>Feminina</label>
             </div>
           </div>

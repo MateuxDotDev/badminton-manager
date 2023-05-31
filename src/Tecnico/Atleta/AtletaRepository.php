@@ -5,6 +5,7 @@ namespace App\Tecnico\Atleta;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use App\Util\Http\HttpStatus;
+use App\Util\Services\UploadImagemService\UploadImagemService;
 use App\Util\Services\UploadImagemService\UploadImagemServiceInterface;
 use Exception;
 use PDO;
@@ -13,7 +14,7 @@ class AtletaRepository implements AtletaRepositoryInterface
 {
     public function __construct(
         private readonly PDO $pdo,
-        private readonly UploadImagemServiceInterface $uploadImagemService
+        private readonly UploadImagemServiceInterface $uploadImagemService = new UploadImagemService()
     ) {}
 
     /**
@@ -106,5 +107,52 @@ class AtletaRepository implements AtletaRepositoryInterface
         }
 
         return $atletas;
+    }
+
+    // TODO na verdade isso aqui deveria estar no AtletaCompeticaoRepository
+    // refazer lá depois do merge da branch que criou esse Repository
+    // e também pra não inventar um AtletaCompeticao nessa branch que
+    // pode divergir do AtletaCompeticao verdadeiro, vou só retornar um json 
+    public function getViaIdNaCompeticao(int $idAtleta, int $idCompeticao): ?array
+    {
+        // TODO por enquanto traz somente as informações que são usadas para 
+        // pré-preencher os filtros, mas também poderia trazer em cima os 
+        // dados do atleta para visualizar qual atleta está sendo considerado
+        // (no mínimo o nome -- "Mostrando atletas compatíveis com $nome")
+
+        $sql = <<<SQL
+              SELECT a.sexo,
+                     jsonb_agg(distinct acc.categoria_id) as categorias,
+                     jsonb_agg(distinct acs.sexo_dupla) as sexo_duplas
+                FROM atleta a
+                JOIN atleta_competicao ac
+                  ON ac.atleta_id = :idAtleta
+                 AND ac.competicao_id = :idCompeticao
+                JOIN atleta_competicao_categoria acc
+                  ON acc.atleta_id = ac.atleta_id
+                 AND acc.competicao_id = ac.competicao_id
+                JOIN atleta_competicao_sexo_dupla acs
+                  ON acs.atleta_id = ac.atleta_id
+                 AND acs.competicao_id = ac.competicao_id
+            GROUP BY a.id
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'idAtleta'     => $idAtleta,
+            'idCompeticao' => $idCompeticao,
+        ]);
+
+        $rows = $stmt->fetchAll();
+
+        if (empty($rows)) return null;
+
+        $row = $rows[0];
+
+        return [
+            'sexo'       => Sexo::from($row['sexo']),
+            'categorias' => json_decode($row['categorias']),
+            'sexoDuplas' => array_map(fn($s) => Sexo::from($s), json_decode($row['sexo_duplas']))
+        ];
     }
 }
