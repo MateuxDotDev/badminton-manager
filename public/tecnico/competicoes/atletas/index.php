@@ -305,7 +305,7 @@ async function clicouFiltrar() {
   const carregando = qs('#carregando');
   carregando.classList.remove('d-none');
 
-  const {resultados: atletas} = await pesquisarAtletas(filtros);
+  const atletas = await pesquisarAtletas(filtros);
 
   carregando.classList.add('d-none');
 
@@ -446,7 +446,8 @@ async function pesquisarAtletas(filtros) {
   const text     = await response.text();
 
   try {
-    return JSON.parse(text);
+    const retorno = JSON.parse(text);
+    return retorno.resultados ?? [];
   } catch (err) {
     console.error('text', text);
     console.error('err', err);
