@@ -64,10 +64,10 @@ else Template::navTecnicoNaoLogado();
                         </a>
                     </td>
                     <td class="td-botao">
-                        <button class="btn btn-outline-success">
+                        <a href="/atletacompeticao/index.php?competicao=<?= $competicao->id() ?>" class="btn btn-outline-success">
                             <i class="bi bi-person-plus"></i>
                             Cadastrar atleta
-                        </button>
+                        </a>
                     </td>
                 </tr>
             <?php endforeach; ?>
