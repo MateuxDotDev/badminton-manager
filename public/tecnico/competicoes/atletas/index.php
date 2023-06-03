@@ -36,11 +36,6 @@ if (array_key_exists('atleta', $_GET)) {
   $atleta = $atletaRepo->getViaIdNaCompeticao($idAtleta, $idCompeticao);
 }
 
-// TODO!! quando um técnico X está na consulta
-// não devemos mostrar os atletas cadastrados pelo técnico X
-// (não faz sentido ele ver os próprios atleta)
-
-
 function categoriaChecked(int $idCategoria) {
   global $atleta;
   return $atleta == null || in_array($idCategoria, $atleta['categorias']);
@@ -325,17 +320,6 @@ async function clicouFiltrar() {
 function criarElementoAtleta(atleta) {
   const elem = templateAtleta.content.firstElementChild.cloneNode(true);
 
-  // Fica melhor com um ícone de info no lado
-  // talvez fazer isso e deixar disponível no utils.js
-  function criarTooltip(elem, title) {
-    title ??= '';
-    if (title.trim().length > 0) {
-      elem.setAttribute('title', title);
-      elem.classList.add('has-tooltip');
-      new bootstrap.Tooltip(elem);
-    }
-  }
-
   {
     const foto = qse(elem, '.atleta-foto')
     foto.src = `/assets/images/profile/${atleta.pathFoto}`;
@@ -347,7 +331,7 @@ function criarElementoAtleta(atleta) {
     nome.innerText = `${atleta.nome}`;
     nome.append(iconeSexo(atleta.sexo));
   
-    criarTooltip(nome, atleta.informacoes);
+    adicionarTooltip(nome, atleta.informacoes);
   }
 
   {
@@ -370,7 +354,7 @@ function criarElementoAtleta(atleta) {
     const tecnico = qse(elem, '.atleta-tecnico');
     tecnico.innerText = atleta.tecnico.nome;
 
-    criarTooltip(tecnico, atleta.tecnico.informacoes);
+    adicionarTooltip(tecnico, atleta.tecnico.informacoes);
   }
 
   qse(elem, '.atleta-clube').innerText = atleta.tecnico.clube.nome;

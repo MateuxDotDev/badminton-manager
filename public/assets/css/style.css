@@ -39,7 +39,3 @@ pre.sf-dump {
     object-position: center;
     border: 2px solid var(--bs-success);
 }
-
-.has-tooltip {
-    text-decoration: underline dotted 1px;
-}

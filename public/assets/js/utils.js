@@ -157,3 +157,17 @@ function pluralizar(qtd, singular, plural) {
 function esvaziar(e) {
     while (e.firstChild) e.firstChild.remove();
 }
+
+/**
+ * @param {HTMLElement} elemento
+ * @param {string} texto
+ * 
+ * @returns {void}
+ */
+function adicionarTooltip(elemento, texto) {
+    texto = (texto ?? '').trim();
+    if (texto.length == 0) return;
+    elemento.setAttribute('title', texto);
+    elemento.style.textDecoration = 'underline dotted 1px';
+    new bootstrap.Tooltip(elemento);
+}
