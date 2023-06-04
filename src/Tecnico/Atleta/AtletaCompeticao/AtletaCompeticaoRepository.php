@@ -102,7 +102,6 @@ class AtletaCompeticaoRepository
             return $atletas;
         }catch(Exception $e){
             throw $e;
-            return [];
         }
     }
 
