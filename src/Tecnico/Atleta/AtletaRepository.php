@@ -11,10 +11,15 @@ use PDO;
 
 class AtletaRepository implements AtletaRepositoryInterface
 {
+
+    private bool $defineTransaction;
+
     public function __construct(
         private readonly PDO $pdo,
         private readonly UploadImagemServiceInterface $uploadImagemService
-    ) {}
+    ) {
+        $this->defineTransaction = true;
+    }
 
     /**
      * @throws Exception

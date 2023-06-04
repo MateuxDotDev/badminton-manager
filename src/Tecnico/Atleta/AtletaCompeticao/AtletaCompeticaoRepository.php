@@ -63,11 +63,10 @@ class AtletaCompeticaoRepository
             return $atletas;
         }catch(Exception $e){
             throw $e;
-            return [];
         }
     }
 
-    public function getAtletasForaCompeticaoViaNome(int $idTecnico, int $idCompeticao): array
+    public function getAtletasForaCompeticao(int $idTecnico, int $idCompeticao): array
     {
         try{
             $sql = <<<SQL

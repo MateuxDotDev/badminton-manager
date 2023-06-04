@@ -52,7 +52,6 @@ readonly class CompeticaoRepository
                    alterado_em
               FROM competicao
              WHERE id = $id
-          ORDER BY prazo DESC
         ");
         
         foreach($qry as $linha){

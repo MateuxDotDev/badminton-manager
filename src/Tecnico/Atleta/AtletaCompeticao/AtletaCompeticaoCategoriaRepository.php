@@ -16,7 +16,7 @@ class AtletaCompeticaoCategoriaRepository
         $this->defineTransaction = true;
     }
 
-    public function cadastrarAtletaCompeticaoCategoria(AtletaCompeticaoCategoria $aca): bool
+    public function cadastrarAtletaCompeticaoCategoria(AtletaCompeticaoCategoria $acc): bool
     {
         $this->begin();
         try {
@@ -24,20 +24,20 @@ class AtletaCompeticaoCategoriaRepository
                 INSERT INTO atleta_competicao_categoria (
                     atleta_id,
                     competicao_id,
-                    categoria
+                    categoria_id
                 )
                 VALUES (
                     :atleta_id,
                     :competicao_id,
-                    :categoria
+                    :categoria_id
                 )
             SQL;
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
-                'atleta_id' => $aca->atletaCompeticao()->atleta()->id(),
-                'competicao_id' => $aca->atletaCompeticao()->competicao()->id(),
-                'categoria' => $aca->categoria()->descricao()
+                'atleta_id' => $acc->atletaCompeticao()->atleta()->id(),
+                'competicao_id' => $acc->atletaCompeticao()->competicao()->id(),
+                'categoria_id' => $acc->categoria()->id()
             ]);
             $this->commit();
 

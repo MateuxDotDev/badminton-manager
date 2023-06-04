@@ -57,13 +57,11 @@ $tecnico = $session->getTecnico();
     if($codigoCompeticao && $codigoCompeticao != 0){
         $repo = new CompeticaoRepository(Connection::getInstance());
         $competicao = $repo->buscarCompeticao($codigoCompeticao);
-        $competicao->setId($codigoCompeticao);
-        $competicao->setNome('Tomate Seco');
 
         $repoAtleta = new AtletaCompeticaoRepository(Connection::getInstance());
         $atletas = [];
-        foreach($repoAtleta->getAtletasForaCompeticaoViaNome($tecnico->id(), $codigoCompeticao) as $atleta){
-            $atletas[$atleta->nomeCompleto()] = $atleta->toJson();
+        foreach($repoAtleta->getAtletasForaCompeticao($tecnico->id(), $codigoCompeticao) as $atleta){
+            $atletas[] = $atleta->toJson();
         }
 
         $repoCategoria = new CategoriaRepository(Connection::getInstance());
@@ -122,7 +120,7 @@ $tecnico = $session->getTecnico();
                                 <div id="atleta-selecionado" class="atleta-busca border rounded p-3 flex-row gap-3 align-items-center" style="display: none;">
                                     <div class="flex-shrink">
                                         <div class="rounded-circle" style="height: 60px; width: 60px; background-color: crimson;">
-                                            <img id="img-atleta-selecionado" src="" alt="">
+                                            <img id="img-atleta-selecionado" src="" alt="" style="height: 60px; width: 60px;">
                                         </div>
                                     </div>
                                     <div class="d-flex flex-column">
@@ -385,7 +383,7 @@ $tecnico = $session->getTecnico();
             roundedCircle.style.backgroundColor = "crimson";
             if(atleta.foto != ''){
                 let imgRoundedCircle = document.createElement("img");
-                imgRoundedCircle.src = atleta.foto;
+                imgRoundedCircle.src = "/assets/images/profile/" + atleta.foto;
                 imgRoundedCircle.style.height = "60px";
                 imgRoundedCircle.style.width = "60px";
                 roundedCircle.appendChild(imgRoundedCircle);
@@ -441,7 +439,7 @@ $tecnico = $session->getTecnico();
 
     function showAtletaSelecionado(){
         limpaAtletaSelecionado();
-        document.getElementById('img-atleta-selecionado').src = atletaSelecionado.foto;
+        document.getElementById('img-atleta-selecionado').src = "/assets/images/profile/" + atletaSelecionado.foto;
         document.getElementById('nome-atleta-selecionado').appendChild(document.createTextNode(atletaSelecionado.nomeCompleto));
         document.getElementById('idade-atleta-selecionado').appendChild(document.createTextNode(atletaSelecionado.idade + " ano(s)"));
         document.getElementById('atleta-selecionado').style.display = "flex";

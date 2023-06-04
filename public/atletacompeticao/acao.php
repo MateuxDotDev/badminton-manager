@@ -51,26 +51,16 @@ function realizarCadastro($pdo) : Response
 
 function realizarCadastroAtletaSelecionado($pdo): Response
 {
+    $dados = [];
+    $dados['atleta'] = getAtletaSelecionadoValidado($pdo);
+    $dados['atletaCompeticaoCategoria'] = getAtletaCompeticaoCategoriaValidada($pdo, $dados['atleta']);
+    $dados['tipo_dupla'] = getTipoDuplaValidado();
+
     try{
         $pdo->beginTransaction();
-        $retorno = cadastrarAtletaCompeticao($pdo, new Atleta());
+        $response = cadastrarAtletaCompeticao($pdo, $dados);
 
-        $pdo->commit();
-        return $retorno;
-    }catch(Exception $e){
-        $pdo->rollback();
-        return Response::erroException($e);
-    }
-}
-
-function realizarCadastroComNovoAtleta($pdo): Response
-{
-    try{
-        $pdo->beginTransaction();
-        $response = cadastrarNovoAtleta($pdo);
         if($response->statusCode() == HttpStatus::OK){
-            $atleta = $response->dados()['atleta'];
-            $response = cadastrarAtletaCompeticao($pdo, $atleta);
             $pdo->commit();
             return $response;
         }else{
@@ -83,9 +73,32 @@ function realizarCadastroComNovoAtleta($pdo): Response
     }
 }
 
-function cadastrarNovoAtleta($pdo): Response
+function realizarCadastroComNovoAtleta($pdo): Response
 {
-    $atleta = validaAtleta();
+    $dados = [];
+    $dados['atleta'] = validaAtleta();;
+    $dados['atletaCompeticaoCategoria'] = getAtletaCompeticaoCategoriaValidada($pdo, $dados['atleta']);
+    $dados['tipo_dupla'] = getTipoDuplaValidado();
+
+    try{
+        $pdo->beginTransaction();
+        $response = cadastrarNovoAtleta($pdo, $dados['atleta']);
+        if($response->statusCode() == HttpStatus::OK){
+            $response = cadastrarAtletaCompeticao($pdo, $dados);
+            $pdo->commit();
+            return $response;
+        }else{
+            $pdo->rollback();
+            return $response;
+        }
+    }catch(Exception $e){
+        $pdo->rollback();
+        return Response::erroException($e);
+    }
+}
+
+function cadastrarNovoAtleta($pdo, Atleta $atleta): Response
+{
     $imagemService = new UploadImagemService();
 
     if (isset($_FILES["cadastrar_foto"]) && !empty($_FILES["cadastrar_foto"]["name"])) {
@@ -105,26 +118,22 @@ function cadastrarNovoAtleta($pdo): Response
     return Response::erro('Erro ao cadastrar atleta');
 }
 
-function cadastrarAtletaCompeticao($pdo, Atleta $atleta): Response
+function cadastrarAtletaCompeticao($pdo, array $dados): Response
 {
-    if(!$atleta->id()){
-        $atleta = getAtletaById($pdo);
-    }
-
     $atletaCompeticao = new AtletaCompeticao();
-    $atletaCompeticao->setAtleta($atleta);
+    $atletaCompeticao->setAtleta($dados['atleta']);
     $atletaCompeticao->competicao()->setId($_POST["competicao"]);
     $atletaCompeticao->setInformacao($_POST["informacao"]);
     
     $repo = new AtletaCompeticaoRepository($pdo);
     $repo->defineTransaction(false);
     if($repo->cadastrarAtletaCompeticao($atletaCompeticao)){
-        $response = cadastrarAtletaCompeticaoCategoria($pdo, $atletaCompeticao);
+        $response = cadastrarAtletaCompeticaoCategoria($pdo, $atletaCompeticao, $dados);
         if($response->statusCode() == HttpStatus::BAD_REQUEST){
             $pdo->rollback();
             return $response;
         }
-        $response = cadastrarAtletaCompeticaoDupla($pdo, $atletaCompeticao);
+        $response = cadastrarAtletaCompeticaoDupla($pdo, $atletaCompeticao, $dados);
         if($response->statusCode() == HttpStatus::BAD_REQUEST){
             $pdo->rollback();
             return $response;
@@ -137,52 +146,76 @@ function cadastrarAtletaCompeticao($pdo, Atleta $atleta): Response
     }
 }
 
-function cadastrarAtletaCompeticaoCategoria(PDO $pdo, AtletaCompeticao $atletaCompeticao): Response
+function cadastrarAtletaCompeticaoCategoria(PDO $pdo, AtletaCompeticao $atletaCompeticao, array $dados): Response
 {
     $repo = new AtletaCompeticaoCategoriaRepository($pdo);
     $repo->defineTransaction(false);
-    $atletaCompeticaoCategoria = new AtletaCompeticaoCategoria();
-    $atletaCompeticaoCategoria->setAtletaCompeticao($atletaCompeticao);
-
-    if($categorias = getCategoriasFormulario($pdo)){
-        foreach($categorias as $chave => $categoria){
-            if(!validaCategoriaAtleta($categoria, $atletaCompeticao->atleta())){
-                return Response::erro('A categoria ' . $categoria->descricao() . ' selecionada se torna invalida com relação a idade do(a) atleta');
-            }
-
-            $atletaCompeticaoCategoria->setCategoria($categoria);
-            if($repo->cadastrarAtletaCompeticaoCategoria($atletaCompeticaoCategoria)){
-                return Response::ok('');
-            }else{
-                return Response::erro('Não foi possível cadastrar a categoria ' . $categoria->descricao() . ' ao atleta na competição');
-            }
+    $categoriasCompeticao = $dados['atletaCompeticaoCategoria'];
+    
+    /* @var $atletaCompeticaoCategoria AtletaCompeticaoCategoria */
+    foreach($categoriasCompeticao as $atletaCompeticaoCategoria){
+        $atletaCompeticaoCategoria->setAtletaCompeticao($atletaCompeticao);
+        $atletaCompeticaoCategoria->setCategoria($atletaCompeticaoCategoria->categoria());
+        if(!$repo->cadastrarAtletaCompeticaoCategoria($atletaCompeticaoCategoria)){
+            return Response::erro('Não foi possível cadastrar a categoria ' . $categoria->descricao() . ' ao atleta na competição');
         }
-    }else{
-        return Response::erro('Não foi selecionado uma categoria');
     }
-
-
+    return Response::ok('');
 }
 
-function cadastrarAtletaCompeticaoDupla(PDO $pdo, AtletaCompeticao $atletaCompeticao): Response
+function cadastrarAtletaCompeticaoDupla(PDO $pdo, AtletaCompeticao $atletaCompeticao, array $dados): Response
 {
     $repo = new AtletaCompeticaoDuplaRepository($pdo);
     $repo->defineTransaction(false);
     $atletaCompeticaoDupla = new AtletaCompeticaoDupla();
     $atletaCompeticaoDupla->setAtletaCompeticao($atletaCompeticao);
+    $tipoDuplas = $dados['tipo_dupla'];
+    
+    foreach($tipoDuplas as $valor){
+        $atletaCompeticaoDupla->setTipoDupla(Sexo::from($valor));
+        if(!$repo->cadastrarAtletaCompeticaoDupla($atletaCompeticaoDupla)){
+            return Response::erro('Não foi possível cadastrar o tipo de dupla ' . $valor . ' do atleta na competição');
+        }
+    }
+    
+    return Response::ok('');
+}
 
-    if($tipoDuplas = getTipoDuplaFormulario()){
-        foreach($tipoDuplas as $tipoDupla => $valor){
-            $atletaCompeticaoDupla->setTipoDupla(Sexo::from($valor));
-            if($repo->cadastrarAtletaCompeticaoDupla($atletaCompeticaoDupla)){
-                return Response::ok();
-            }else{
-                return Response::erro('Não foi possível cadastrar o tipo de dupla ' . $valor . ' do atleta na competição');
+function getAtletaSelecionadoValidado(PDO $pdo): ?Atleta
+{
+    if($atleta = getAtletaById($pdo)){
+        return $atleta;
+    }
+
+    throw new ValidatorException('Não foi possível encontrar o atleta selecionado');
+}
+
+function getAtletaCompeticaoCategoriaValidada(PDO $pdo, Atleta $atleta): array
+{
+    $categoriasCompeticao = [];
+    if($categorias = getCategoriasFormulario($pdo)){
+        foreach($categorias as $chave => $categoria){
+            if(!validaCategoriaAtleta($categoria, $atleta)){
+                throw new ValidatorException('A categoria ' . $categoria->descricao() . ' selecionada se torna invalida com relação a idade do(a) atleta');
             }
+
+            $acc = new AtletaCompeticaoCategoria();
+            $acc->setCategoria($categoria);
+            $categoriasCompeticao[] = $acc;
         }
     }else{
-        return Response::erro('Não foi selecionado um tipo de dupla');
+        throw new ValidatorException('Não foi selecionado uma categoria');
     }
+
+    return $categoriasCompeticao;
+}
+
+function getTipoDuplaValidado(){
+    if(!$tiposDuplas = getTipoDuplaFormulario()){
+        throw new ValidatorException('Não foi selecionado um tipo de dupla');
+    }
+
+    return $tiposDuplas;
 }
 
 function getCategoriasFormulario(PDO $pdo): array
@@ -249,8 +282,7 @@ function validaAtleta(): Atleta
     if (!($dataNascimento instanceof DateTimeInterface)) {
         throw new ValidatorException('Data de nascimento inválida');
     }
-
-    $dataNascimento->setTime(0, 0);
+    
     $currentDate = new DateTime();
     $currentDate->setTime(0, 0);
     if ($dataNascimento >= $currentDate) {
