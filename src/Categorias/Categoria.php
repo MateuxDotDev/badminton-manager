@@ -34,6 +34,16 @@ readonly class Categoria
         return $this->idadeMenorQue;
     }
 
+    public function toJson(): array
+    {
+        return [
+            'id' => $this->id,
+            'descricao' => $this->descricao,
+            'idadeMaiorQue' => $this->idadeMaiorQue,
+            'idadeMenorQue' => $this->idadeMenorQue,
+        ];
+    }
+
     public function podeParticipar(
         DateTimeInterface $dataNascimento,
         DateTimeInterface $dataCompeticao,

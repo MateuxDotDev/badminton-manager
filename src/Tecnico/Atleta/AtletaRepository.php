@@ -6,8 +6,8 @@ use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use App\Util\Http\HttpStatus;
 use App\Util\Services\UploadImagemService\UploadImagemServiceInterface;
-use Exception;
-use PDO;
+use \Exception;
+use \PDO;
 
 class AtletaRepository implements AtletaRepositoryInterface
 {

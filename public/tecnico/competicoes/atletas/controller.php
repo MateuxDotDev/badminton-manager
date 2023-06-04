@@ -2,10 +2,17 @@
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
+use App\Competicoes\CompeticaoRepository;
+use App\Notificacao\NotificacaoRepository;
+use App\Tecnico\Atleta\AtletaEmCompeticaoRepository;
 use App\Tecnico\Atleta\PesquisaAtleta;
 use App\Tecnico\Atleta\Sexo;
+use App\Tecnico\Solicitacao\EnviarSolicitacao;
+use App\Tecnico\Solicitacao\EnviarSolicitacaoDTO;
+use App\Tecnico\Solicitacao\SolicitacaoPendenteRepository;
 use App\Util\Database\Connection;
 use App\Util\Exceptions\ValidatorException;
+use App\Util\General\UserSession;
 use App\Util\Http\Request;
 use App\Util\Http\Response;
 
@@ -25,6 +32,7 @@ function atletaCompeticaoController(): Response
 
     return match ($acao) {
         'pesquisar' => pesquisarAtletas($req),
+        'enviarSolicitacao' => enviarSolicitacao($req),
         default => Response::erro("Ação desconhecida: '$acao'")
     };
 }
@@ -181,4 +189,26 @@ function pesquisarAtletas($req): Response
     }
 
     return Response::ok('Busca realizada com sucesso', ['resultados' => $resultados]);
+}
+
+function enviarSolicitacao(array $req): Response
+{
+    $dto = EnviarSolicitacaoDTO::parse($req);
+
+    $pdo = Connection::getInstance();
+
+    $session = UserSession::obj();
+
+    // TODO talvez centralizar em um service locator
+
+    $competicoes          = new CompeticaoRepository($pdo);
+    $atletasEmCompeticoes = new AtletaEmCompeticaoRepository($pdo);
+    $solicitacoes         = new SolicitacaoPendenteRepository($pdo);
+    $notificacoes         = new NotificacaoRepository($pdo);
+
+    $enviar = new EnviarSolicitacao($session, $competicoes, $atletasEmCompeticoes, $solicitacoes, $notificacoes);
+
+    $id = $enviar($dto);
+
+    return Response::ok('Solicitação enviada com sucesso', ['id' => $id]);
 }
