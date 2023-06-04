@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../../../vendor/autoload.php';
 use App\Competicoes\CompeticaoRepository;
 use App\Notificacao\NotificacaoRepository;
 use App\Tecnico\Atleta\AtletaEmCompeticaoRepository;
-use App\Tecnico\Atleta\PesquisaAtleta;
+use App\Competicoes\PesquisaAtletaCompeticao;
 use App\Tecnico\Atleta\Sexo;
 use App\Tecnico\Solicitacao\EnviarSolicitacao;
 use App\Tecnico\Solicitacao\EnviarSolicitacaoDTO;
@@ -42,7 +42,7 @@ function atletaCompeticaoController(): Response
 function pesquisarAtletas($req): Response
 {
     $pdo   = Connection::getInstance();
-    $dados = PesquisaAtleta::parse($req);
+    $dados = PesquisaAtletaCompeticao::parse($req);
 
     // TODO fazer como enum também
     $colunaOrdenacao = match($dados->colunaOrdenacao) {
