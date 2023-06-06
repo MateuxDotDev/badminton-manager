@@ -106,13 +106,14 @@ $tecnico = $session->getTecnico();
 
                         <div class="tab-content">
                             <div id="selecionar_atleta" class="tab-pane show active">
-                                <div class="input-group mb-3 elementos-sem-atleta">
+                                <div class="input-group elementos-sem-atleta">
                                     <button id="btn-pesquisar" class="btn btn-outline-primary" type="button">
-                                        Consultar Atleta
+                                        <i class="bi bi-search"></i>
+                                        Buscar Atleta
                                     </button>
                                 </div>
 
-                                <div id="atleta-selecionado" class="atleta-busca border rounded p-3 flex-row gap-3 align-items-center" style="display: none;">
+                                <div id="atleta-selecionado" class="atleta-busca border rounded p-3 flex-row gap-3 align-items-center mt-3" style="display: none;">
                                     <div class="flex-shrink">
                                         <div class="rounded-circle" style="height: 60px; width: 60px;">
                                             <img id="img-atleta-selecionado" src="" alt="" style="height: 60px; width: 60px;">
@@ -135,17 +136,19 @@ $tecnico = $session->getTecnico();
                                     <input id="cadastrar_nomeCompleto" name="cadastrar_nomeCompleto" class="form-control" type="text"/>
                                 </div>
                                 <div class="row mb-3">
-                                    <div class="col">
-                                        <label class="form-label" for="cadastrar_sexo">Sexo</label>
-                                        <select class="form-control" id="cadastrar_sexo" name="cadastrar_sexo">
-                                            <option value="M">Masculino</option>
-                                            <option value="F">Feminino</option>
-                                        </select>
-                                    </div>
-                                    <div class="col">
-                                        <label class="form-label" for="cadastrar_dataNascimento">Data de nascimento</label>
-                                        <!-- TODO: descobrir a necessidade do 1.2rem em type date -->
-                                        <input style="line-height: 1.2rem" class="form-control" type="date" id="cadastrar_dataNascimento" name="cadastrar_dataNascimento"/>
+                                    <div class="row mb-3">
+                                        <div class="col">
+                                            <label class="form-label" for="cadastrar_sexo">Sexo</label>
+                                            <select class="form-control" id="cadastrar_sexo" name="cadastrar_sexo">
+                                                <option value="M">Masculino</option>
+                                                <option value="F">Feminino</option>
+                                            </select>
+                                        </div>
+                                        <div class="col">
+                                            <label class="form-label" for="cadastrar_dataNascimento">Data de nascimento</label>
+                                            <!-- TODO: descobrir a necessidade do 1.2rem em type date -->
+                                            <input style="line-height: 1.2rem" class="form-control" type="date" id="cadastrar_dataNascimento" name="cadastrar_dataNascimento"/>
+                                        </div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label" for="cadastrar_observacoes">Observações</label>

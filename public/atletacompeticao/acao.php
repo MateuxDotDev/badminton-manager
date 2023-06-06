@@ -161,7 +161,7 @@ function cadastrarAtletaCompeticaoCategoria(PDO $pdo, AtletaCompeticao $atletaCo
         $atletaCompeticaoCategoria->setAtletaCompeticao($atletaCompeticao);
         $atletaCompeticaoCategoria->setCategoria($atletaCompeticaoCategoria->categoria());
         if(!$repo->cadastrarAtletaCompeticaoCategoria($atletaCompeticaoCategoria)){
-            return Response::erro('Não foi possível cadastrar a categoria ' . $categoria->descricao() . ' ao atleta na competição');
+            return Response::erro('Não foi possível cadastrar a categoria ' . $atletaCompeticaoCategoria->categoria()->descricao() . ' ao atleta na competição');
         }
     }
     return Response::ok('');
@@ -209,7 +209,7 @@ function getAtletaCompeticaoCategoriaValidada(PDO $pdo, Atleta $atleta, Competic
     if($categorias = getCategoriasFormulario($pdo)){
         foreach($categorias as $chave => $categoria){
             if(!$categoria->podeParticipar($atleta->dataNascimento(), $competicao->prazo())){
-                throw new ValidatorException('A categoria ' . $categoria->descricao() . ' selecionada se torna invalida com relação a idade do(a) atleta');
+                throw new ValidatorException('O atleta não tem uma idade adequada para jogar na categoria ' . $categoria->descricao());
             }
 
             $acc = new AtletaCompeticaoCategoria();
