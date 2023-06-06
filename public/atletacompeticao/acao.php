@@ -14,6 +14,8 @@ use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoCategoriaRepository;
 use App\Tecnico\Atleta\AtletaRepository;
 use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoDuplaRepository;
 use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoDupla;
+use App\Competicoes\CompeticaoRepository;
+use App\Competicoes\Competicao;
 use App\Categorias\Categoria;
 use App\Categorias\CategoriaRepository;
 use App\Tecnico\Atleta\Sexo;
@@ -53,7 +55,8 @@ function realizarCadastroAtletaSelecionado($pdo): Response
 {
     $dados = [];
     $dados['atleta'] = getAtletaSelecionadoValidado($pdo);
-    $dados['atletaCompeticaoCategoria'] = getAtletaCompeticaoCategoriaValidada($pdo, $dados['atleta']);
+    $dados['competicao'] = getCompeticao($pdo);
+    $dados['atletaCompeticaoCategoria'] = getAtletaCompeticaoCategoriaValidada($pdo, $dados['atleta'], $dados['competicao']);
     $dados['tipo_dupla'] = getTipoDuplaValidado();
 
     try{
@@ -76,8 +79,9 @@ function realizarCadastroAtletaSelecionado($pdo): Response
 function realizarCadastroComNovoAtleta($pdo): Response
 {
     $dados = [];
-    $dados['atleta'] = validaAtleta();;
-    $dados['atletaCompeticaoCategoria'] = getAtletaCompeticaoCategoriaValidada($pdo, $dados['atleta']);
+    $dados['atleta'] = validaAtleta();
+    $dados['competicao'] = getCompeticao($pdo);
+    $dados['atletaCompeticaoCategoria'] = getAtletaCompeticaoCategoriaValidada($pdo, $dados['atleta'], $dados['competicao']);
     $dados['tipo_dupla'] = getTipoDuplaValidado();
 
     try{
@@ -181,21 +185,30 @@ function cadastrarAtletaCompeticaoDupla(PDO $pdo, AtletaCompeticao $atletaCompet
     return Response::ok('');
 }
 
+function getCompeticao(PDO $pdo): ?Competicao
+{
+    $repo = new CompeticaoRepository($pdo);
+    return $repo->buscarCompeticao($_POST['competicao']);
+}
+
 function getAtletaSelecionadoValidado(PDO $pdo): ?Atleta
 {
-    if($atleta = getAtletaById($pdo)){
+    if(!$atleta_id = $_POST['atleta']){
+        throw new ValidatorException('Selecione ou cadastre um atleta para a competição');
+    }
+    if($atleta = getAtletaById($pdo, $atleta_id)){
         return $atleta;
     }
 
     throw new ValidatorException('Não foi possível encontrar o atleta selecionado');
 }
 
-function getAtletaCompeticaoCategoriaValidada(PDO $pdo, Atleta $atleta): array
+function getAtletaCompeticaoCategoriaValidada(PDO $pdo, Atleta $atleta, Competicao $competicao): array
 {
     $categoriasCompeticao = [];
     if($categorias = getCategoriasFormulario($pdo)){
         foreach($categorias as $chave => $categoria){
-            if(!validaCategoriaAtleta($categoria, $atleta)){
+            if(!$categoria->podeParticipar($atleta->dataNascimento(), $competicao->prazo())){
                 throw new ValidatorException('A categoria ' . $categoria->descricao() . ' selecionada se torna invalida com relação a idade do(a) atleta');
             }
 
@@ -246,22 +259,10 @@ function getTipoDuplaFormulario(){
     return $tipoDupla;
 }
 
-function getAtletaById(PDO $pdo): ?Atleta
+function getAtletaById(PDO $pdo, int $atleta_id): ?Atleta
 {
     $repo = new AtletaRepository($pdo, new UploadImagemService());
-    return $repo->getAtletaViaId($_POST["atleta"]);
-}
-
-function validaCategoriaAtleta(Categoria $categoria, Atleta $atleta): bool
-{
-    $sucesso = true;
-    if($categoria->idadeMenorQue()){
-        $sucesso = !($categoria->idadeMenorQue() < $atleta->idade());
-    } else if($categoria->idadeMaiorQue()){
-        $sucesso = !($categoria->idadeMaiorQue() > $atleta->idade());
-    }
-
-    return $sucesso;
+    return $repo->getAtletaViaId($atleta_id);
 }
 
 /**

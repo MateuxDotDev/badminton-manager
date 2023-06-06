@@ -25,21 +25,17 @@ $tecnico = $session->getTecnico();
 ?>
 
 <style>
-    .nav-underline .nav-link.active {
+    .nav-tabs .nav-link.active {
         font-weight: 400 !important;
     }
 
     .atleta-busca_modal {
         transition: .1s ease-in-out;
     }
+    
     .atleta-busca_modal:hover {
         box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
         background-color: rgba(var(--bs-light-rgb),var(--bs-bg-opacity)) !important;
-    }
-
-    .fake-link {
-        text-decoration: underline;
-        cursor: pointer;
     }
 </style>
 
@@ -82,7 +78,7 @@ $tecnico = $session->getTecnico();
         
 ?>
 
-<main id="container-atletacompeticao" class="container">
+<main class="container">
     <h2>Incluir atleta na competição</h2>
     <div class="card mb-5">
         <form name="form-atletacompeticao">
@@ -95,7 +91,7 @@ $tecnico = $session->getTecnico();
 
                 <div class="card shadow mb-4">
                     <div class="card-body pt-2">
-                        <ul class="nav mb-3 nav-underline">
+                        <ul class="nav mb-3 nav-tabs">
                             <li class="nav-item">
                                 <button id="btn-selecionar-atleta" class="nav-link active" data-bs-toggle="tab" data-bs-target="#selecionar_atleta" type="button">
                                     Selecionar atleta cadastrado
@@ -111,15 +107,14 @@ $tecnico = $session->getTecnico();
                         <div class="tab-content">
                             <div id="selecionar_atleta" class="tab-pane show active">
                                 <div class="input-group mb-3 elementos-sem-atleta">
-                                    <input id="pesquisa-atleta" type="text" class="form-control" placeholder="Digite o nome do atleta...">
-                                    <button id="btn-pesquisar" class="input-group-text" type="button">
-                                        <i class="bi bi-search"></i>
+                                    <button id="btn-pesquisar" class="btn btn-outline-primary" type="button">
+                                        Consultar Atleta
                                     </button>
                                 </div>
 
                                 <div id="atleta-selecionado" class="atleta-busca border rounded p-3 flex-row gap-3 align-items-center" style="display: none;">
                                     <div class="flex-shrink">
-                                        <div class="rounded-circle" style="height: 60px; width: 60px; background-color: crimson;">
+                                        <div class="rounded-circle" style="height: 60px; width: 60px;">
                                             <img id="img-atleta-selecionado" src="" alt="" style="height: 60px; width: 60px;">
                                         </div>
                                     </div>
@@ -214,10 +209,7 @@ $tecnico = $session->getTecnico();
     <div class="modal-content">
         <div class="modal-header">
             <input id="pesquisa-atleta-modal" type="text" class="form-control" placeholder="Digite o nome do atleta...">
-            <button id="btn-pesquisar-modal" class="input-group-text" type="button">
-                <i class="bi bi-search"></i>
-            </button>
-            <button id="btn-close-modal" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <button id="btn-close-modal" type="button" class="btn btn-outline-primary close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -231,10 +223,8 @@ $tecnico = $session->getTecnico();
                 </div>
             </div>
         </div>
-
-        <div class="modal-footer">
             
-        </div>
+    </div>
   </div>
 </div>
 
@@ -248,7 +238,7 @@ $tecnico = $session->getTecnico();
     const form = document.forms['form-atletacompeticao'];
     const btnPesquisar = document.getElementById("btn-pesquisar");
     const btnCloseModal = document.getElementById("btn-close-modal");
-    const btnPesquisaModal = document.getElementById("btn-pesquisar-modal");
+    const inpPesquisaModal = document.getElementById("pesquisa-atleta-modal");
     const btnRemoverAtletaSelecionado = document.getElementById("btn-remover-selecionado");
     const idTecnico = <?= $tecnico->id() ?>;
     const idCompeticao = <?= $competicao->id() ?>;
@@ -258,32 +248,33 @@ $tecnico = $session->getTecnico();
     form.addEventListener('submit', (event)=>{
         event.preventDefault();
         let formData = new FormData(form);
-        let userChoice = $("#btn-selecionar-atleta").hasClass("active") ? 1 : 2;
-        formData.append('acao', 'cadastrar');
-        formData.append('tecnico', idTecnico);
-        formData.append('competicao', idCompeticao);
-        if(atletaSelecionado){
-            formData.append('atleta', atletaSelecionado.id);
-        }
-        formData.append('userChoice', userChoice);
+        if(validaFormulario(formData)){
+            let userChoice = $("#btn-selecionar-atleta").hasClass("active") ? 1 : 2;
+            formData.append('acao', 'cadastrar');
+            formData.append('tecnico', idTecnico);
+            formData.append('competicao', idCompeticao);
+            if(atletaSelecionado){
+                formData.append('atleta', atletaSelecionado.id);
+            }
+            formData.append('userChoice', userChoice);
 
-        submitAtletaCompeticao(formData);
+            submitAtletaCompeticao(formData);
+        }
     });
 
     btnPesquisar.addEventListener('click', (event) =>{
-        // TODO animação de carregando em algum lugar (por enquanto o botão fica meio 'apagado' com o disabled)
-        //btnPesquisar.setAttribute('disabled', '');
-
         event.preventDefault();
-        const nomeAtleta = document.getElementById("pesquisa-atleta").value;
-        
-        loadModalAtleta(nomeAtleta);
+        loadModalAtleta();
     });
 
-    btnPesquisaModal.addEventListener('click', (event) =>{
-        var nomeAtleta = document.getElementById("pesquisa-atleta-modal").value;
-        reloadModalListaAtleta(nomeAtleta);
-    });
+    inpPesquisaModal.addEventListener('keydown', debounce(300, () => {
+        const termos = (inpPesquisaModal.value ?? '');
+        reloadModalListaAtleta(termos)
+        var listaAtletaElement = document.getElementById("lista_atleta_modal");
+        if(!listaAtletaElement.children.length){
+            alertaErro("Nenhum atleta encontrado");
+        }
+    }));
 
     btnRemoverAtletaSelecionado.addEventListener('click', (event) =>{
         event.preventDefault();
@@ -291,6 +282,76 @@ $tecnico = $session->getTecnico();
         atletaSelecionado = null;
         limpaAtletaSelecionado();
     });
+
+    function validaFormulario(form){
+        var sucesso = true;
+        var userChoice = $("#btn-selecionar-atleta").hasClass("active") ? 1 : 2;
+        if(userChoice == 1){
+            sucesso = validaFormularioAtletaSelecionado();
+        }else {
+            sucesso = validaFormularioAtletaCadastro(form);
+        }
+
+        return sucesso && validaFormularioCategoriaSelecionada(form) && validaFormularioTipoDuplaSelecionado(form);
+    }
+
+    function validaFormularioAtletaSelecionado(){
+        var sucesso = true;
+
+        if(typeof atletaSelecionado !== 'object'){
+            sucesso = false;
+            alertaErro('Não foi selecionado um atleta para a competição');
+        }
+
+        return sucesso;
+    }
+
+    function validaFormularioAtletaCadastro(form){
+        var sucesso = true;
+
+        if(!form.get("cadastrar_nomeCompleto")){
+            sucesso = false;
+            alertaErro("Informe o nome do atleta");
+        }
+        if(sucesso && !form.get("cadastrar_dataNascimento")){
+            sucesso = false;
+            alertaErro("Informe a data de nascimento do atleta");
+        }
+
+        return sucesso;
+    }
+
+    function validaFormularioCategoriaSelecionada(form){
+        var sucesso = false
+        for(const chave of form.keys()){
+            if(chave.includes('categoria')){
+                sucesso = true;
+                break;
+            }
+        }
+
+        if(!sucesso){
+            alertaErro("Selecione uma categoria para poder continuar");
+        }
+
+        return sucesso;
+    }
+
+    function validaFormularioTipoDuplaSelecionado(form){
+        var sucesso = false
+        for(const chave of form.keys()){
+            if(chave.includes('check-')){
+                sucesso = true;
+                break;
+            }
+        }
+
+        if(!sucesso){
+            alertaErro("Selecione uma opção de dupla para poder continuar");
+        }
+
+        return sucesso;
+    }
 
     async function submitAtletaCompeticao(dados){
         try{
@@ -318,21 +379,16 @@ $tecnico = $session->getTecnico();
     /**Iterar o array retornado afim de montar cada card da lista */
     /**Todo card deve possuir um evento duplo-clique com o objetivo de selecionar o atleta consultado */
     /**No final o atleta consultado deve ficar disponivel num card na tela principal */
-    function loadModalAtleta(nomeAtleta){
-        document.getElementById("pesquisa-atleta-modal").value = nomeAtleta;
-        /**Capturar o nome e consultar por todos os atletas que não estão nesta competição e que possuem nomes semelhantes */
-        if(nomeAtleta != ''){
-            reloadModalListaAtleta(nomeAtleta);
-        }else{
-            limpar(document.getElementById("lista_atleta_modal"));
-        }
+    function loadModalAtleta(){
+        esvaziar(document.getElementById("lista_atleta_modal"));
+        reloadModalListaAtleta('');
         $('#consulta-atleta').modal('show');
     }
 
     function reloadModalListaAtleta(nomeAtleta){
         var atletasFiltrados = getAtletasFiltradosModal(nomeAtleta);
         var listaAtletaElement = document.getElementById("lista_atleta_modal");
-        limpar(listaAtletaElement);
+        esvaziar(listaAtletaElement);
         reloadElementListaAtletaModal(listaAtletaElement, atletasFiltrados);
     }
 
@@ -349,15 +405,6 @@ $tecnico = $session->getTecnico();
             atletasFiltrados = atletas;
         }
         return atletasFiltrados;
-    }
-
-    function limpar(elementoX){
-        for(child of elementoX.children){
-            elementoX.removeChild(child);
-        }
-        if(elementoX.children.length != 0){
-            limpar(elementoX);
-        }
     }
 
     /**Adicionar evento no btn-close-modal */
@@ -380,7 +427,6 @@ $tecnico = $session->getTecnico();
             roundedCircle.classList.add("rounded-circle");
             roundedCircle.style.height = "60px";
             roundedCircle.style.width = "60px";
-            roundedCircle.style.backgroundColor = "crimson";
             if(atleta.foto != ''){
                 let imgRoundedCircle = document.createElement("img");
                 imgRoundedCircle.src = "/assets/images/profile/" + atleta.foto;
@@ -422,7 +468,6 @@ $tecnico = $session->getTecnico();
                     }
                 });
                 showAtletaSelecionado();
-                document.getElementById("pesquisa-atleta").value = "";
                 closeModal();
             });
             atletaBuscaElement.appendChild(btnSelecionar);
@@ -433,7 +478,7 @@ $tecnico = $session->getTecnico();
 
     function closeModal(){
         document.getElementById("pesquisa-atleta-modal").value = "";
-        limpar(document.getElementById("lista_atleta_modal"));
+        esvaziar(document.getElementById("lista_atleta_modal"));
         $('#consulta-atleta').modal('hide');
     }
 
@@ -455,8 +500,5 @@ $tecnico = $session->getTecnico();
 
 <!-- Importando o jQuery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-
-<!-- Importando o js do bootstrap -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
 <?php Template::footer() ?>
