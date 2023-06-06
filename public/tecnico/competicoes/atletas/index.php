@@ -1,9 +1,10 @@
 <?php
 
-require __DIR__ . '/../../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 use App\Competicoes\CompeticaoRepository;
 use App\Categorias\CategoriaRepository;
+use App\Tecnico\Atleta\AtletaEmCompeticaoRepository;
 use App\Util\Database\Connection;
 use App\Util\General\UserSession;
 use App\Util\Template\Template;
@@ -61,17 +62,13 @@ foreach ($categorias as $categoria) {
   ";
 }
 
+
+$atletasEmCompeticoes = new AtletaEmCompeticaoRepository($pdo);
+$atletasTecnico = $atletasEmCompeticoes->getAtletasDoTecnico($idCompeticao, $session->getTecnico()->id());
+
 ?>
 
 <style>
-  #btn-marcar-todas-categorias, #btn-desmarcar-todas-categorias {
-    transition: 0.2s ease-in-out;
-    color: var(--bs-primary);
-    opacity: 0.4;
-  }
-  #btn-marcar-todas-categorias:hover, #btn-desmarcar-todas-categorias:hover {
-    opacity: 1.0;
-  }
 </style>
 
 <div class="container">
@@ -118,9 +115,11 @@ foreach ($categorias as $categoria) {
             <label class="form-label">Idade</label>
             <div class="input-group">
               <div class="input-group-text">Entre</div>
-              <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*" id="idade-maior-que"/>
+              <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*"
+                id="idade-maior-que"/>
               <div class="input-group-text">e</div>
-              <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*" id="idade-menor-que"/>
+              <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*"
+                id="idade-menor-que"/>
             </div>
           </div>
           <div class="col">
@@ -130,24 +129,7 @@ foreach ($categorias as $categoria) {
         </div>
   
         <div class="row mb-3">
-          <div class="col-12 col-md-6 mb-3 mb-md-0">
-            <span class="form-label d-flex flex-row gap-3 align-items-center">
-              <span>Categorias</span>
-              <button id="btn-marcar-todas-categorias" class="btn btn-link btn-sm" title="Marcar todas">
-                <i class="bi bi-check-square-fill fs-5"></i>
-              </button>
-              <button id="btn-desmarcar-todas-categorias" class="btn btn-link btn-sm" title="Desmarcar todas">
-                <i class="bi bi-x-square fs-5"></i>
-              </button>
-            </span>
-            <div class="d-flex flex-row gap-5">
-              <div>
-                <?= implode('', array_slice($inputsCategorias, 0, 7)) ?>
-              </div>
-              <div>
-                <?= implode('', array_slice($inputsCategorias, 7)) ?>
-              </div>
-            </div>
+          <div class="col-12 col-md-6 mb-3 mb-md-0" id="container-input-categorias">
           </div>
           <div class="col-12 col-md-3 mb-3 mb-md-0">
             <label class="form-label">Sexo</label>
@@ -220,11 +202,19 @@ foreach ($categorias as $categoria) {
 
 </div>
 
-<?php require 'template-atleta.html' ?> 
+<?php require_once 'template-atleta.html' ?>
 
 <?php Template::scripts(); ?>
 
 <script>
+
+let inputCategorias = null;
+
+fetchCategorias().then(categorias => {
+  inputCategorias = new InputCategorias(categorias);
+  qs('#container-input-categorias').append(inputCategorias.elemento());
+});
+
 
 const baseUrl = location.origin;
 
@@ -232,6 +222,8 @@ const inputsCategorias = qsa('.input-categoria');
 const btnOrdenacaoTipo = qs('#btn-ordenacao-tipo');
 
 const idCompeticao = <?= $_GET['competicao'] ?>;
+
+const atletasTecnico = <?= json_encode($atletasTecnico) ?>;
 
 const templateAtleta = qs('#template-atleta');
 const containerAtletas = qs('#container-atletas');
@@ -248,18 +240,6 @@ btnOrdenacaoTipo.addEventListener('click', () => {
 });
 
 qs('#btn-limpar').addEventListener('click', limparFiltros);
-
-qs('#btn-marcar-todas-categorias').addEventListener('click', () => {
-  for (const input of inputsCategorias) {
-    input.checked = true;
-  }
-});
-
-qs('#btn-desmarcar-todas-categorias').addEventListener('click', () => {
-  for (const input of inputsCategorias) {
-    input.checked = false;
-  }
-});
 
 qs('#btn-filtrar').addEventListener('click', clicouFiltrar);
 clicouFiltrar();
@@ -303,13 +283,13 @@ function criarElementoAtleta(atleta) {
   }
 
   {
-    const foto = qse(elem, '.atleta-foto')
+    const foto = eqs(elem, '.atleta-foto')
     foto.src = `/assets/images/profile/${atleta.pathFoto}`;
     foto.alt = `Foto de perfil do atleta '${atleta.nome}'`;
   }
 
   {
-    const nome = qse(elem, '.atleta-nome');
+    const nome = eqs(elem, '.atleta-nome');
     nome.innerText = `${atleta.nome}`;
     nome.append(iconeSexo(atleta.sexo));
   
@@ -320,30 +300,30 @@ function criarElementoAtleta(atleta) {
     const idade = atleta.idade;
     const nascimento = new Date(atleta.dataNascimento);
     const html = `${pluralizar(idade, 'ano', 'anos')} <small>(${dataBr(nascimento)})</small>`;
-    qse(elem, '.atleta-idade-e-nascimento').innerHTML = html;
+    eqs(elem, '.atleta-idade-e-nascimento').innerHTML = html;
   }
 
-  qse(elem, '.atleta-categorias').innerText = (atleta.categorias ?? []).map(cat => cat.descricao).join(', ');
+  eqs(elem, '.atleta-categorias').innerText = (atleta.categorias ?? []).map(cat => cat.descricao).join(', ');
 
   {
-    const buscaDuplas = qse(elem, '.atleta-busca-duplas');
+    const buscaDuplas = eqs(elem, '.atleta-busca-duplas');
     for (const sexo of atleta.sexoDupla) {
       buscaDuplas.append(iconeSexo(sexo));
     }
   }
 
   {
-    const tecnico = qse(elem, '.atleta-tecnico');
+    const tecnico = eqs(elem, '.atleta-tecnico');
     tecnico.innerText = atleta.tecnico.nome;
 
     criarTooltip(tecnico, atleta.tecnico.informacoes);
   }
 
-  qse(elem, '.atleta-clube').innerText = atleta.tecnico.clube.nome;
+  eqs(elem, '.atleta-clube').innerText = atleta.tecnico.clube.nome;
 
   {
-    const containerInformacoes = qse(elem, '.atleta-container-informacoes');
-    const elementoInformacoes  = qse(elem, '.atleta-informacoes');
+    const containerInformacoes = eqs(elem, '.atleta-container-informacoes');
+    const elementoInformacoes  = eqs(elem, '.atleta-informacoes');
 
     const informacoes = atleta.informacoesCompeticao.trim();
     if (informacoes.length == 0) {
@@ -353,8 +333,22 @@ function criarElementoAtleta(atleta) {
     }
   }
 
+  {
+    const formarDupla = eqs(elem, '.atleta-btn-formar-dupla');
+
+    if (atletasTecnico.length > 0) {
+      formarDupla.addEventListener('click', () => {
+        clicouFormarDupla(atleta);
+      });
+    } else {
+      formarDupla.setAttribute('disabled', '');
+      // TODO adicionarTooltip (após merge que traz essa função)
+    }
+  }
+
   return elem;
 }
+
 
 function getFiltros() {
   const filtros = {};
@@ -379,7 +373,8 @@ function getFiltros() {
   addFiltroText('idadeMaiorQue', qs('#idade-maior-que'));
   addFiltroText('idadeMenorQue', qs('#idade-menor-que'));
 
-  addFiltroCheckbox('categorias', Array.from(qsa('.input-categoria')));
+  filtros.categorias = inputCategorias?.marcadas ?? [];
+
   addFiltroCheckbox('sexoAtleta', Array.from(qsa('.input-sexo-atleta')));
   addFiltroCheckbox('sexoDupla', Array.from(qsa('.input-sexo-dupla')));
 
@@ -419,6 +414,7 @@ async function pesquisarAtletas(filtros) {
   }
 }
 
+
 function limparFiltros() {
   qs('#nome-atleta').value = '';
   qs('#nome-tecnico').value = '';
@@ -430,6 +426,36 @@ function limparFiltros() {
   qsa('.input-categoria').forEach(uncheck);
   qsa('.input-sexo-atleta').forEach(uncheck)
   qsa('.input-sexo-dupla').forEach(uncheck);
+}
+
+
+function clicouFormarDupla(atletaClicado) {
+  const atletasCompativeis = [];
+
+  for (const atleta of atletasTecnico) {
+    if (!atleta.sexoDupla.includes(atletaClicado.sexo)) continue;
+    if (!atletaClicado.sexoDupla.includes(atleta.sexo)) continue;
+
+    const categoriasEmComum = intersectArrays(
+      atleta.categorias,
+      atletaClicado.categorias,
+      (c, d) => c.id == d.id,
+    );
+    if (categoriasEmComum.length == 0) continue;
+
+    atletasCompativeis.push({ atleta, categoriasEmComum });
+  }
+
+  if (atletasCompativeis.length == 0) {
+    Toast.fire({
+      icon: 'warning',
+      text: 'Nenhum dos seus atletas é compatível com o(a) ' + atletaClicado.nome,
+    });
+    return;
+  }
+
+  // TODO abrir modal etc. etc.
+
 }
 
 </script>

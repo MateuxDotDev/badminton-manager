@@ -7,7 +7,7 @@ use \PDO;
 
 readonly class AtletaEmCompeticaoRepository
 {
-    private function __construct(
+    public function __construct(
         private PDO $pdo,
     ) {}
 
@@ -31,7 +31,7 @@ readonly class AtletaEmCompeticaoRepository
                 ON (acc.atleta_id, acc.competicao_id) = (ac.atleta_id, ac.competicao_id)
               JOIN categoria c
                 ON c.id = acc.categoria_id
-              JOIN atleta_competicao_categoria acs
+              JOIN atleta_competicao_sexo_dupla acs
                 ON (acs.atleta_id, acs.competicao_id) = (ac.atleta_id, ac.competicao_id)
              WHERE ac.atleta_id = :idAtleta
                AND ac.competicao_id = :idCompeticao
@@ -66,5 +66,57 @@ readonly class AtletaEmCompeticaoRepository
         }
 
         return $atleta;
+    }
+
+    public function getAtletasDoTecnico(int $idCompeticao, int $idTecnico): array
+    {
+        $pdo = $this->pdo;
+
+        $sql = <<<SQL
+              SELECT a.id
+                   , a.nome_completo
+                   , a.data_nascimento
+                   , a.sexo
+                   , a.path_foto
+                   , jsonb_agg(distinct acs.sexo_dupla) as sexo_dupla
+                   , jsonb_agg(distinct jsonb_build_object(
+                      'id', c.id,
+                      'descricao', c.descricao
+                   )) as categorias
+                FROM atleta_competicao ac
+                JOIN atleta a
+                  ON a.id = ac.atleta_id
+                JOIN atleta_competicao_categoria acc
+                  ON (acc.atleta_id, acc.competicao_id) = (ac.atleta_id, ac.competicao_id)
+                JOIN categoria c
+                  ON c.id = acc.categoria_id
+                JOIN atleta_competicao_sexo_dupla acs
+                  ON (acs.atleta_id, acs.competicao_id) = (ac.atleta_id, ac.competicao_id)
+               WHERE a.tecnico_id = :idTecnico
+                 AND ac.competicao_id = :idCompeticao
+            GROUP BY a.id, ac.atleta_id, ac.competicao_id
+        SQL;
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            'idTecnico' => $idTecnico,
+            'idCompeticao' => $idCompeticao,
+        ]);
+
+        $resultados = [];
+
+        while ($row = $stmt->fetch()) {
+            $resultados[] = [
+                'id' => (int) $row['id'],
+                'nome' => $row['nome_completo'],
+                'dataNascimento' => $row['data_nascimento'],
+                'sexo' => $row['sexo'],
+                'pathFoto' => $row['path_foto'],
+                'categorias' => json_decode($row['categorias'], true),
+                'sexoDupla' => json_decode($row['sexo_dupla'], true),
+            ];
+        }
+
+        return $resultados;
     }
 }
