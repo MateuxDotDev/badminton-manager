@@ -199,8 +199,6 @@ function enviarSolicitacao(array $req): Response
 
     $session = UserSession::obj();
 
-    // TODO talvez centralizar em um service locator
-
     $competicoes          = new CompeticaoRepository($pdo);
     $atletasEmCompeticoes = new AtletaEmCompeticaoRepository($pdo);
     $solicitacoes         = new SolicitacaoPendenteRepository($pdo);

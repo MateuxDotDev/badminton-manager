@@ -7,7 +7,7 @@ use App\Util\General\Dates;
 
 readonly class SolicitacaoPendenteRepository
 {
-    private function __construct(
+    public function __construct(
         private \PDO $pdo
     ) {}
 

@@ -3,7 +3,7 @@ class InputCategorias
     static #templateItem = Object.assign(document.createElement('template'), {
         innerHTML: `
             <div class="form-check">
-                <input checked class="cat-input form-check-input" type="checkbox">
+                <input checked class="cat-input form-check-input">
                 <label class="cat-label form-check-label"></label>
             </div>
         `
@@ -13,7 +13,7 @@ class InputCategorias
         innerHTML: `
             <div>
                 <span class="form-label d-flex flex-row gap-3 align-items-center">
-                    <span>Categorias</span>
+                    <span class="cat-label"></span>
                     <button class="cat-btn-marcar-todas btn btn-link btn-sm" title="Marcar todas">
                         <i class="bi bi-check-square-fill fs-5"></i>
                     </button>
@@ -34,7 +34,7 @@ class InputCategorias
 
     #elem;
 
-    #criarItem(categoria) {
+    #criarItem(categoria, name, radio) {
         const elem = InputCategorias.#templateItem.content.firstElementChild.cloneNode(true);
 
         const atributoId = `cat-${InputCategorias.#counter}-${categoria.id}`;
@@ -42,6 +42,8 @@ class InputCategorias
         const input = eqs(elem, '.cat-input');
         input.setAttribute('id', atributoId);
         input.setAttribute('value', categoria.id);
+        input.setAttribute('name', name);
+        input.setAttribute('type', radio ? 'radio' : 'checkbox');
 
         const label = eqs(elem, '.cat-label');
         label.setAttribute('for', atributoId);
@@ -56,14 +58,20 @@ class InputCategorias
         InputCategorias.#counter++;
 
         opcoes = Object.assign({
-            botoes: true
+            label: 'Categorias',
+            botoes: true,
+            radio: false,
         }, opcoes);
 
         const elem = InputCategorias.#template.content.firstElementChild.cloneNode(true);
 
+        eqs(elem, '.cat-label').innerText = opcoes.label;
+
         const container = eqs(elem, '.cat-itens');
 
-        const itens = categorias.map(c => this.#criarItem(c));
+        const name = `cat-${InputCategorias.#counter}`;
+
+        const itens = categorias.map(c => this.#criarItem(c, name, opcoes.radio));
         for (const chunk of arrayIntoChunks(itens, 7)) {
             const div = document.createElement('div');
             div.append(...chunk);

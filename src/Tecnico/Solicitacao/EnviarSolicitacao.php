@@ -7,6 +7,8 @@ use App\Notificacao\Notificacao;
 use App\Notificacao\NotificacaoRepository;
 use App\Tecnico\Atleta\AtletaEmCompeticao;
 use App\Tecnico\Atleta\AtletaEmCompeticaoRepository;
+use App\Tecnico\Atleta\ResultadoCompatibilidade as Compat;
+use App\Tecnico\Atleta\TipoDupla;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
 use App\Util\Http\HttpStatus;
@@ -57,8 +59,15 @@ readonly class EnviarSolicitacao
             throw new ValidatorException('Atleta não encontrado (id '.$idDestinatario.')', HttpStatus::NOT_FOUND);
         }
 
-        if (!AtletaEmCompeticao::podemFormarDupla($remetente, $destinatario, $dto->idCategoria)) {
-            throw new ValidatorException('Atletas incompatíveis');
+        $compatibilidade = AtletaEmCompeticao::podemFormarDupla($remetente, $destinatario, $dto->idCategoria);
+        if ($compatibilidade != Compat::OK) {
+            $tipoDupla = TipoDupla::criar($remetente->sexoAtleta(), $destinatario->sexoAtleta());
+            $mensagem = match($compatibilidade) {
+                Compat::CATEGORIA_INCOMPATIVEL => 'Não jogam ambos na categoria selecionada',
+                Compat::SEXO_INCOMPATIVEL => 'Um dos atletas não precisa formar dupla ' . $tipoDupla->toString(),
+                Compat::MESMO_TECNICO => 'Ambos os atletas têm o mesmo técnico',
+            };
+            throw new ValidatorException('Atletas incompatíveis: ' . $mensagem);
         }
 
         $solicitacoes = $this->solicitacoes;
@@ -69,13 +78,14 @@ readonly class EnviarSolicitacao
         }
 
         // TODO (em task futura): Validar se esses atletas realmente ainda precisam de dupla
-        // (se um deles já tem uma dupla de um sexo mas não do outro, e precisa de dupla do outro sexo, e o outro atleta é esse outro sexo, então ok)
+        // (se um deles é homem e o outro já tem dupla masculina, então não dá pra formar dupla)
+        // (porém se um deles já tem uma dupla de um sexo mas não do outro, e precisa de dupla do outro sexo, e o outro atleta é esse outro sexo, então ok)
 
         $idSolicitacao = $solicitacoes->enviar($dto);
 
         $notificacoes = $this->notificacoes;
-        $notificacoes->criar(Notificacao::solicitacaoEnviada ($remetente->idTecnico,    $idSolicitacao));
-        $notificacoes->criar(Notificacao::solicitacaoRecebida($destinatario->idTecnico, $idSolicitacao));
+        $notificacoes->criar(Notificacao::solicitacaoEnviada ($remetente->idTecnico(),    $idSolicitacao));
+        $notificacoes->criar(Notificacao::solicitacaoRecebida($destinatario->idTecnico(), $idSolicitacao));
 
         return $idSolicitacao;
     }

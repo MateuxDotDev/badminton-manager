@@ -202,6 +202,34 @@ $atletasTecnico = $atletasEmCompeticoes->getAtletasDoTecnico($idCompeticao, $ses
 
 </div>
 
+
+<div id="modal-enviar-solicitacao" class="modal modal-lg">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Formar dupla</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label>
+            Selecione um atleta para formar dupla com o(a) <strong id="nome-atleta-clicado"></strong>
+          </label>
+          <select id="select-atleta-modal" class="form-control"></select>
+        </div>
+        <div id="container-input-categorias-modal" class="mb-3">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" id="btn-enviar-solicitacao">
+          Enviar solicitação
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <?php require_once 'template-atleta.html' ?>
 
 <?php Template::scripts(); ?>
@@ -209,16 +237,65 @@ $atletasTecnico = $atletasEmCompeticoes->getAtletasDoTecnico($idCompeticao, $ses
 <script>
 
 let inputCategorias = null;
+let modalEnviar = null;
 
 fetchCategorias().then(categorias => {
   inputCategorias = new InputCategorias(categorias);
   qs('#container-input-categorias').append(inputCategorias.elemento());
+
+  const elemento = qs('#modal-enviar-solicitacao');
+  const modal = new bootstrap.Modal(elemento);
+  const inputCategoriasModal = new InputCategorias(categorias, {
+    label: 'Selecionar categoria',
+    radio: true,
+    botoes: false,
+  });
+
+  eqs(elemento, '#container-input-categorias-modal').append(inputCategoriasModal.elemento())
+
+  const select = eqs(elemento, '#select-atleta-modal');
+
+  modalEnviar = {
+    categorias: inputCategoriasModal,
+    select,
+    bootstrap: modal,
+    atletasOpcoes: [],
+    atletaClicado: null,
+    nomeAtleta: eqs(elemento, '#nome-atleta-clicado'),
+  };
+
+  select.addEventListener('change', () => {
+    modalEnviar.categorias.desmarcarTodas();
+    const id = Number(select.value);
+    for (const { atleta, categorias } of modalEnviar.atletasOpcoes) {
+      if (atleta.id == id) {
+        modalEnviar.categorias.habilitadas = categorias;
+        break;
+      }
+    }
+  });
+
+  eqs(elemento, '#btn-enviar-solicitacao').addEventListener('click', () => {
+    const idDestinatario = modalEnviar.atletaClicado?.id;
+    if (!idDestinatario) {
+      return;
+    }
+
+    const idRemetente = select.value;
+    const [idCategoria] = modalEnviar.categorias.marcadas;
+
+    if (!idCategoria) {
+      return;
+    }
+
+    enviarSolicitacao(idCompeticao, idRemetente, idDestinatario, idCategoria);
+  });
+
 });
 
 
 const baseUrl = location.origin;
 
-const inputsCategorias = qsa('.input-categoria');
 const btnOrdenacaoTipo = qs('#btn-ordenacao-tipo');
 
 const idCompeticao = <?= $_GET['competicao'] ?>;
@@ -443,7 +520,10 @@ function clicouFormarDupla(atletaClicado) {
     );
     if (categoriasEmComum.length == 0) continue;
 
-    atletasCompativeis.push({ atleta, categoriasEmComum });
+    atletasCompativeis.push({
+      atleta,
+      categorias: categoriasEmComum.map(c => c.id)
+    });
   }
 
   if (atletasCompativeis.length == 0) {
@@ -454,8 +534,56 @@ function clicouFormarDupla(atletaClicado) {
     return;
   }
 
-  // TODO abrir modal etc. etc.
 
+  modalEnviar.atletaClicado = atletaClicado;
+  modalEnviar.atletasOpcoes = atletasCompativeis;
+
+  modalEnviar.nomeAtleta.innerText = atletaClicado.nome;
+
+  esvaziar(modalEnviar.select);
+  for (const { atleta } of atletasCompativeis) {
+    const option = new Option(atleta.nome, atleta.id);
+    modalEnviar.select.append(option);
+  }
+
+  modalEnviar.select.dispatchEvent(new Event('change'));
+
+  modalEnviar.bootstrap.show();
+}
+
+
+async function enviarSolicitacao(idCompeticao, idRemetente, idDestinatario, idCategoria) {
+  const dados = {
+    competicao: idCompeticao,
+    atletaRemetente: idRemetente,
+    atletaDestinatario: idDestinatario,
+    categoria: idCategoria,
+    acao: 'enviarSolicitacao',
+  };
+  const response = await fetch('controller.php', {
+    body: JSON.stringify(dados),
+    method: 'POST',
+  });
+  const text = await response.text();
+  try {
+    const json = JSON.parse(text);
+    if (!response.ok) {
+      Toast.fire({
+        text: json.mensagem,
+        icon: 'error',
+      });
+    } else {
+      Toast.fire({
+        text: 'Solicitação enviada com sucesso',
+        icon: 'success',
+      });
+
+      // TODO redirecionar para...?
+
+    }
+  } catch (err) {
+    console.error('Erro ao enviar a solicitação: ', { text, response });
+  }
 }
 
 </script>

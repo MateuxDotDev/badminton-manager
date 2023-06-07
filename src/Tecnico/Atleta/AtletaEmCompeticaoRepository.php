@@ -16,25 +16,26 @@ readonly class AtletaEmCompeticaoRepository
         $pdo = $this->pdo;
 
         $sql = <<<SQL
-            SELECT ac.atleta_id
-                 , a.tecnico_id
-                 , a.sexo
-                 , jsonb_agg(distinct acs.sexo_dupla) as sexo_dupla
-                 , jsonb_agg(distinct jsonb_build_object(
-                    'id', c.id,
-                    'descricao', c.descricao
-                 )) as categorias
-              FROM atleta_competicao ac
-              JOIN atleta a
-                ON a.id = ac.atleta_id
-              JOIN atleta_competicao_categoria acc
-                ON (acc.atleta_id, acc.competicao_id) = (ac.atleta_id, ac.competicao_id)
-              JOIN categoria c
-                ON c.id = acc.categoria_id
-              JOIN atleta_competicao_sexo_dupla acs
-                ON (acs.atleta_id, acs.competicao_id) = (ac.atleta_id, ac.competicao_id)
-             WHERE ac.atleta_id = :idAtleta
-               AND ac.competicao_id = :idCompeticao
+              SELECT ac.atleta_id
+                   , a.tecnico_id
+                   , a.sexo
+                   , jsonb_agg(distinct acs.sexo_dupla) as sexo_dupla
+                   , jsonb_agg(distinct jsonb_build_object(
+                      'id', c.id,
+                      'descricao', c.descricao
+                   )) as categorias
+                FROM atleta_competicao ac
+                JOIN atleta a
+                  ON a.id = ac.atleta_id
+                JOIN atleta_competicao_categoria acc
+                  ON (acc.atleta_id, acc.competicao_id) = (ac.atleta_id, ac.competicao_id)
+                JOIN categoria c
+                  ON c.id = acc.categoria_id
+                JOIN atleta_competicao_sexo_dupla acs
+                  ON (acs.atleta_id, acs.competicao_id) = (ac.atleta_id, ac.competicao_id)
+               WHERE ac.atleta_id = :idAtleta
+                 AND ac.competicao_id = :idCompeticao
+            GROUP BY a.id, ac.atleta_id, ac.competicao_id
         SQL;
 
         $stmt = $pdo->prepare($sql);
@@ -55,12 +56,12 @@ readonly class AtletaEmCompeticaoRepository
             ->setSexoAtleta(Sexo::from($row['sexo']))
             ;
 
-        foreach (json_decode($row['categorias']) as $a) {
+        foreach (json_decode($row['categorias'], true) as $a) {
             $categoria = new Categoria((int) $a['id'], $a['descricao'], null, null);
             $atleta->addCategoria($categoria);
         }
 
-        foreach (json_decode($row['sexo_dupla']) as $s) {
+        foreach (json_decode($row['sexo_dupla'], true) as $s) {
             $sexo = Sexo::from($s);
             $atleta->addSexoDupla($sexo);
         }

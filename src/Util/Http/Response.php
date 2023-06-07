@@ -73,9 +73,6 @@ readonly class Response
     {
         http_response_code($this->statusCode()->value);
         header('Content-Type: application/json');
-        die(json_encode(
-            $this->array(),
-            JSON_PRETTY_PRINT
-        ));
+        die(json_encode($this->array()));
     }
 }

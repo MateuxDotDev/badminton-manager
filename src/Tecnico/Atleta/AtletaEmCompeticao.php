@@ -77,6 +77,16 @@ class AtletaEmCompeticao
         return $this->categorias;
     }
 
+    public function jogaNaCategoria(int $idCategoria): bool
+    {
+        foreach ($this->categorias as $categoria) {
+            if ($categoria->id() == $idCategoria) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function sexoDuplasNecessarias(): array
     {
         return $this->sexoDupla;
@@ -86,13 +96,13 @@ class AtletaEmCompeticao
         AtletaEmCompeticao $a,
         AtletaEmCompeticao $b,
         int $idCategoria,
-    ): bool
+    ): ResultadoCompatibilidade
     {
-        return in_array($idCategoria, $a->categorias)
-            && in_array($idCategoria, $b->categorias)
-            && in_array($a->sexoAtleta, $b->sexoDupla)
-            && in_array($b->sexoAtleta, $a->sexoDupla)
-            && $a->idTecnico != $b->idTecnico
-            ;
+        if (!$a->jogaNaCategoria($idCategoria)) return ResultadoCompatibilidade::CATEGORIA_INCOMPATIVEL;
+        if (!$b->jogaNaCategoria($idCategoria)) return ResultadoCompatibilidade::CATEGORIA_INCOMPATIVEL;
+        if (!in_array($a->sexoAtleta, $b->sexoDupla)) return ResultadoCompatibilidade::SEXO_INCOMPATIVEL;
+        if (!in_array($b->sexoAtleta, $a->sexoDupla)) return ResultadoCompatibilidade::SEXO_INCOMPATIVEL;
+        if ($a->idTecnico == $b->idTecnico) return ResultadoCompatibilidade::MESMO_TECNICO;
+        return ResultadoCompatibilidade::OK;
     }
 }
