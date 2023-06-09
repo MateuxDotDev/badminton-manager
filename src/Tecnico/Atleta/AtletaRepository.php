@@ -86,6 +86,7 @@ class AtletaRepository implements AtletaRepositoryInterface
             SELECT id, nome_completo, sexo, data_nascimento, informacoes, path_foto, criado_em, alterado_em
               FROM atleta
              WHERE tecnico_id = :tecnico_id
+          ORDER BY nome_completo
         SQL;
 
         $stmt = $this->pdo->prepare($sql);
@@ -106,5 +107,44 @@ class AtletaRepository implements AtletaRepositoryInterface
         }
 
         return $atletas;
+    }
+
+    public function removerAtleta(int $atletaId): bool
+    {
+        $sql = <<<SQL
+            DELETE FROM atleta
+                  WHERE id = :id
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $atletaId]);
+
+        return $stmt->rowCount() === 1;
+    }
+
+    public function atualizarAtleta(Atleta $atleta): bool
+    {
+        $sql = <<<SQL
+            UPDATE atleta
+               SET nome_completo = :nome_completo,
+                   sexo = :sexo,
+                   data_nascimento = :data_nascimento,
+                   informacoes = :informacoes,
+                   path_foto = :path_foto,
+                   alterado_em = NOW()
+             WHERE id = :id
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'nome_completo' => $atleta->nomeCompleto(),
+            'sexo' => $atleta->sexo()->value,
+            'data_nascimento' => $atleta->dataNascimento()->format('Y-m-d'),
+            'informacoes' => $atleta->informacoesAdicionais(),
+            'path_foto' => $atleta->foto(),
+            'id' => $atleta->id()
+        ]);
+
+        return $stmt->rowCount() === 1;
     }
 }

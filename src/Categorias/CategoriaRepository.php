@@ -7,7 +7,7 @@ use \PDO;
 class CategoriaRepository
 {
     public function __construct(
-        private PDO $pdo
+        private readonly PDO $pdo
     ) {}
 
     public function buscarCategorias(): array

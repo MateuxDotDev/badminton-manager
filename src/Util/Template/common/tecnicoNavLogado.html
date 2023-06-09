@@ -1,26 +1,26 @@
-<nav class="navbar navbar-expand navbar-dark bg-success mb-4 text-light fixed-top">
+<nav class="navbar navbar-expand-lg navbar-dark bg-success mb-4 text-light">
   <div class="container">
     <a class="navbar-brand" href="/">
       <img src="/assets/images/brand/light-full-logo.svg" alt="MatchPoint" height="32">
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav-tecnico">
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navTecnico" aria-controls="navTecnico" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="nav-tecnico">
+    <div class="collapse navbar-collapse" id="navTecnico">
       <ul class="navbar-nav">
         <li class="nav-item" id="tecnico-links-list">
           <a href="/tecnico/competicoes/" class="nav-link">
-            Competições
+            <i class="bi bi-trophy"></i> Competições
           </a>
         </li>
         <li class="nav-item">
           <a href="/tecnico/atletas/" class="nav-link">
-            Meus atletas
+            <i class="bi bi-people"></i> Meus atletas
           </a>
         </li>
       </ul>
       <a href="/tecnico/sair.php" class="ms-auto nav-link" title="Sair">
-        <i class="bi bi-box-arrow-in-left fs-4"></i>
+        <i class="bi bi-box-arrow-in-left fs-4"></i> <span class="d-lg-none">Sair</span>
       </a>
     </div>
     <script>
@@ -35,11 +35,7 @@
             navItem.classList.add('active');
           }
         });
-
-        document.body.style.paddingTop = '60px';
       });
     </script>
   </div>
 </nav>
-
-<div class="mt-4"></div>

@@ -1,5 +1,5 @@
 <template id="atleta-card-template">
-    <div class="atleta-card card card-body">
+    <div class="atleta-card card card-body bg-light border-0">
         <div class="row gy-4">
             <div class="col-12 col-md-2 col-xl-2 col-xxl-1 d-flex justify-content-center">
                 <div class="ratio ratio-1x1" style="max-width: 128px;">
@@ -28,11 +28,11 @@
                 </article>
             </div>
             <div class="col col-md-4 col-xl-2 d-flex justify-content-center align-items-center">
-                <button type="button" class="btn btn-light botao-info" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="hover focus" data-bs-content="Criado em:"><i class="bi bi-info-lg"></i></button>
+                <button type="button" class="btn btn-secondary botao-info" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="hover focus" data-bs-content="Criado em:"><i class="bi bi-info-lg"></i></button>
                 <span style="width: 8px;"></span>
-                <button type="button" class="btn btn-success" title="Alterar"><i class="bi bi-pencil"></i> <span class="d-md-none">Alterar</span></button>
+                <button type="button" class="btn btn-success botao-acao" title="Alterar" data-bs-toggle="modal" data-bs-target="#editModal" data-id-atleta=""><i class="bi bi-pencil"></i> <span class="d-md-none">Alterar</span></button>
                 <span style="width: 8px;"></span>
-                <button type="button" class="btn btn-danger" title="Excluir"><i class="bi bi-trash"></i> <span class="d-md-none">Excluir</span></button>
+                <button type="button" class="btn btn-danger botao-acao btn-excluir-atleta" title="Excluir" data-id-atleta=""><i class="bi bi-trash"></i> <span class="d-md-none">Excluir</span></button>
             </div>
         </div>
     </div>

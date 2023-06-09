@@ -2,9 +2,18 @@
 
 require_once(__DIR__.'/../../vendor/autoload.php');
 
+use App\Util\General\UserSession;
 use App\Util\Template\Template;
 
+$session = UserSession::obj();
+
+if ($session->isTecnico()) {
+    header('Location: /tecnico');
+    exit;
+}
+
 Template::head('Login');
+
 ?>
 
 <?php Template::scripts() ?>

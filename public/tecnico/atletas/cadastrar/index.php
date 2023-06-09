@@ -3,9 +3,14 @@
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 use App\Util\General\UserSession;
+use App\Util\Http\Response;
 use App\Util\Template\Template;
 
 $session = UserSession::obj();
+
+if ($session->getTecnico() === null) {
+    Response::erroNaoAutorizado()->enviar();
+}
 
 Template::head('Cadastrar atleta');
 

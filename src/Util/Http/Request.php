@@ -37,7 +37,7 @@ class Request
     {
         foreach ($camposRequeridos as $campo) {
             if (!array_key_exists($campo, $req)) {
-                throw new ValidatorException("Campo faltando na requisição", ['campo' => $campo]);
+                throw new ValidatorException("Campo $campo faltando na requisição.");
             }
         }
     }

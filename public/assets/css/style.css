@@ -37,7 +37,7 @@ pre.sf-dump {
     border-radius: 50%;
     object-fit: cover;
     object-position: center;
-    border: 2px solid var(--bs-success);
+    border: var(--bs-border-width) solid var(--bs-border-color);
 }
 
 .has-tooltip {

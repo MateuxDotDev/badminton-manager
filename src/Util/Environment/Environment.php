@@ -58,4 +58,16 @@ class Environment
         self::loadEnv();
         return $_ENV['MAIL_PASSWORD'];
     }
+
+    public static function getJwtSecret(): string
+    {
+        self::loadEnv();
+        return $_ENV['JWT_SECRET'];
+    }
+
+    public static function getBaseUrl(): string
+    {
+        self::loadEnv();
+        return $_ENV['BASE_URL'];
+    }
 }

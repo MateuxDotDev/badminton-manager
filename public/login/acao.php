@@ -13,7 +13,7 @@ use App\Util\Http\Response;
 try {
     loginController()->enviar();
 } catch (Exception $e) {
-    return Response::erroException($e)->enviar();
+    Response::erroException($e)->enviar();
 }
 
 function loginController(): Response
