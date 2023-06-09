@@ -148,4 +148,52 @@ class AtletaRepositoryTest extends TestCase
 
         $this->atletaRepository->getViaTecnico($this->tecnico->id());
     }
+
+    public function testRemoverAtleta(): void
+    {
+        $this->atleta->setId(1);
+
+        $this->pdo->method('prepare')->willReturn($this->pdoStatement);
+        $this->pdoStatement->method('execute')->with(['id' => $this->atleta->id()])->willReturn(true);
+        $this->pdoStatement->method('rowCount')->willReturn(1);
+
+        $result = $this->atletaRepository->removerAtleta($this->atleta->id());
+
+        $this->assertTrue($result);
+    }
+
+    public function testRemoverAtletaReturnsFalseIfNoRowIsDeleted(): void
+    {
+        $this->atleta->setId(1);
+
+        $this->pdo->method('prepare')->willReturn($this->pdoStatement);
+        $this->pdoStatement->method('execute')->with(['id' => $this->atleta->id()])->willReturn(true);
+        $this->pdoStatement->method('rowCount')->willReturn(0);
+
+        $result = $this->atletaRepository->removerAtleta($this->atleta->id());
+
+        $this->assertFalse($result);
+    }
+
+    public function testAtualizarAtleta(): void
+    {
+        $this->pdo->method('prepare')->willReturn($this->pdoStatement);
+        $this->pdoStatement->method('execute')->willReturn(true);
+        $this->pdoStatement->method('rowCount')->willReturn(1);
+
+        $result = $this->atletaRepository->atualizarAtleta($this->atleta);
+
+        $this->assertTrue($result);
+    }
+
+    public function testAtualizarAtletaReturnsFalseIfNoRowIsUpdated(): void
+    {
+        $this->pdo->method('prepare')->willReturn($this->pdoStatement);
+        $this->pdoStatement->method('execute')->willReturn(true);
+        $this->pdoStatement->method('rowCount')->willReturn(0);
+
+        $result = $this->atletaRepository->atualizarAtleta($this->atleta);
+
+        $this->assertFalse($result);
+    }
 }

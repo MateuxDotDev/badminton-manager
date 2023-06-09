@@ -5,12 +5,12 @@ namespace App\Util\Http;
 use App\Util\Exceptions\ValidatorException;
 use Exception;
 
-readonly class Response
+class Response
 {
     public function __construct(
-        private HttpStatus  $code = HttpStatus::OK,
-        private string      $mensagem = '',
-        private array       $dados = [],
+        private readonly HttpStatus $code = HttpStatus::OK,
+        private readonly string     $mensagem = '',
+        private readonly array      $dados = [],
     ) {}
 
     public static function ok(string $mensagem='', array $dados=[]): Response

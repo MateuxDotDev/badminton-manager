@@ -15,7 +15,7 @@ interface TokenServiceInterface
      * @param array $additionalData  - Additional data to be added to the token
      * @return string                - The token
      */
-    public static function createToken(int $expiresInDays, array $additionalData = []): string;
+    public function createToken(int $expiresInDays, array $additionalData = []): string;
 
     /**
      * Decodes and validates a token and returns the payload
@@ -26,5 +26,5 @@ interface TokenServiceInterface
      * @throws ValidatorException - When a token is not valid
      * @throws ResponseException  - Generic exception
      */
-    public static function decodeToken(string $token): stdClass;
+    public function decodeToken(string $token): stdClass;
 }

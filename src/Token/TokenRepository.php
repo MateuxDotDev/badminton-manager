@@ -10,6 +10,8 @@ use stdClass;
 
 class TokenRepository implements TokenRepositoryInterface
 {
+    private const TOKEN_KEY = ':token';
+
     public function __construct(
         private readonly PDO $pdo,
         private readonly TokenServiceInterface $tokenService
@@ -29,7 +31,7 @@ class TokenRepository implements TokenRepositoryInterface
         $token = $this->tokenService->createToken($expiresInDays, $additionalData);
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':token', $token);
+        $stmt->bindValue(self::TOKEN_KEY, $token);
         $stmt->bindValue(':expira_em', date('Y-m-d H:i:s', strtotime("+{$expiresInDays} days")));
         $stmt->bindValue(':qtd_usos_permitidos', $maxUsage);
         $stmt->execute();
@@ -54,7 +56,7 @@ class TokenRepository implements TokenRepositoryInterface
         SQL;
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':token', $token);
+        $stmt->bindValue(self::TOKEN_KEY, $token);
         $stmt->execute();
         $row = $stmt->fetch();
         if (!$row) {
@@ -67,7 +69,7 @@ class TokenRepository implements TokenRepositoryInterface
             WHERE token = :token
         SQL;
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':token', $token);
+        $stmt->bindValue(self::TOKEN_KEY, $token);
         $stmt->execute();
         $usos = $stmt->fetchColumn();
 
@@ -81,7 +83,7 @@ class TokenRepository implements TokenRepositoryInterface
         SQL;
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':token', $token);
+        $stmt->bindValue(self::TOKEN_KEY, $token);
         $stmt->execute();
 
         return $this->tokenService->decodeToken($token);

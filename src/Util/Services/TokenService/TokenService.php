@@ -14,7 +14,7 @@ use stdClass;
 
 class TokenService implements TokenServiceInterface
 {
-    public static function createToken(int $expiresInDays, array $additionalData = []): string
+    public function createToken(int $expiresInDays, array $additionalData = []): string
     {
         $payload = array_merge(
             [
@@ -33,7 +33,7 @@ class TokenService implements TokenServiceInterface
      * @throws ValidatorException
      * @throws ResponseException
      */
-    public static function decodeToken(string $token): stdClass
+    public function decodeToken(string $token): stdClass
     {
         try {
             return JWT::decode($token, new Key(Environment::getJwtSecret(), 'HS256'));

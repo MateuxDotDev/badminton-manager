@@ -26,7 +26,8 @@ try {
     if ($session->getTecnico() !== null) {
         $idTecnico = $session->getTecnico()->id();
     } else {
-        $decodedToken = TokenService::decodeToken($urlToken);
+        $tokenService = new TokenService();
+        $decodedToken = $tokenService->decodeToken($urlToken);
         $idTecnico = $decodedToken->tecnico->id;
 
         if ($idTecnico === null) {
