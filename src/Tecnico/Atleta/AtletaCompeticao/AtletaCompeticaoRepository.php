@@ -63,6 +63,7 @@ class AtletaCompeticaoRepository
             }
             return $atletas;
         } catch (Exception $e) {
+            error_log($e->getMessage());
             throw $e;
         }
     }
@@ -102,6 +103,7 @@ class AtletaCompeticaoRepository
             }
             return $atletas;
         } catch (Exception $e) {
+            error_log($e->getMessage());
             throw $e;
         }
     }
