@@ -17,14 +17,15 @@ class AtletaCompeticaoRepository
     private PDO $pdo;
     private bool $defineTransaction;
 
-    public function __construct(PDO $pdo) {
+    public function __construct(PDO $pdo)
+    {
         $this->pdo = $pdo;
         $this->defineTransaction = true;
     }
 
     public function getAtletaCompeticao($idTecnico, $idCompeticao) : array
     {
-        try{
+        try {
             $sql = <<<SQL
                     SELECT atleta.id as id,
                         atleta.nome_completo as nome_completo,
@@ -43,7 +44,7 @@ class AtletaCompeticaoRepository
                 SQL;
             $query = $this->pdo->query($sql);
             $atletas = [];
-            foreach($query as $linha){
+            foreach ($query as $linha) {
                 $atleta = (new Atleta())
                 ->setId($linha['id'])
                 ->setNomeCompleto($linha['nome_completo'])
@@ -61,14 +62,14 @@ class AtletaCompeticaoRepository
                     ->setCompeticao($competicao);
             }
             return $atletas;
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw $e;
         }
     }
 
     public function getAtletasForaCompeticao(int $idTecnico, int $idCompeticao): array
     {
-        try{
+        try {
             $sql = <<<SQL
                     SELECT atleta.id as id,
                         atleta.nome_completo as nome_completo,
@@ -88,7 +89,7 @@ class AtletaCompeticaoRepository
                 SQL;
             $query = $this->pdo->query($sql);
             $atletas = [];
-            foreach($query as $linha){
+            foreach ($query as $linha) {
                 $atletas[] = (new Atleta())
                 ->setId($linha['id'])
                 ->setNomeCompleto($linha['nome_completo'])
@@ -100,7 +101,7 @@ class AtletaCompeticaoRepository
                 ->setFoto($linha['path_foto']);
             }
             return $atletas;
-        }catch(Exception $e){
+        } catch (Exception $e) {
             throw $e;
         }
     }
@@ -138,24 +139,28 @@ class AtletaCompeticaoRepository
         }
     }
 
-    public function defineTransaction(bool $define){
+    public function defineTransaction(bool $define)
+    {
         $this->defineTransaction = $define;
     }
 
-    private function begin(){
-        if($this->defineTransaction){
+    private function begin()
+    {
+        if ($this->defineTransaction) {
             $this->pdo->beginTransaction();
         }
     }
 
-    private function commit(){
-        if($this->defineTransaction){
+    private function commit()
+    {
+        if ($this->defineTransaction) {
             $this->pdo->commit();
         }
     }
 
-    private function rollback(){
-        if($this->defineTransaction){
+    private function rollback()
+    {
+        if ($this->defineTransaction) {
             $this->pdo->rollback();
         }
     }

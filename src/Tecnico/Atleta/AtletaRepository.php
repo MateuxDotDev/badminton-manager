@@ -139,24 +139,28 @@ class AtletaRepository implements AtletaRepositoryInterface
         return $atleta;
     }
 
-    public function defineTransaction(bool $define){
+    public function defineTransaction(bool $define)
+    {
         $this->defineTransaction = $define;
     }
 
-    private function begin(){
-        if($this->defineTransaction){
+    private function begin()
+    {
+        if ($this->defineTransaction) {
             $this->pdo->beginTransaction();
         }
     }
 
-    private function commit(){
-        if($this->defineTransaction){
+    private function commit()
+    {
+        if ($this->defineTransaction) {
             $this->pdo->commit();
         }
     }
 
-    private function rollback(){
-        if($this->defineTransaction){
+    private function rollback()
+    {
+        if ($this->defineTransaction) {
             $this->pdo->rollback();
         }
     }

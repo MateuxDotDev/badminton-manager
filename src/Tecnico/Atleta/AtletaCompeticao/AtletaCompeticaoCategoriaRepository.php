@@ -11,7 +11,8 @@ class AtletaCompeticaoCategoriaRepository
     private PDO $pdo;
     private bool $defineTransaction;
 
-    public function __construct(PDO $pdo) {
+    public function __construct(PDO $pdo)
+    {
         $this->pdo = $pdo;
         $this->defineTransaction = true;
     }
@@ -48,24 +49,28 @@ class AtletaCompeticaoCategoriaRepository
         }
     }
 
-    public function defineTransaction(bool $define){
+    public function defineTransaction(bool $define)
+    {
         $this->defineTransaction = $define;
     }
 
-    private function begin(){
-        if($this->defineTransaction){
+    private function begin()
+    {
+        if ($this->defineTransaction) {
             $this->pdo->beginTransaction();
         }
     }
 
-    private function commit(){
-        if($this->defineTransaction){
+    private function commit()
+    {
+        if ($this->defineTransaction) {
             $this->pdo->commit();
         }
     }
 
-    private function rollback(){
-        if($this->defineTransaction){
+    private function rollback()
+    {
+        if ($this->defineTransaction) {
             $this->pdo->rollback();
         }
     }

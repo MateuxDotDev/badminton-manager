@@ -11,16 +11,21 @@ class AtletaCompeticaoDupla
     private AtletaCompeticao $atletaCompeticao;
     private Sexo $tipoDupla;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->atletaCompeticao = new AtletaCompeticao();
     }
 
-    public function setAtletaCompeticao(AtletaCompeticao $ac){
+    public function setAtletaCompeticao(AtletaCompeticao $ac): self
+    {
         $this->atletaCompeticao = $ac;
+        return $this;
     }
 
-    public function setTipoDupla(Sexo $td){
+    public function setTipoDupla(Sexo $td): self
+    {
         $this->tipoDupla = $td;
+        return $this;
     }
 
     public function atletaCompeticao(): AtletaCompeticao

@@ -54,7 +54,7 @@ readonly class CompeticaoRepository
              WHERE id = $id
         ");
         
-        foreach($qry as $linha){
+        foreach ($qry as $linha) {
             $competicao->setId((int) $linha['id']);
             $competicao->setNome($linha['nome']);
             $competicao->setDescricao($linha['descricao']);

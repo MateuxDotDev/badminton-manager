@@ -39,24 +39,24 @@ $tecnico = $session->getTecnico();
     }
 </style>
 
-<?php 
+<?php
     Template::scripts();
 
     $GetDados = Request::getDados();
     $codigoCompeticao = 0;
     $htmlCompeticao = '';
-    if(is_array($GetDados) && array_key_exists('competicao',$GetDados)){
+    if (is_array($GetDados) && array_key_exists('competicao', $GetDados)) {
         $codigoCompeticao = $GetDados['competicao'];
     }
 
     $competicao = null;
-    if($codigoCompeticao && $codigoCompeticao != 0){
+    if ($codigoCompeticao && $codigoCompeticao != 0) {
         $repo = new CompeticaoRepository(Connection::getInstance());
         $competicao = $repo->buscarCompeticao($codigoCompeticao);
 
         $repoAtleta = new AtletaCompeticaoRepository(Connection::getInstance());
         $atletas = [];
-        foreach($repoAtleta->getAtletasForaCompeticao($tecnico->id(), $codigoCompeticao) as $atleta){
+        foreach ($repoAtleta->getAtletasForaCompeticao($tecnico->id(), $codigoCompeticao) as $atleta) {
             $atletas[] = $atleta->toJson();
         }
 
@@ -70,8 +70,11 @@ $tecnico = $session->getTecnico();
         
           $inputsCategorias[] = "
             <div class='form-check'>
-              <input class='form-check-input input-categoria' type='checkbox' name='categoria-$id' id='categoria-$id' value='$id'>
-              <label for='categoria-$id' class='form-check-label'>$descricao</label>
+              <input class='form-check-input input-categoria' type='checkbox'
+                     name='categoria-$id' id='categoria-$id' value='$id'>
+              <label for='categoria-$id' class='form-check-label'>
+                $descricao
+              </label>
             </div>
           ";
         }
@@ -93,12 +96,14 @@ $tecnico = $session->getTecnico();
                     <div class="card-body pt-2">
                         <ul class="nav mb-3 nav-tabs">
                             <li class="nav-item">
-                                <button id="btn-selecionar-atleta" class="nav-link active" data-bs-toggle="tab" data-bs-target="#selecionar_atleta" type="button">
+                                <button id="btn-selecionar-atleta" class="nav-link active" type="button"
+                                        data-bs-toggle="tab" data-bs-target="#selecionar_atleta">
                                     Selecionar atleta cadastrado
                                 </button>
                             </li>
                             <li class="nav-item">
-                                <button id="btn-cadastrar-atleta" class="nav-link" data-bs-toggle="tab" data-bs-target="#cadastrar_atleta" type="button">
+                                <button id="btn-cadastrar-atleta" class="nav-link" type="button"
+                                        data-bs-toggle="tab" data-bs-target="#cadastrar_atleta">
                                     Cadastrar novo atleta
                                 </button>
                             </li>
@@ -113,10 +118,12 @@ $tecnico = $session->getTecnico();
                                     </button>
                                 </div>
 
-                                <div id="atleta-selecionado" class="atleta-busca border rounded p-3 flex-row gap-3 align-items-center mt-3" style="display: none;">
+                                <div id="atleta-selecionado" style="display: none;"
+                                     class="atleta-busca border rounded p-3 flex-row gap-3 align-items-center mt-3">
                                     <div class="flex-shrink">
                                         <div class="rounded-circle" style="height: 60px; width: 60px;">
-                                            <img id="img-atleta-selecionado" src="" alt="" style="height: 60px; width: 60px;">
+                                            <img id="img-atleta-selecionado" style="height: 60px; width: 60px;"
+                                                 src="" alt="" >
                                         </div>
                                     </div>
                                     <div class="d-flex flex-column">
@@ -133,7 +140,8 @@ $tecnico = $session->getTecnico();
                             <div id="cadastrar_atleta" class="tab-pane">
                                 <div class="mb-3">
                                     <label class="form-label" for="cadastrar_nomeCompleto">Nome completo</label>
-                                    <input id="cadastrar_nomeCompleto" name="cadastrar_nomeCompleto" class="form-control" type="text"/>
+                                    <input id="cadastrar_nomeCompleto" name="cadastrar_nomeCompleto"
+                                           class="form-control" type="text"/>
                                 </div>
                                 <div class="row mb-3">
                                     <div class="row mb-3">
@@ -145,18 +153,24 @@ $tecnico = $session->getTecnico();
                                             </select>
                                         </div>
                                         <div class="col">
-                                            <label class="form-label" for="cadastrar_dataNascimento">Data de nascimento</label>
+                                            <label class="form-label" for="cadastrar_dataNascimento">
+                                                Data de nascimento
+                                            </label>
                                             <!-- TODO: descobrir a necessidade do 1.2rem em type date -->
-                                            <input style="line-height: 1.2rem" class="form-control" type="date" id="cadastrar_dataNascimento" name="cadastrar_dataNascimento"/>
+                                            <input id="cadastrar_dataNascimento" name="cadastrar_dataNascimento"
+                                                   class="form-control" style="line-height: 1.2rem" type="date"/>
                                         </div>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label" for="cadastrar_observacoes">Observações</label>
-                                        <textarea class="form-control" id="cadastrar_observacoes" name="cadastrar_observacoes"></textarea>
+                                        <textarea id="cadastrar_observacoes" name="cadastrar_observacoes"
+                                                  class="form-control">
+                                        </textarea>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label" for="cadastrar_foto">Foto</label>
-                                        <input class="form-control" type="file" id="cadastrar_foto" name="cadastrar_foto" />
+                                        <input class="form-control" id="cadastrar_foto" name="cadastrar_foto"
+                                               type="file"/>
                                     </div>
                                 </div>
                             </div>
@@ -207,12 +221,14 @@ $tecnico = $session->getTecnico();
 
 </main>
 
-<div id="consulta-atleta" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+<div id="consulta-atleta" class="modal fade"
+     tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
         <div class="modal-header">
             <input id="pesquisa-atleta-modal" type="text" class="form-control" placeholder="Digite o nome do atleta...">
-            <button id="btn-close-modal" type="button" class="btn btn-outline-primary close" data-dismiss="modal" aria-label="Close">
+            <button id="btn-close-modal" type="button" class="btn btn-outline-primary close"
+                    data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
         </div>
@@ -419,7 +435,9 @@ $tecnico = $session->getTecnico();
     function reloadElementListaAtletaModal(listaAtletaElement, atletasFiltrados){
         for(atleta of atletasFiltrados){
             let atletaBuscaElement = document.createElement("div");
-            let classList = "atleta-busca_modal border rounded p-3 flex-row gap-3 align-items-center elementos-sem-atleta".split(" ");
+            let classList = ("atleta-busca_modal " +
+                            "border rounded p-3 flex-row gap-3 " +
+                            "align-items-center elementos-sem-atleta").split(" ");
             atletaBuscaElement.classList.add(...classList);
             atletaBuscaElement.style.display = "flex";
 
@@ -488,8 +506,13 @@ $tecnico = $session->getTecnico();
     function showAtletaSelecionado(){
         limpaAtletaSelecionado();
         document.getElementById('img-atleta-selecionado').src = "/assets/images/profile/" + atletaSelecionado.foto;
-        document.getElementById('nome-atleta-selecionado').appendChild(document.createTextNode(atletaSelecionado.nomeCompleto));
-        document.getElementById('idade-atleta-selecionado').appendChild(document.createTextNode(atletaSelecionado.idade + " ano(s)"));
+        
+        let txtNodeNomeAtleta = document.createTextNode(atletaSelecionado.nomeCompleto);
+        document.getElementById('nome-atleta-selecionado').appendChild(txtNodeNomeAtleta);
+
+        let txtNomeIdadeAtleta = document.createTextNode(atletaSelecionado.idade + " ano(s)");
+        document.getElementById('idade-atleta-selecionado').appendChild(txtNomeIdadeAtleta);
+        
         document.getElementById('atleta-selecionado').style.display = "flex";
     }
 

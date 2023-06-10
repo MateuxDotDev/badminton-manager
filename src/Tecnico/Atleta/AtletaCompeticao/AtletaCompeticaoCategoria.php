@@ -10,20 +10,22 @@ class AtletaCompeticaoCategoria
     private AtletaCompeticao $atletaCompeticao;
     private Categoria $categoria;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->atletaCompeticao = new AtletaCompeticao();
-        $this->categoria = new Categoria(null,null,null,null);
+        $this->categoria = new Categoria(null, null, null, null);
     }
 
-    public function setAtletaCompeticao(AtletaCompeticao $ac)
+    public function setAtletaCompeticao(AtletaCompeticao $ac): self
     {
         $this->atletaCompeticao = $ac;
-        return $this->atletaCompeticao;
+        return $this;
     }
 
-    public function setCategoria(Categoria $c){
+    public function setCategoria(Categoria $c): self
+    {
         $this->categoria = $c;
-        return $this->categoria;
+        return $this;
     }
 
     public function atletaCompeticao(): AtletaCompeticao
