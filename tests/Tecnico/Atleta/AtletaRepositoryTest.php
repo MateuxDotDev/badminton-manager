@@ -118,7 +118,7 @@ class AtletaRepositoryTest extends TestCase
         ];
 
         $this->pdo->method('prepare')->willReturn($this->pdoStatement);
-        $this->pdoStatement->method('execute')->with(['tecnico_id' => $this->tecnico->id()])->willReturn(true);
+        $this->pdoStatement->method('execute')->with([0 => $this->tecnico->id()])->willReturn(true);
         $this->pdoStatement->method('fetchAll')->willReturn($expectedData);
 
         $atletas = $this->atletaRepository->getViaTecnico($this->tecnico->id());
@@ -140,7 +140,7 @@ class AtletaRepositoryTest extends TestCase
     public function testGetViaTecnicoThrowsExceptionOnQueryError(): void
     {
         $this->pdo->method('prepare')->willReturn($this->pdoStatement);
-        $this->pdoStatement->method('execute')->with(['tecnico_id' => $this->tecnico->id()])
+        $this->pdoStatement->method('execute')->with([0 => $this->tecnico->id()])
             ->will($this->throwException(new PDOException('Error Message')));
 
         $this->expectException(PDOException::class);
