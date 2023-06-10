@@ -5,23 +5,88 @@ namespace App\Tecnico\Solicitacao;
 use App\Competicoes\CompeticaoRepository;
 use App\Notificacao\Notificacao;
 use App\Notificacao\NotificacaoRepository;
-use App\Tecnico\Atleta\AtletaEmCompeticao;
-use App\Tecnico\Atleta\AtletaEmCompeticaoRepository;
-use App\Tecnico\Atleta\ResultadoCompatibilidade as Compat;
+use App\Tecnico\Atleta\Sexo;
 use App\Tecnico\Atleta\TipoDupla;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
 use App\Util\Http\HttpStatus;
+use \PDO;
 
 readonly class EnviarSolicitacao
 {
     public function __construct(
+        private PDO $pdo,
         private UserSession $session,
         private CompeticaoRepository $competicoes,
-        private AtletaEmCompeticaoRepository $atletasEmCompeticoes,
         private SolicitacaoPendenteRepository $solicitacoes,
         private NotificacaoRepository $notificacoes,
     ) {}
+
+    private function getAtleta(int $idCompeticao, int $idAtleta): ?array
+    {
+        $sql = <<<SQL
+                  SELECT a.sexo
+                       , a.tecnico_id
+                       , jsonb_agg(acc.id) as categorias
+                       , jsonb_agg(acs.sexo_dupla) as sexo_dupla
+                    FROM atleta_competicao ac
+                    JOIN atleta a
+                      ON a.id = ac.atleta_id
+            NATURAL JOIN atleta_competicao_categoria acc
+            NATURAL JOIN atleta_competicao_sexo_dupla acs
+                   WHERE ac.atleta_id = :idAtleta
+                     AND ac.competicao_id = :idCompeticao
+                GROUP BY a.id, ac.atleta_id, ac.competicao_id
+        SQL;
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'idCompeticao' => $idCompeticao,
+            'idAtleta'     => $idAtleta
+        ]);
+
+        $rows = $stmt->fetchAll();
+
+        if (count($rows) != 1) {
+            return null;
+        }
+        $row = $rows[0];
+
+        return [
+            'sexo'       => Sexo::from($row['sexo']),
+            'idTecnico'  => (int) $row['tecnico_id'],
+            'categorias' => json_decode($row['categorias'], true),
+            'sexoDupla'  => json_decode($row['sexo_dupla'], true),
+        ];
+    }
+
+    /**
+     * @throws ValidatorException
+     */
+    private function validarCompatibilidade(array $a, array $b, int $categoria): void
+    {
+        $sexoOk = in_array($a['sexo'], $b['sexoDupla'])
+               && in_array($b['sexo'], $a['sexoDupla']);
+
+        $categoriaOk = in_array($categoria, $a['categorias'])
+                    && in_array($categoria, $b['categorias']);
+
+        $tecnicoOk = $a['idTecnico'] != $b['idTecnico'];
+
+        $erro = null;
+        if (!$sexoOk) {
+            $tipo = TipoDupla::criar($a['sexo'], $b['sexo']);
+            $erro = 'Um dos atletas não precisa formar dupla ' . $tipo;
+        } else if (!$categoriaOk) {
+            $erro = 'Não jogam ambos na categoria selecionada';
+        } else if (!$tecnicoOk) {
+            $erro = 'Ambos têm o mesmo técnico';
+        }
+
+        if ($erro != null) {
+            throw new ValidatorException("Atletas não são compatíveis: $erro");
+        }
+    }
 
     public function __invoke(EnviarSolicitacaoDTO $dto): int
     {
@@ -35,40 +100,29 @@ readonly class EnviarSolicitacao
             throw new ValidatorException('O prazo da competição já passou');
         }
 
-        $atletasEmCompeticoes = $this->atletasEmCompeticoes;
-
         $idRemetente    = $dto->idAtletaRemetente;
         $idDestinatario = $dto->idAtletaDestinatario;
         $idCategoria    = $dto->idCategoria;
 
-        $remetente = $atletasEmCompeticoes->get($idRemetente, $competicao->id());
-
+        $remetente = $this->getAtleta($competicao->id(), $idRemetente);
         if ($remetente == null) {
             throw new ValidatorException('Atleta não encontrado (id '.$idRemetente.')', HttpStatus::NOT_FOUND);
         }
 
         $tecnicoLogado = $this->session->getTecnico();
 
-        if ($remetente->idTecnico() != $tecnicoLogado->id()) {
+        if ($remetente['idTecnico'] != $tecnicoLogado->id()) {
             $erro = 'Técnico não autorizado a enviar solicitações envolvendo o atleta de ID '.$idRemetente;
             throw new ValidatorException($erro, HttpStatus::FORBIDDEN);
         }
 
-        $destinatario = $atletasEmCompeticoes->get($idDestinatario, $competicao->id());
+        $destinatario = $this->getAtleta($competicao->id(), $idRemetente);
         if ($destinatario == null) {
             throw new ValidatorException('Atleta não encontrado (id '.$idDestinatario.')', HttpStatus::NOT_FOUND);
         }
 
-        $compatibilidade = AtletaEmCompeticao::podemFormarDupla($remetente, $destinatario, $dto->idCategoria);
-        if ($compatibilidade != Compat::OK) {
-            $tipoDupla = TipoDupla::criar($remetente->sexoAtleta(), $destinatario->sexoAtleta());
-            $mensagem = match($compatibilidade) {
-                Compat::CATEGORIA_INCOMPATIVEL => 'Não jogam ambos na categoria selecionada',
-                Compat::SEXO_INCOMPATIVEL => 'Um dos atletas não precisa formar dupla ' . $tipoDupla->toString(),
-                Compat::MESMO_TECNICO => 'Ambos os atletas têm o mesmo técnico',
-            };
-            throw new ValidatorException('Atletas incompatíveis: ' . $mensagem);
-        }
+        $this->validarCompatibilidade($remetente, $destinatario, $idCategoria);
+
 
         $solicitacoes = $this->solicitacoes;
 
@@ -84,8 +138,8 @@ readonly class EnviarSolicitacao
         $idSolicitacao = $solicitacoes->enviar($dto);
 
         $notificacoes = $this->notificacoes;
-        $notificacoes->criar(Notificacao::solicitacaoEnviada ($remetente->idTecnico(),    $idSolicitacao));
-        $notificacoes->criar(Notificacao::solicitacaoRecebida($destinatario->idTecnico(), $idSolicitacao));
+        $notificacoes->criar(Notificacao::solicitacaoEnviada ($remetente['idTecnico'],    $idSolicitacao));
+        $notificacoes->criar(Notificacao::solicitacaoRecebida($destinatario['idTecnico'], $idSolicitacao));
 
         return $idSolicitacao;
     }

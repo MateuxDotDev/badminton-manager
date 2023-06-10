@@ -281,7 +281,7 @@ function getTipoDuplaFormulario(): array
 function getAtletaById(PDO $pdo, int $idAtleta): ?Atleta
 {
     $repo = new AtletaRepository($pdo, new UploadImagemService());
-    return $repo->getAtletaViaId($idAtleta);
+    return $repo->getViaId($idAtleta);
 }
 
 /**

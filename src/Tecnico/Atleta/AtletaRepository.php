@@ -5,6 +5,7 @@ namespace App\Tecnico\Atleta;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use App\Util\Http\HttpStatus;
+use App\Util\Services\UploadImagemService\UploadImagemService;
 use App\Util\Services\UploadImagemService\UploadImagemServiceInterface;
 use \Exception;
 use \PDO;
@@ -16,7 +17,7 @@ class AtletaRepository implements AtletaRepositoryInterface
 
     public function __construct(
         private readonly PDO $pdo,
-        private readonly UploadImagemServiceInterface $uploadImagemService
+        private readonly UploadImagemServiceInterface $uploadImagemService = new UploadImagemService()
     ) {
         $this->defineTransaction = true;
     }
@@ -83,60 +84,49 @@ class AtletaRepository implements AtletaRepositoryInterface
         }
     }
 
-    public function getViaTecnico(int $tecnicoId): array
+    private function get(array $filtros=[]): array
     {
+        $condicoes  = [];
+        $parametros = [];
+
+        if (array_key_exists('tecnico', $filtros)) {
+            $condicoes[]  = 'tecnico_id = ?';
+            $parametros[] = (int) $filtros['tecnico'];
+        }
+
+        if (array_key_exists('id', $filtros)) {
+            $condicoes[]  = 'id = ?';
+            $parametros[] = (int) $filtros['id'];
+        }
+
+        $where = implode(' AND ', $condicoes);
+
         $sql = <<<SQL
             SELECT id, nome_completo, sexo, data_nascimento, informacoes, path_foto, criado_em, alterado_em
               FROM atleta
-             WHERE tecnico_id = :tecnico_id
+             WHERE $where
         SQL;
 
+
+
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['tecnico_id' => $tecnicoId]);
+        $stmt->execute($parametros);
         $rows = $stmt->fetchAll();
 
         $atletas = [];
         foreach ($rows as $row) {
             $atletas[] = (new Atleta())
-                ->setId($row['id'])
                 ->setNomeCompleto($row['nome_completo'])
                 ->setSexo(Sexo::from($row['sexo']))
                 ->setDataNascimento(Dates::parseDay($row['data_nascimento']))
                 ->setInformacoesAdicionais($row['informacoes'])
+                ->setFoto($row['path_foto'])
+                ->setId($row['id'])
                 ->setDataCriacao(Dates::parseMicro($row['criado_em']))
-                ->setDataAlteracao(Dates::parseMicro($row['alterado_em']))
-                ->setFoto($row['path_foto']);
+                ->setDataAlteracao(Dates::parseMicro($row['alterado_em']));
         }
 
         return $atletas;
-    }
-
-    public function getAtletaViaId(int $id): ?Atleta
-    {
-        $sql = <<<SQL
-            SELECT id, nome_completo, sexo, data_nascimento, informacoes, path_foto, criado_em, alterado_em
-              FROM atleta
-             WHERE id = :id
-        SQL;
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['id' => $id]);
-        $rows = $stmt->fetchAll();
-
-        $atleta = null;
-        foreach ($rows as $row) {
-            $atleta = (new Atleta())
-                ->setId($row['id'])
-                ->setNomeCompleto($row['nome_completo'])
-                ->setSexo(Sexo::from($row['sexo']))
-                ->setDataNascimento(Dates::parseDay($row['data_nascimento']))
-                ->setInformacoesAdicionais($row['informacoes'])
-                ->setDataCriacao(Dates::parseMicro($row['criado_em']))
-                ->setDataAlteracao(Dates::parseMicro($row['alterado_em']))
-                ->setFoto($row['path_foto']);
-        }
-
-        return $atleta;
     }
 
     public function defineTransaction(bool $define)
@@ -163,5 +153,16 @@ class AtletaRepository implements AtletaRepositoryInterface
         if ($this->defineTransaction) {
             $this->pdo->rollback();
         }
+    }
+
+    public function getViaTecnico(int $tecnicoId): array
+    {
+        return $this->get(['tecnico' => $tecnicoId]);
+    }
+
+    public function getViaId(int $idAtleta): ?Atleta
+    {
+        $atletas = $this->get(['id' => $idAtleta]);
+        return empty($atletas) ? null : $atletas[0];
     }
 }
