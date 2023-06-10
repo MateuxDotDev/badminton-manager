@@ -142,7 +142,7 @@ function cadastrarAtletaCompeticao(PDO $pdo, AtletaCompeticao $dados): Response
 function getCompeticao(PDO $pdo): ?Competicao
 {
     $repo = new CompeticaoRepository($pdo);
-    return $repo->buscarCompeticao($_POST['competicao']);
+    return $repo->getViaId($_POST['competicao']);
 }
 
 function getAtletaSelecionadoValidado(PDO $pdo): ?Atleta

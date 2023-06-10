@@ -52,7 +52,7 @@ $tecnico = $session->getTecnico();
     $competicao = null;
     if ($codigoCompeticao && $codigoCompeticao != 0) {
         $repo = new CompeticaoRepository(Connection::getInstance());
-        $competicao = $repo->buscarCompeticao($codigoCompeticao);
+        $competicao = $repo->getViaId($codigoCompeticao);
 
         $repoAtleta = new AtletaCompeticaoRepository(Connection::getInstance());
         $atletas = [];

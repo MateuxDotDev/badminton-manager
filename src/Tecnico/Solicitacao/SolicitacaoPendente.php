@@ -13,5 +13,6 @@ readonly class SolicitacaoPendente
         public int $idAtletaRemetente,
         public int $idAtletaDestinatario,
         public int $idCategoria,
+        public string $informacoes,
     ) {}
 }

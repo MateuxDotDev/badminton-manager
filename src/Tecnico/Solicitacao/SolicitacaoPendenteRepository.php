@@ -23,6 +23,7 @@ readonly class SolicitacaoPendenteRepository
                  , categoria_id
                  , criado_em
                  , alterado_em
+                 , informacoes
               from solicitacao_dupla_pendente
              where atleta_origem_id in (:id1, :id2)
                and atleta_destino_id in (:id1, :id2)
@@ -54,8 +55,9 @@ readonly class SolicitacaoPendenteRepository
             Dates::parseMicro($row['alterado_em']),
             (int) $row['competicao_id'],
             (int) $row['atleta_origem_id'],
-            (int) $row['atleta_destinatario_id'],
+            (int) $row['atleta_destino_id'],
             (int) $row['categoria_id'],
+            $row['informacoes'],
         );
     }
 

@@ -4,7 +4,6 @@ require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 use App\Competicoes\CompeticaoRepository;
 use App\Notificacao\NotificacaoRepository;
-use App\Tecnico\Atleta\AtletaEmCompeticaoRepository;
 use App\Competicoes\PesquisaAtletaCompeticao;
 use App\Tecnico\Atleta\Sexo;
 use App\Tecnico\Solicitacao\EnviarSolicitacao;
@@ -199,14 +198,21 @@ function enviarSolicitacao(array $req): Response
 
     $session = UserSession::obj();
 
-    $competicoes          = new CompeticaoRepository($pdo);
-    $atletasEmCompeticoes = new AtletaEmCompeticaoRepository($pdo);
-    $solicitacoes         = new SolicitacaoPendenteRepository($pdo);
-    $notificacoes         = new NotificacaoRepository($pdo);
+    $competicoes  = new CompeticaoRepository($pdo);
+    $solicitacoes = new SolicitacaoPendenteRepository($pdo);
+    $notificacoes = new NotificacaoRepository($pdo);
 
-    $enviar = new EnviarSolicitacao($session, $competicoes, $atletasEmCompeticoes, $solicitacoes, $notificacoes);
+    try {
+        $pdo->beginTransaction();
 
-    $id = $enviar($dto);
+        $enviar = new EnviarSolicitacao($pdo, $session, $competicoes, $solicitacoes, $notificacoes);
+        $id = $enviar($dto);
 
-    return Response::ok('Solicitação enviada com sucesso', ['id' => $id]);
+        $pdo->commit();
+        return Response::ok('Solicitação enviada com sucesso', ['id' => $id]);
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+
 }

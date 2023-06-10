@@ -6,12 +6,12 @@ use DateTimeInterface;
 readonly class Notificacao
 {
     private function __construct(
-        public ?int $id = null,
         public TipoNotificacao $tipo,
         public int $idTecnico,
         public ?int $id1 = null,
         public ?int $id2 = null,
         public ?int $id3 = null,
+        public ?int $id = null,
         public ?DateTimeInterface $dataCriacao = null,
         public ?DateTimeInterface $dataVisualizacao = null,
     ) {}

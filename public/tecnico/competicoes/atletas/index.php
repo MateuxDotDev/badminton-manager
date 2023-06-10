@@ -358,7 +358,7 @@ function criarElementoAtleta(atleta) {
 
   {
     const formarDupla = eqs(elem, '.atleta-link-formar-dupla');
-    const link = `/tecnico/competicoes/atletas/formar_dupla.php?atleta=${atleta.id}`;
+    const link = `/tecnico/competicoes/atletas/formar_dupla.php?atleta=${atleta.id}&competicao=${idCompeticao}`;
     formarDupla.setAttribute('href', link);
   }
 

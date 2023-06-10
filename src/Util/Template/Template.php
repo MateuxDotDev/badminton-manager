@@ -64,4 +64,17 @@ class Template
     {
         echo file_get_contents(__DIR__. "/common/tecnicoNavNaoLogado.html");
     }
+
+    public static function alerta(string $mensagem, string $nivel='danger')
+    {
+        static $template = <<<HTML
+            <main class="container">
+                <div class="alert alert-%s"> %s </div>
+            </main>
+        HTML;
+        printf($template, $nivel, $mensagem);
+
+        self::footer();
+        die();
+    }
 }

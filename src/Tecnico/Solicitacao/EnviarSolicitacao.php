@@ -27,7 +27,7 @@ readonly class EnviarSolicitacao
         $sql = <<<SQL
                   SELECT a.sexo
                        , a.tecnico_id
-                       , jsonb_agg(acc.id) as categorias
+                       , jsonb_agg(acc.categoria_id) as categorias
                        , jsonb_agg(acs.sexo_dupla) as sexo_dupla
                     FROM atleta_competicao ac
                     JOIN atleta a
@@ -56,7 +56,7 @@ readonly class EnviarSolicitacao
             'sexo'       => Sexo::from($row['sexo']),
             'idTecnico'  => (int) $row['tecnico_id'],
             'categorias' => json_decode($row['categorias'], true),
-            'sexoDupla'  => json_decode($row['sexo_dupla'], true),
+            'sexoDupla'  => array_map(fn($s) => Sexo::from($s), json_decode($row['sexo_dupla'], true)),
         ];
     }
 
@@ -76,7 +76,7 @@ readonly class EnviarSolicitacao
         $erro = null;
         if (!$sexoOk) {
             $tipo = TipoDupla::criar($a['sexo'], $b['sexo']);
-            $erro = 'Um dos atletas não precisa formar dupla ' . $tipo;
+            $erro = 'Um dos atletas não precisa formar dupla ' . $tipo->toString();
         } else if (!$categoriaOk) {
             $erro = 'Não jogam ambos na categoria selecionada';
         } else if (!$tecnicoOk) {
@@ -116,7 +116,7 @@ readonly class EnviarSolicitacao
             throw new ValidatorException($erro, HttpStatus::FORBIDDEN);
         }
 
-        $destinatario = $this->getAtleta($competicao->id(), $idRemetente);
+        $destinatario = $this->getAtleta($competicao->id(), $idDestinatario);
         if ($destinatario == null) {
             throw new ValidatorException('Atleta não encontrado (id '.$idDestinatario.')', HttpStatus::NOT_FOUND);
         }

@@ -2,10 +2,11 @@
 
 namespace App\Tecnico\Atleta\AtletaCompeticao;
 
+use App\Categorias\Categoria;
+use App\Competicoes\Competicao;
 use App\Util\General\Dates;
 use App\Tecnico\Atleta\Sexo;
 use App\Tecnico\Atleta\Atleta;
-use App\Competicoes\Competicao;
 use \PDO;
 use \Exception;
 
@@ -170,6 +171,67 @@ class AtletaCompeticaoRepository
             $this->rollback();
             throw $e;
         }
+    }
+
+
+    public function get(Atleta $atleta, Competicao $competicao): ?AtletaCompeticao
+    {
+        $sql = <<<SQL
+                  SELECT ac.informacoes
+                       , ac.criado_em
+                       , ac.alterado_em
+                       , jsonb_agg(acs.sexo_dupla) as sexo_dupla
+                       , jsonb_agg(jsonb_build_object(
+                            'id', cat.id,
+                            'descricao', cat.descricao,
+                            'idade_maior_que', cat.idade_maior_que,
+                            'idade_menor_que', cat.idade_menor_que
+                       )) as categorias
+                    FROM atleta_competicao ac
+            NATURAL JOIN atleta_competicao_categoria acc
+            NATURAL JOIN atleta_competicao_sexo_dupla acs
+                    JOIN categoria cat
+                      ON cat.id = acc.categoria_id
+                   WHERE (ac.atleta_id, ac.competicao_id) = (:atleta_id, :competicao_id)
+                GROUP BY ac.atleta_id, ac.competicao_id
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'atleta_id'     => $atleta->id(),
+            'competicao_id' => $competicao->id(),
+        ]);
+
+        $rows = $stmt->fetchAll();
+        if (count($rows) != 1) {
+            return null;
+        }
+        $row = $rows[0];
+
+        $sexoDupla = array_map(
+            fn(string $s): Sexo => Sexo::from($s),
+            json_decode($row['sexo_dupla'], true),
+        );
+
+        $categorias = [];
+        foreach (json_decode($row['categorias'], true) as $arr) {
+            $categorias[] = new Categoria(
+                (int) $arr['id'],
+                $arr['descricao'],
+                is_null($arr['idade_maior_que']) ? null : (int) $arr['idade_maior_que'],
+                is_null($arr['idade_menor_que']) ? null : (int) $arr['idade_menor_que'],
+            );
+        }
+
+        return (new AtletaCompeticao)
+            ->setAtleta($atleta)
+            ->setCompeticao($competicao)
+            ->setInformacao($row['informacoes'])
+            ->addCategoria(...$categorias)
+            ->addSexoDupla(...$sexoDupla)
+            ->setDataAlteracao(Dates::parseMicro($row['alterado_em']))
+            ->setDataCriacao(Dates::parseMicro($row['criado_em']))
+            ;
     }
 
     public function defineTransaction(bool $define)
