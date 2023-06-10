@@ -52,6 +52,11 @@ readonly class Response
         return $this->code;
     }
 
+    public function dados(): array
+    {
+        return $this->dados;
+    }
+
     public function mensagem(): string
     {
         return $this->mensagem;
