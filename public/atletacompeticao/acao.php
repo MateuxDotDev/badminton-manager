@@ -2,21 +2,15 @@
 
 require_once(__DIR__.'/../../vendor/autoload.php');
 
-use App\Util\Http\Request;
 use App\Util\Http\Response;
 use App\Util\Database\Connection;
 use App\Tecnico\Tecnico;
 use App\Tecnico\Atleta\Atleta;
 use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoRepository;
 use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticao;
-use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoCategoria;
-use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoCategoriaRepository;
 use App\Tecnico\Atleta\AtletaRepository;
-use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoDuplaRepository;
-use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoDupla;
 use App\Competicoes\CompeticaoRepository;
 use App\Competicoes\Competicao;
-use App\Categorias\Categoria;
 use App\Categorias\CategoriaRepository;
 use App\Tecnico\Atleta\Sexo;
 use App\Util\Http\HttpStatus;
@@ -45,27 +39,32 @@ function realizarCadastro($pdo) : Response
 {
     if ($_POST['userChoice']) {
         return $_POST['userChoice'] == 1
-                ? realizarCadastroAtletaSelecionado($pdo)
-                : realizarCadastroComNovoAtleta($pdo);
+             ? realizarCadastroAtletaSelecionado($pdo)
+             : realizarCadastroComNovoAtleta($pdo);
     }
 
     return Response::erro(
-        'Não foi possível identificar a opção de cadastro selecionada.' .
+        'Não foi possível identificar a opção de cadastro selecionada. ' .
         'Por favor escolha entre "Selecionar atleta cadastrado" ou "Cadastrar novo atleta".'
     );
 }
 
 function realizarCadastroAtletaSelecionado($pdo): Response
 {
-    $dados = [];
-    $dados['atleta'] = getAtletaSelecionadoValidado($pdo);
-    $dados['competicao'] = getCompeticao($pdo);
-    $dados['atletaCompeticaoCategoria'] = getAtletaCategoria($pdo, $dados['atleta'], $dados['competicao']);
-    $dados['tipo_dupla'] = getTipoDuplaValidado();
+    $atleta     = getAtletaSelecionadoValidado($pdo);
+    $competicao = getCompeticao($pdo);
+
+    $atletaCompeticao = (new AtletaCompeticao)
+        ->setAtleta($atleta)
+        ->setInformacao($_POST['informacao'])
+        ->setCompeticao($competicao)
+        ->addCategoria(...getAtletaCategoria($pdo, $atleta, $competicao))
+        ->addSexoDupla(...getSexoDuplaValidado())
+        ;
 
     try {
         $pdo->beginTransaction();
-        $response = cadastrarAtletaCompeticao($pdo, $dados);
+        $response = cadastrarAtletaCompeticao($pdo, $atletaCompeticao);
 
         if ($response->statusCode() == HttpStatus::OK) {
             $pdo->commit();
@@ -82,17 +81,21 @@ function realizarCadastroAtletaSelecionado($pdo): Response
 
 function realizarCadastroComNovoAtleta($pdo): Response
 {
-    $dados = [];
-    $dados['atleta'] = validaAtleta();
-    $dados['competicao'] = getCompeticao($pdo);
-    $dados['atletaCompeticaoCategoria'] = getAtletaCategoria($pdo, $dados['atleta'], $dados['competicao']);
-    $dados['tipo_dupla'] = getTipoDuplaValidado();
+    $atleta     = validaAtleta();
+    $competicao = getCompeticao($pdo);
+    $atletaCompeticao = (new AtletaCompeticao)
+        ->setAtleta($atleta)
+        ->setInformacao($_POST['informacao'])
+        ->setCompeticao($competicao)
+        ->addCategoria(...getAtletaCategoria($pdo, $atleta, $competicao))
+        ->addSexoDupla(...getSexoDuplaValidado())
+        ;
 
     try {
         $pdo->beginTransaction();
-        $response = cadastrarNovoAtleta($pdo, $dados['atleta']);
+        $response = cadastrarNovoAtleta($pdo, $atleta);
         if ($response->statusCode() == HttpStatus::OK) {
-            $response = cadastrarAtletaCompeticao($pdo, $dados);
+            $response = cadastrarAtletaCompeticao($pdo, $atletaCompeticao);
             $pdo->commit();
             return $response;
         } else {
@@ -126,77 +129,14 @@ function cadastrarNovoAtleta($pdo, Atleta $atleta): Response
     return Response::erro('Erro ao cadastrar atleta');
 }
 
-function cadastrarAtletaCompeticao($pdo, array $dados): Response
+function cadastrarAtletaCompeticao(PDO $pdo, AtletaCompeticao $dados): Response
 {
-    $response = null;
-    $atletaCompeticao = new AtletaCompeticao();
-    $atletaCompeticao->setAtleta($dados['atleta']);
-    $atletaCompeticao->competicao()->setId($_POST["competicao"]);
-    $atletaCompeticao->setInformacao($_POST["informacao"]);
-    
     $repo = new AtletaCompeticaoRepository($pdo);
     $repo->defineTransaction(false);
-    if ($repo->cadastrarAtletaCompeticao($atletaCompeticao)) {
-        $response = cadastrarAtletaCompeticaoCategoria($pdo, $atletaCompeticao, $dados);
-        if ($response->statusCode() == HttpStatus::BAD_REQUEST) {
-            $pdo->rollback();
-        } else {
-            $response = cadastrarAtletaCompeticaoDupla($pdo, $atletaCompeticao, $dados);
-            if ($response->statusCode() == HttpStatus::BAD_REQUEST) {
-                $pdo->rollback();
-            }
-        }
 
-        if ($response->statusCode() == HttpStatus::OK) {
-            $response = Response::ok('Atleta inserido na competição');
-        }
-        return $response;
-    } else {
-        $pdo->rollback();
-        return Response::erro("Não foi possível cadastrar o atleta na competição");
-    }
-}
+    $repo->incluirAtletaCompeticao($dados);
 
-function cadastrarAtletaCompeticaoCategoria(PDO $pdo, AtletaCompeticao $atletaCompeticao, array $dados): Response
-{
-    $repo = new AtletaCompeticaoCategoriaRepository($pdo);
-    $repo->defineTransaction(false);
-    $categoriasCompeticao = $dados['atletaCompeticaoCategoria'];
-    
-    /* @var $atletaCompeticaoCategoria AtletaCompeticaoCategoria */
-    foreach ($categoriasCompeticao as $atletaCompeticaoCategoria) {
-        $atletaCompeticaoCategoria->setAtletaCompeticao($atletaCompeticao);
-        $atletaCompeticaoCategoria->setCategoria($atletaCompeticaoCategoria->categoria());
-        if (!$repo->cadastrarAtletaCompeticaoCategoria($atletaCompeticaoCategoria)) {
-            return Response::erro(
-                'Não foi possível cadastrar a categoria ' .
-                $atletaCompeticaoCategoria->categoria()->descricao() .
-                ' ao atleta na competição'
-            );
-        }
-    }
-    return Response::ok('');
-}
-
-function cadastrarAtletaCompeticaoDupla(PDO $pdo, AtletaCompeticao $atletaCompeticao, array $dados): Response
-{
-    $repo = new AtletaCompeticaoDuplaRepository($pdo);
-    $repo->defineTransaction(false);
-    $atletaCompeticaoDupla = new AtletaCompeticaoDupla();
-    $atletaCompeticaoDupla->setAtletaCompeticao($atletaCompeticao);
-    $tipoDuplas = $dados['tipo_dupla'];
-    
-    foreach ($tipoDuplas as $valor) {
-        $atletaCompeticaoDupla->setTipoDupla(Sexo::from($valor));
-        if (!$repo->cadastrarAtletaCompeticaoDupla($atletaCompeticaoDupla)) {
-            return Response::erro(
-                'Não foi possível cadastrar o tipo de dupla ' .
-                $valor .
-                ' do atleta na competição');
-        }
-    }
-    
-    return Response::ok('');
+    return Response::ok('Atleta inserido na competição');
 }
 
 function getCompeticao(PDO $pdo): ?Competicao
@@ -219,7 +159,7 @@ function getAtletaSelecionadoValidado(PDO $pdo): ?Atleta
 
 function getAtletaCategoria(PDO $pdo, Atleta $atleta, Competicao $competicao): array
 {
-    $categoriasCompeticao = [];
+    $categorias = [];
     if ($categorias = getCategoriasFormulario($pdo)) {
         foreach ($categorias as $categoria) {
             if (!$categoria->podeParticipar($atleta->dataNascimento(), $competicao->prazo())) {
@@ -228,24 +168,20 @@ function getAtletaCategoria(PDO $pdo, Atleta $atleta, Competicao $competicao): a
                     $categoria->descricao()
                 );
             }
-
-            $acc = new AtletaCompeticaoCategoria();
-            $acc->setCategoria($categoria);
-            $categoriasCompeticao[] = $acc;
+            $categorias[] = $categoria;
         }
     } else {
-        throw new ValidatorException('Não foi selecionado uma categoria');
+        throw new ValidatorException('Não foi selecionada uma categoria');
     }
 
-    return $categoriasCompeticao;
+    return $categorias;
 }
 
-function getTipoDuplaValidado(): array
+function getSexoDuplaValidado(): array
 {
-    if (!$tiposDuplas = getTipoDuplaFormulario()) {
+    if (!$tiposDuplas = getSexoDuplaFormulario()) {
         throw new ValidatorException('Não foi selecionado um tipo de dupla');
     }
-
     return $tiposDuplas;
 }
 
@@ -263,19 +199,18 @@ function getCategoriasFormulario(PDO $pdo): array
     return $categorias;
 }
 
-function getTipoDuplaFormulario(): array
+function getSexoDuplaFormulario(): array
 {
-    $tipoDupla = [];
+    $sexoDupla = [];
     foreach ($_POST as $chave => $valor) {
         if ($chave == 'check-masculina') {
-            $tipoDupla['Masculino'] = 'M';
+            $sexoDupla[] = Sexo::MASCULINO;
         }
         if ($chave == 'check-feminina') {
-            $tipoDupla['Feminino'] = 'F';
+            $sexoDupla[] = Sexo::FEMININO;
         }
     }
-
-    return $tipoDupla;
+    return $sexoDupla;
 }
 
 function getAtletaById(PDO $pdo, int $idAtleta): ?Atleta
