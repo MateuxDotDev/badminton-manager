@@ -32,4 +32,28 @@ class CategoriaRepository
 
         return $categorias;
     }
+
+    public function getCategoriaById(int $id): ?Categoria
+    {
+        $sql = <<<SQL
+            SELECT id, descricao, idade_maior_que, idade_menor_que
+              FROM categoria
+             WHERE categoria.id = $id
+        SQL;
+
+        $stmt = $this->pdo->query($sql);
+        $rows = $stmt->fetchAll();
+
+        $categoria = null;
+        foreach ($rows as $row) {
+            $categoria = new Categoria(
+                $row['id'],
+                $row['descricao'],
+                $row['idade_maior_que'],
+                $row['idade_menor_que']
+            );
+        }
+
+        return $categoria;
+    }
 }

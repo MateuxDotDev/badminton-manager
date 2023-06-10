@@ -4,7 +4,7 @@ require __DIR__ . '/../../../../vendor/autoload.php';
 
 use App\Competicoes\CompeticaoRepository;
 use App\Categorias\CategoriaRepository;
-use App\Tecnico\Atleta\AtletaRepository;
+use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoRepository;
 use App\Tecnico\Atleta\Sexo;
 use App\Util\Database\Connection;
 use App\Util\General\UserSession;
@@ -32,8 +32,8 @@ if ($idCompeticao != null) {
 $atleta = null;
 if (array_key_exists('atleta', $_GET)) {
   $idAtleta = $_GET['atleta'];
-  $atletaRepo = new AtletaRepository($pdo);
-  $atleta = $atletaRepo->getViaIdNaCompeticao($idAtleta, $idCompeticao);
+  $atletaRepo = new AtletaCompeticaoRepository($pdo);
+  $atleta = $atletaRepo->getViaId($idAtleta, $idCompeticao);
 }
 
 function categoriaChecked(int $idCategoria) {
