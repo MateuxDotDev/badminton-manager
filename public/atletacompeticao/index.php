@@ -164,8 +164,8 @@ $tecnico = $session->getTecnico();
                                     <div class="mb-3">
                                         <label class="form-label" for="cadastrar_observacoes">Observações</label>
                                         <textarea id="cadastrar_observacoes" name="cadastrar_observacoes"
-                                                  class="form-control">
-                                        </textarea>
+                                                  class="form-control"
+                                        ></textarea>
                                     </div>
                                     <div class="mb-3">
                                         <label class="form-label" for="cadastrar_foto">Foto</label>
