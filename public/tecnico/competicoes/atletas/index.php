@@ -30,7 +30,7 @@ if ($idCompeticao != null) {
 }
 
 $atleta = null;
-if (array_key_exists('atleta', $_GET)) {
+if (array_key_exists('atleta', $_GET) && is_int($_GET['atleta'])) {
   $idAtleta = $_GET['atleta'];
   $atletaRepo = new AtletaCompeticaoRepository($pdo);
   $atleta = $atletaRepo->getViaId($idAtleta, $idCompeticao);
