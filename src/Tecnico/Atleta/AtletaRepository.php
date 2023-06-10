@@ -11,26 +11,29 @@ use \PDO;
 
 class AtletaRepository implements AtletaRepositoryInterface
 {
+
+    private bool $defineTransaction;
+
     public function __construct(
         private readonly PDO $pdo,
         private readonly UploadImagemServiceInterface $uploadImagemService
-    ) {}
+    ) {
+        $this->defineTransaction = true;
+    }
 
     /**
      * @throws Exception
      */
     public function criarAtleta(Atleta $atleta): int
     {
-        $pdo = $this->pdo;
-
-        $pdo->beginTransaction();
+        $this->begin();
         try {
             $sql = <<<SQL
                 SELECT id
                   FROM tecnico
                  WHERE id = :id
             SQL;
-            $stmt = $pdo->prepare($sql);
+            $stmt = $this->pdo->prepare($sql);
             $stmt->execute(['id' => $atleta->tecnico()->id()]);
             $rows = $stmt->fetchAll();
             if (count($rows) != 1) {
@@ -59,7 +62,7 @@ class AtletaRepository implements AtletaRepositoryInterface
                 )
             SQL;
 
-            $stmt = $pdo->prepare($sql);
+            $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
                 'tecnico_id' => $atleta->tecnico()->id(),
                 'nome_completo' => $atleta->nomeCompleto(),
@@ -69,13 +72,13 @@ class AtletaRepository implements AtletaRepositoryInterface
                 'path_foto' => $atleta->foto()
             ]);
 
-            $atleta->setId($pdo->lastInsertId());
-            $pdo->commit();
+            $atleta->setId($this->pdo->lastInsertId());
+            $this->commit();
 
             return $atleta->id();
         } catch (Exception $e) {
             $this->uploadImagemService->removerImagem($atleta->foto());
-            $pdo->rollback();
+            $this->rollback();
             throw $e;
         }
     }
@@ -106,5 +109,59 @@ class AtletaRepository implements AtletaRepositoryInterface
         }
 
         return $atletas;
+    }
+
+    public function getAtletaViaId(int $id): ?Atleta
+    {
+        $sql = <<<SQL
+            SELECT id, nome_completo, sexo, data_nascimento, informacoes, path_foto, criado_em, alterado_em
+              FROM atleta
+             WHERE id = :id
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        $rows = $stmt->fetchAll();
+
+        $atleta = null;
+        foreach ($rows as $row) {
+            $atleta = (new Atleta())
+                ->setId($row['id'])
+                ->setNomeCompleto($row['nome_completo'])
+                ->setSexo(Sexo::from($row['sexo']))
+                ->setDataNascimento(Dates::parseDay($row['data_nascimento']))
+                ->setInformacoesAdicionais($row['informacoes'])
+                ->setDataCriacao(Dates::parseMicro($row['criado_em']))
+                ->setDataAlteracao(Dates::parseMicro($row['alterado_em']))
+                ->setFoto($row['path_foto']);
+        }
+
+        return $atleta;
+    }
+
+    public function defineTransaction(bool $define)
+    {
+        $this->defineTransaction = $define;
+    }
+
+    private function begin()
+    {
+        if ($this->defineTransaction) {
+            $this->pdo->beginTransaction();
+        }
+    }
+
+    private function commit()
+    {
+        if ($this->defineTransaction) {
+            $this->pdo->commit();
+        }
+    }
+
+    private function rollback()
+    {
+        if ($this->defineTransaction) {
+            $this->pdo->rollback();
+        }
     }
 }
