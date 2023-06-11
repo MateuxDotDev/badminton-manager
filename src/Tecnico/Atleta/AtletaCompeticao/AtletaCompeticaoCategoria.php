@@ -6,10 +6,8 @@ use App\Categorias\Categoria;
 
 class AtletaCompeticaoCategoria
 {
-    public function __construct(
-        private AtletaCompeticao $atletaCompeticao,
-        private Categoria $categoria,
-    ) {}
+    private AtletaCompeticao $atletaCompeticao;
+    private Categoria $categoria;
 
     public function setAtletaCompeticao(AtletaCompeticao $atletaCompeticao): self
     {

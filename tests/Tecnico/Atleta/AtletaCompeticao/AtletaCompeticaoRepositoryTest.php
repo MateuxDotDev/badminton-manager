@@ -2,6 +2,7 @@
 
 namespace Tests\Tecnico\Atleta\AtletaCompeticao;
 
+use App\Competicoes\Competicao;
 use App\Tecnico\Atleta\Atleta;
 use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticao;
 use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoRepository;
@@ -107,5 +108,54 @@ class AtletaCompeticaoRepositoryTest extends TestCase
         $this->assertInstanceOf(Sexo::class, $result['sexo']);
         $this->assertIsArray($result['categorias']);
         $this->assertIsArray($result['sexoDuplas']);
+    }
+
+    public function testGetViaIdNull()
+    {
+        $this->pdo
+            ->expects($this->once())
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+        $this->stmt
+            ->expects($this->once())
+            ->method('execute')
+            ->willReturn(true);
+
+        $this->stmt
+            ->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([]);
+
+        $result = $this->repository->getViaId(1, 1);
+        $this->assertNull($result);
+    }
+
+    public function testCadastrarAtletaCompetica()
+    {
+        $executePayload = [
+            'atleta_id' => 1,
+            'competicao_id' => 1,
+            'informacoes' => 'info',
+        ];
+
+        $this->pdo
+            ->expects($this->once())
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+        $this->stmt
+            ->expects($this->once())
+            ->method('execute')
+            ->with($executePayload)
+            ->willReturn(true);
+
+        $atletaCompeticao = (new AtletaCompeticao())
+            ->setAtleta((new Atleta())->setId(1))
+            ->setCompeticao((new Competicao())->setId(1))
+            ->setInformacao('info');
+
+        $result = $this->repository->cadastrarAtletaCompeticao($atletaCompeticao);
+        $this->assertTrue($result);
     }
 }
