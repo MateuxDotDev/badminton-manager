@@ -4,6 +4,8 @@ require __DIR__ . '/../../../../vendor/autoload.php';
 
 use App\Competicoes\CompeticaoRepository;
 use App\Categorias\CategoriaRepository;
+use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoRepository;
+use App\Tecnico\Atleta\Sexo;
 use App\Util\Database\Connection;
 use App\Util\General\UserSession;
 use App\Util\Template\Template;
@@ -25,6 +27,28 @@ $categoriaRepo  = new CategoriaRepository($pdo);
 $competicao = null;
 if ($idCompeticao != null) {
   $competicao = $competicaoRepo->getViaId($idCompeticao);
+}
+
+$atleta = null;
+if (array_key_exists('atleta', $_GET) && is_int($_GET['atleta'])) {
+  $idAtleta = $_GET['atleta'];
+  $atletaRepo = new AtletaCompeticaoRepository($pdo);
+  $atleta = $atletaRepo->getViaId($idAtleta, $idCompeticao);
+}
+
+function categoriaChecked(int $idCategoria) {
+  global $atleta;
+  return $atleta == null || in_array($idCategoria, $atleta['categorias']);
+}
+
+function sexoAtletaChecked(Sexo $sexo) {
+  global $atleta;
+  return $atleta == null || in_array($sexo, $atleta['sexoDuplas']);
+}
+
+function sexoBuscadoChecked(Sexo $sexo) {
+  global $atleta;
+  return $atleta == null || $sexo == $atleta['sexo'];
 }
 
 if ($competicao == null) {
@@ -52,10 +76,11 @@ $inputsCategorias = [];
 foreach ($categorias as $categoria) {
   $id        = $categoria->id();
   $descricao = $categoria->descricao();
+  $checked   = categoriaChecked($id) ? 'checked' : '';
 
   $inputsCategorias[] = "
     <div class='form-check'>
-      <input checked class='form-check-input input-categoria' type='checkbox' id='categoria-$id' value='$id'>
+      <input $checked class='form-check-input input-categoria' type='checkbox' id='categoria-$id' value='$id'>
       <label for='categoria-$id' class='form-check-label'>$descricao</label>
     </div>
   ";
@@ -152,22 +177,26 @@ foreach ($categorias as $categoria) {
           <div class="col-12 col-md-3 mb-3 mb-md-0">
             <label class="form-label">Sexo</label>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='M' id='sexo-masculino'>
+              <input class='form-check-input input-sexo-atleta' type='checkbox' value='M' id='sexo-masculino'
+                     <?= sexoAtletaChecked(Sexo::from('M')) ? 'checked' : '' ?>>
               <label for='sexo-masculino' class='form-check-label'>Masculino</label>
             </div>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='F' id='sexo-feminino'>
+              <input class='form-check-input input-sexo-atleta' type='checkbox' value='F' id='sexo-feminino'
+                     <?= sexoAtletaChecked(Sexo::from('F')) ? 'checked' : '' ?>>
               <label for='sexo-feminino' class='form-check-label'>Feminino</label>
             </div>
           </div>
           <div class="col-12 col-md-3 mb-3 mb-md-0">
             <label class="form-label">Buscando dupla</label>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='M' id='dupla-masculina>
+              <input class='form-check-input input-sexo-dupla' type='checkbox' value='M' id='dupla-masculina'
+                     <?= sexoBuscadoChecked(Sexo::from('M')) ? 'checked' : '' ?>>
               <label for='dupla-masculina' class='form-check-label'>Masculina</label>
             </div>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='F' id='dupla-feminina'>
+              <input class='form-check-input input-sexo-dupla' type='checkbox' value='F' id='dupla-feminina'
+                     <?= sexoBuscadoChecked(Sexo::from('F')) ? 'checked' : '' ?>>
               <label for='dupla-feminina' class='form-check-label'>Feminina</label>
             </div>
           </div>
@@ -271,7 +300,7 @@ async function clicouFiltrar() {
   const carregando = qs('#carregando');
   carregando.classList.remove('d-none');
 
-  const {resultados: atletas} = await pesquisarAtletas(filtros);
+  const atletas = await pesquisarAtletas(filtros);
 
   carregando.classList.add('d-none');
 
@@ -291,17 +320,6 @@ async function clicouFiltrar() {
 function criarElementoAtleta(atleta) {
   const elem = templateAtleta.content.firstElementChild.cloneNode(true);
 
-  // Fica melhor com um ícone de info no lado
-  // talvez fazer isso e deixar disponível no utils.js
-  function criarTooltip(elem, title) {
-    title ??= '';
-    if (title.trim().length > 0) {
-      elem.setAttribute('title', title);
-      elem.classList.add('has-tooltip');
-      new bootstrap.Tooltip(elem);
-    }
-  }
-
   {
     const foto = qse(elem, '.atleta-foto')
     foto.src = `/assets/images/profile/${atleta.pathFoto}`;
@@ -313,7 +331,7 @@ function criarElementoAtleta(atleta) {
     nome.innerText = `${atleta.nome}`;
     nome.append(iconeSexo(atleta.sexo));
   
-    criarTooltip(nome, atleta.informacoes);
+    adicionarTooltip(nome, atleta.informacoes);
   }
 
   {
@@ -336,7 +354,7 @@ function criarElementoAtleta(atleta) {
     const tecnico = qse(elem, '.atleta-tecnico');
     tecnico.innerText = atleta.tecnico.nome;
 
-    criarTooltip(tecnico, atleta.tecnico.informacoes);
+    adicionarTooltip(tecnico, atleta.tecnico.informacoes);
   }
 
   qse(elem, '.atleta-clube').innerText = atleta.tecnico.clube.nome;
@@ -412,7 +430,8 @@ async function pesquisarAtletas(filtros) {
   const text     = await response.text();
 
   try {
-    return JSON.parse(text);
+    const retorno = JSON.parse(text);
+    return retorno.resultados ?? [];
   } catch (err) {
     console.error('text', text);
     console.error('err', err);

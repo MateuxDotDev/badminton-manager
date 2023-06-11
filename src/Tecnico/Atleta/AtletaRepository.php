@@ -5,6 +5,7 @@ namespace App\Tecnico\Atleta;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use App\Util\Http\HttpStatus;
+use App\Util\Services\UploadImagemService\UploadImagemService;
 use App\Util\Services\UploadImagemService\UploadImagemServiceInterface;
 use Exception;
 use PDO;
@@ -16,7 +17,7 @@ class AtletaRepository implements AtletaRepositoryInterface
 
     public function __construct(
         private readonly PDO $pdo,
-        private readonly UploadImagemServiceInterface $uploadImagemService
+        private readonly UploadImagemServiceInterface $uploadImagemService = new UploadImagemService()
     ) {
         $this->defineTransaction = true;
     }
