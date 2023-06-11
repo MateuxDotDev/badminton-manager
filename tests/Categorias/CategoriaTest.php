@@ -2,9 +2,9 @@
 
 namespace Tests\Categorias;
 
-use PHPUnit\Framework\TestCase;
 use App\Categorias\Categoria;
 use DateTime;
+use PHPUnit\Framework\TestCase;
 
 class CategoriaTest extends TestCase
 {

@@ -8,7 +8,6 @@ use App\Util\Mail\MailerInterface;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use ReflectionClass;
 
 class NovaSolicitacaoMailTest extends TestCase
 {

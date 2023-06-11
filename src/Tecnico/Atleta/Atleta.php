@@ -7,7 +7,6 @@ use App\Util\General\Dates;
 use App\Util\Traits\TemDataAlteracao;
 use App\Util\Traits\TemDataCriacao;
 use App\Util\Traits\TemId;
-use DateTime;
 use DateTimeInterface;
 
 class Atleta

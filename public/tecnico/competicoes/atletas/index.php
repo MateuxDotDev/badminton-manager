@@ -36,17 +36,20 @@ if (array_key_exists('atleta', $_GET) && is_int($_GET['atleta'])) {
   $atleta = $atletaRepo->getViaId($idAtleta, $idCompeticao);
 }
 
-function categoriaChecked(int $idCategoria) {
+function categoriaChecked(int $idCategoria): bool
+{
   global $atleta;
   return $atleta == null || in_array($idCategoria, $atleta['categorias']);
 }
 
-function sexoAtletaChecked(Sexo $sexo) {
+function sexoAtletaChecked(Sexo $sexo): bool
+{
   global $atleta;
   return $atleta == null || in_array($sexo, $atleta['sexoDuplas']);
 }
 
-function sexoBuscadoChecked(Sexo $sexo) {
+function sexoBuscadoChecked(Sexo $sexo): bool
+{
   global $atleta;
   return $atleta == null || $sexo == $atleta['sexo'];
 }

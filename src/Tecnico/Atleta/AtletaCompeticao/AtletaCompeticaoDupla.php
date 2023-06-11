@@ -2,29 +2,22 @@
 
 namespace App\Tecnico\Atleta\AtletaCompeticao;
 
-use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticao;
 use App\Tecnico\Atleta\Sexo;
 
 class AtletaCompeticaoDupla
 {
-
     private AtletaCompeticao $atletaCompeticao;
     private Sexo $tipoDupla;
 
-    public function __construct()
+    public function setAtletaCompeticao(AtletaCompeticao $atletaCompeticao): self
     {
-        $this->atletaCompeticao = new AtletaCompeticao();
-    }
-
-    public function setAtletaCompeticao(AtletaCompeticao $ac): self
-    {
-        $this->atletaCompeticao = $ac;
+        $this->atletaCompeticao = $atletaCompeticao;
         return $this;
     }
 
-    public function setTipoDupla(Sexo $td): self
+    public function setTipoDupla(Sexo $sexo): self
     {
-        $this->tipoDupla = $td;
+        $this->tipoDupla = $sexo;
         return $this;
     }
 

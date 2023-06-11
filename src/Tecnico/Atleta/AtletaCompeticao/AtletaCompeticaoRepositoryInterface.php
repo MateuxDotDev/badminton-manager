@@ -1,8 +1,14 @@
 <?php
 
-namespace App\Atleta;
+namespace App\Tecnico\Atleta\AtletaCompeticao;
 
 interface AtletaCompeticaoRepositoryInterface
 {
-    function getAtletasForaCompeticaoViaNome(int $idCompeticao, string $nomeAtleta): ?Atleta;
+    function getAtletaCompeticao($idTecnico, $idCompeticao) : array;
+
+    function getAtletasForaCompeticao(int $idTecnico, int $idCompeticao);
+
+    function cadastrarAtletaCompeticao(AtletaCompeticao $atletaCompeticao) : bool;
+
+    function getViaId(int $idAtleta, int $idCompeticao): ?array;
 }
