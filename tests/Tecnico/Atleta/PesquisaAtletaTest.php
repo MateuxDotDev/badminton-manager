@@ -2,11 +2,11 @@
 
 namespace Tests\Tecnico\Atleta;
 
-use App\Tecnico\Atleta\Sexo;
-use PHPUnit\Framework\TestCase;
 use App\Tecnico\Atleta\PesquisaAtleta;
+use App\Tecnico\Atleta\Sexo;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Ordenacao;
+use PHPUnit\Framework\TestCase;
 
 class PesquisaAtletaTest extends TestCase
 {

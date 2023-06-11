@@ -116,7 +116,6 @@ function cadastrarNovoAtleta($pdo, Atleta $atleta): Response
     }
 
     $repo = new AtletaRepository($pdo, $imagemService);
-    $repo->defineTransaction(false);
     $criado = $repo->criarAtleta($atleta);
     if ($criado > 0) {
         $atleta->setId($criado);
@@ -135,7 +134,6 @@ function cadastrarAtletaCompeticao($pdo, array $dados): Response
     $atletaCompeticao->setInformacao($_POST["informacao"]);
     
     $repo = new AtletaCompeticaoRepository($pdo);
-    $repo->defineTransaction(false);
     if ($repo->cadastrarAtletaCompeticao($atletaCompeticao)) {
         $response = cadastrarAtletaCompeticaoCategoria($pdo, $atletaCompeticao, $dados);
         if ($response->statusCode() == HttpStatus::BAD_REQUEST) {
@@ -160,7 +158,6 @@ function cadastrarAtletaCompeticao($pdo, array $dados): Response
 function cadastrarAtletaCompeticaoCategoria(PDO $pdo, AtletaCompeticao $atletaCompeticao, array $dados): Response
 {
     $repo = new AtletaCompeticaoCategoriaRepository($pdo);
-    $repo->defineTransaction(false);
     $categoriasCompeticao = $dados['atletaCompeticaoCategoria'];
     
     /* @var $atletaCompeticaoCategoria AtletaCompeticaoCategoria */
@@ -181,7 +178,6 @@ function cadastrarAtletaCompeticaoCategoria(PDO $pdo, AtletaCompeticao $atletaCo
 function cadastrarAtletaCompeticaoDupla(PDO $pdo, AtletaCompeticao $atletaCompeticao, array $dados): Response
 {
     $repo = new AtletaCompeticaoDuplaRepository($pdo);
-    $repo->defineTransaction(false);
     $atletaCompeticaoDupla = new AtletaCompeticaoDupla();
     $atletaCompeticaoDupla->setAtletaCompeticao($atletaCompeticao);
     $tipoDuplas = $dados['tipo_dupla'];
@@ -316,10 +312,6 @@ function validaAtleta(): Atleta
     
     $tecnico = new Tecnico();
     $tecnico->setId($_POST["tecnico"]);
-
-    if (!($tecnico instanceof Tecnico)) {
-        throw new ValidatorException('Técnico não encontrado');
-    }
 
     return (new Atleta())
         ->setNomeCompleto($req['cadastrar_nomeCompleto'])

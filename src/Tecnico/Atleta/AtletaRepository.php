@@ -13,21 +13,17 @@ use PDO;
 class AtletaRepository implements AtletaRepositoryInterface
 {
 
-    private bool $defineTransaction;
 
     public function __construct(
         private readonly PDO $pdo,
         private readonly UploadImagemServiceInterface $uploadImagemService = new UploadImagemService()
-    ) {
-        $this->defineTransaction = true;
-    }
+    ) {}
 
     /**
      * @throws Exception
      */
     public function criarAtleta(Atleta $atleta): int
     {
-        $this->begin();
         try {
             $sql = <<<SQL
                 SELECT id
@@ -74,12 +70,10 @@ class AtletaRepository implements AtletaRepositoryInterface
             ]);
 
             $atleta->setId($this->pdo->lastInsertId());
-            $this->commit();
 
             return $atleta->id();
         } catch (Exception $e) {
             $this->uploadImagemService->removerImagem($atleta->foto());
-            $this->rollback();
             throw $e;
         }
     }
@@ -138,31 +132,5 @@ class AtletaRepository implements AtletaRepositoryInterface
         }
 
         return $atleta;
-    }
-
-    public function defineTransaction(bool $define)
-    {
-        $this->defineTransaction = $define;
-    }
-
-    private function begin()
-    {
-        if ($this->defineTransaction) {
-            $this->pdo->beginTransaction();
-        }
-    }
-
-    private function commit()
-    {
-        if ($this->defineTransaction) {
-            $this->pdo->commit();
-        }
-    }
-
-    private function rollback()
-    {
-        if ($this->defineTransaction) {
-            $this->pdo->rollback();
-        }
     }
 }

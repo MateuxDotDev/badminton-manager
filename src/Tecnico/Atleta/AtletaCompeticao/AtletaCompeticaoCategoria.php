@@ -2,7 +2,6 @@
 
 namespace App\Tecnico\Atleta\AtletaCompeticao;
 
-use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticao;
 use App\Categorias\Categoria;
 
 class AtletaCompeticaoCategoria
@@ -10,21 +9,15 @@ class AtletaCompeticaoCategoria
     private AtletaCompeticao $atletaCompeticao;
     private Categoria $categoria;
 
-    public function __construct()
+    public function setAtletaCompeticao(AtletaCompeticao $atletaCompeticao): self
     {
-        $this->atletaCompeticao = new AtletaCompeticao();
-        $this->categoria = new Categoria(null, null, null, null);
-    }
-
-    public function setAtletaCompeticao(AtletaCompeticao $ac): self
-    {
-        $this->atletaCompeticao = $ac;
+        $this->atletaCompeticao = $atletaCompeticao;
         return $this;
     }
 
-    public function setCategoria(Categoria $c): self
+    public function setCategoria(Categoria $categoria): self
     {
-        $this->categoria = $c;
+        $this->categoria = $categoria;
         return $this;
     }
 

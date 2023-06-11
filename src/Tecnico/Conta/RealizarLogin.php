@@ -3,10 +3,10 @@
 namespace App\Tecnico\Conta;
 
 use App\Tecnico\TecnicoRepository;
+use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
 use App\Util\Http\HttpStatus;
-use App\Util\Exceptions\ValidatorException;
-use \Exception;
+use Exception;
 
 /**
  * Implementa somente login quando técnico tem senha

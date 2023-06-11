@@ -4,8 +4,8 @@ namespace Tests\Tecnico\Atleta;
 
 use App\Tecnico\Atleta\Atleta;
 use App\Tecnico\Atleta\AtletaRepository;
-use App\Tecnico\Tecnico;
 use App\Tecnico\Atleta\Sexo;
+use App\Tecnico\Tecnico;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\Http\HttpStatus;
 use App\Util\Services\UploadImagemService\UploadImagemServiceInterface;
@@ -147,5 +147,60 @@ class AtletaRepositoryTest extends TestCase
         $this->expectExceptionMessage('Error Message');
 
         $this->atletaRepository->getViaTecnico($this->tecnico->id());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testGetAtletaViaId(): void
+    {
+        $expectedData = [
+            'id' => 1,
+            'nome_completo' => 'Teste Atleta',
+            'sexo' => Sexo::MASCULINO->value,
+            'data_nascimento' => '2000-01-01',
+            'informacoes' => 'Teste Informacoes',
+            'path_foto' => 'Teste Foto',
+            'criado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
+            'alterado_em' => (new DateTime())->format('Y-m-d H:i:s.u')
+        ];
+
+        $this->pdo->method('prepare')->willReturn($this->pdoStatement);
+        $this->pdoStatement->method('execute')->with(['id' => 1])->willReturn(true);
+        $this->pdoStatement->method('fetchAll')->willReturn([$expectedData]);
+
+        $atleta = $this->atletaRepository->getAtletaViaId(1);
+
+        $this->assertSame($expectedData['id'], $atleta->id());
+        $this->assertSame($expectedData['nome_completo'], $atleta->nomeCompleto());
+        $this->assertSame(Sexo::from($expectedData['sexo']), $atleta->sexo());
+        $this->assertSame($expectedData['data_nascimento'], $atleta->dataNascimento()->format('Y-m-d'));
+        $this->assertSame($expectedData['informacoes'], $atleta->informacoesAdicionais());
+        $this->assertSame($expectedData['path_foto'], $atleta->foto());
+        $this->assertSame($expectedData['criado_em'], $atleta->dataCriacao()->format('Y-m-d H:i:s.u'));
+        $this->assertSame($expectedData['alterado_em'], $atleta->dataAlteracao()->format('Y-m-d H:i:s.u'));
+    }
+
+    public function testGetAtletaViaIdReturnsNullOnNoResults(): void
+    {
+        $this->pdo->method('prepare')->willReturn($this->pdoStatement);
+        $this->pdoStatement->method('execute')->with(['id' => 1])->willReturn(true);
+        $this->pdoStatement->method('fetchAll')->willReturn([]);
+
+        $atleta = $this->atletaRepository->getAtletaViaId(1);
+
+        $this->assertNull($atleta);
+    }
+
+    public function testGetAtletaViaIdThrowsExceptionOnQueryError(): void
+    {
+        $this->pdo->method('prepare')->willReturn($this->pdoStatement);
+        $this->pdoStatement->method('execute')->with(['id' => 1])
+            ->will($this->throwException(new PDOException('Error Message')));
+
+        $this->expectException(PDOException::class);
+        $this->expectExceptionMessage('Error Message');
+
+        $this->atletaRepository->getAtletaViaId(1);
     }
 }

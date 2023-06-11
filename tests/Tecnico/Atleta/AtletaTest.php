@@ -3,8 +3,8 @@
 namespace Tests\Tecnico\Atleta;
 
 use App\Tecnico\Atleta\Atleta;
-use App\Tecnico\Tecnico;
 use App\Tecnico\Atleta\Sexo;
+use App\Tecnico\Tecnico;
 use App\Util\General\Dates;
 use DateTime;
 use PHPUnit\Framework\TestCase;

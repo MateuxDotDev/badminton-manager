@@ -5,9 +5,9 @@ namespace Tests\Competicoes;
 use App\Competicoes\Competicao;
 use App\Competicoes\CompeticaoRepository;
 use ArrayIterator;
-use \DateTimeImmutable;
-use \PDO;
-use \PDOStatement;
+use DateTimeImmutable;
+use PDO;
+use PDOStatement;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
 
@@ -228,5 +228,37 @@ class CompeticaoRepositoryTest extends TestCase
         $competicao = $repo->getViaId(999);
 
         $this->assertNull($competicao);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testBuscarCompeticao()
+    {
+        $pdo = $this->createMock(PDO::class);
+        $stmt = $this->createMock(PDOStatement::class);
+        $pdo->method('query')
+            ->willReturn($stmt);
+
+        $data = [
+            'id' => '1',
+            'nome' => 'Competicao 1',
+            'descricao' => 'Descrição da Competição 1',
+            'prazo' => '2023-01-01',
+            'criado_em' => '2022-12-12 01:01:01.123456',
+            'alterado_em' => '2023-12-12 02:02:03.121233'
+        ];
+
+        $stmt->method('getIterator')
+            ->willReturn(new ArrayIterator([$data]));
+
+        $repo = new CompeticaoRepository($pdo);
+        $competicao = $repo->buscarCompeticao(1);
+
+        $this->assertInstanceOf(Competicao::class, $competicao);
+        $this->assertEquals(1, $competicao->id());
+        $this->assertEquals('Competicao 1', $competicao->nome());
+        $this->assertEquals('Descrição da Competição 1', $competicao->descricao());
+        $this->assertEquals('2023-01-01', $competicao->prazo()->format('Y-m-d'));
     }
 }

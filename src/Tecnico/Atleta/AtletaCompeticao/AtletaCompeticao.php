@@ -4,37 +4,28 @@ namespace App\Tecnico\Atleta\AtletaCompeticao;
 
 use App\Competicoes\Competicao;
 use App\Tecnico\Atleta\Atleta;
-use App\Util\Traits\TemDataAlteracao;
-use App\Util\Traits\TemDataCriacao;
 
 class AtletaCompeticao
 {
-
+    private string $informacao;
     private Atleta $atleta;
     private Competicao $competicao;
-    private string $informacao;
 
-    public function __construct()
+    public function setAtleta(Atleta $atleta): self
     {
-        $this->atleta = new Atleta();
-        $this->competicao = new Competicao();
-    }
-    
-    public function setAtleta(Atleta $a): self
-    {
-        $this->atleta = $a;
+        $this->atleta = $atleta;
         return $this;
     }
     
-    public function setCompeticao(Competicao $c): self
+    public function setCompeticao(Competicao $competicao): self
     {
-        $this->competicao = $c;
+        $this->competicao = $competicao;
         return $this;
     }
     
-    public function setInformacao(string $s): self
+    public function setInformacao(string $informacao): self
     {
-        $this->informacao = $s;
+        $this->informacao = $informacao;
         return $this;
     }
 
@@ -51,16 +42,5 @@ class AtletaCompeticao
     public function informacao(): string
     {
         return $this->informacao;
-    }
-
-    public function toJson(): array
-    {
-        return [
-            'atleta_id' => $this->atleta()->id(),
-            'competicao_id' => $this->competicao()->id(),
-            'informacao' => $this->informacao(),
-            'dataCriacao' => Dates::formatBr($this->dataCriacao()),
-            'dataAlteracao' => Dates::formatBr($this->dataAlteracao())
-        ];
     }
 }

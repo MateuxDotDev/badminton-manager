@@ -4,7 +4,7 @@ namespace App\Util\Exceptions;
 
 use App\Util\Http\HttpStatus;
 use App\Util\Http\Response;
-use \Exception;
+use Exception;
 
 class ValidatorException extends Exception
 {
