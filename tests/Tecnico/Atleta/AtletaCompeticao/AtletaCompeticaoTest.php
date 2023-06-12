@@ -89,12 +89,37 @@ class AtletaCompeticaoTest extends TestCase
 
     public function testPodeParticipar(): void
     {
-        $atletaCompeticao = new AtletaCompeticao();
         $categoria = new Categoria(1, 'Categoria 1', 10, 20);
 
         $dataNascimento = new DateTime('2005-01-01');
         $dataCompeticao = new DateTime('2023-06-01');
 
         $this->assertTrue($categoria->podeParticipar($dataNascimento, $dataCompeticao));
+    }
+
+    public function testAddCategoriaDuplicada(): void
+    {
+        $categorias = [
+            new Categoria(1, 'Categoria 1', 10, 20),
+            new Categoria(1, 'Categoria 1', 10, 20),
+        ];
+
+        $atletaCompeticao = new AtletaCompeticao();
+        $atletaCompeticao->addCategoria(...$categorias);
+
+        $this->assertCount(1, $atletaCompeticao->categorias());
+    }
+
+    public function testAddSexoDuplaDuplicado(): void
+    {
+        $sexos = [
+            Sexo::MASCULINO,
+            Sexo::MASCULINO,
+        ];
+
+        $atletaCompeticao = new AtletaCompeticao();
+        $atletaCompeticao->addSexoDupla(...$sexos);
+
+        $this->assertCount(1, $atletaCompeticao->sexoDupla());
     }
 }
