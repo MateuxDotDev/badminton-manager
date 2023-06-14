@@ -95,9 +95,7 @@ readonly class EnviarSolicitacao
      */
     public function __invoke(EnviarSolicitacaoDTO $dto): int
     {
-        $competicoes = $this->competicoes;
-
-        $competicao = $competicoes->getViaId($dto->idCompeticao);
+        $competicao = $this->competicoes->getViaId($dto->idCompeticao);
         if ($competicao == null) {
             throw new ValidatorException('Competição não encontrada', HttpStatus::NOT_FOUND);
         }
@@ -128,10 +126,7 @@ readonly class EnviarSolicitacao
 
         $this->validarCompatibilidade($remetente, $destinatario, $idCategoria);
 
-
-        $solicitacoes = $this->solicitacoes;
-
-        $existente = $solicitacoes->getEnvolvendo($competicao->id(), $idRemetente, $idDestinatario, $idCategoria);
+        $existente = $this->solicitacoes->getEnvolvendo($competicao->id(), $idRemetente, $idDestinatario, $idCategoria);
         if ($existente != null) {
             throw new ValidatorException('Essa solicitação já foi enviada');
         }
@@ -141,11 +136,10 @@ readonly class EnviarSolicitacao
         // (porém se um deles já tem uma dupla de um sexo mas não do outro, e precisa de dupla
         // do outro sexo, e o outro atleta é esse outro sexo, então ok)
 
-        $idSolicitacao = $solicitacoes->enviar($dto);
+        $idSolicitacao = $this->solicitacoes->enviar($dto);
 
-        $notificacoes = $this->notificacoes;
-        $notificacoes->criar(Notificacao::solicitacaoEnviada($remetente['idTecnico'], $idSolicitacao));
-        $notificacoes->criar(Notificacao::solicitacaoRecebida($destinatario['idTecnico'], $idSolicitacao));
+        $this->notificacoes->criar(Notificacao::solicitacaoEnviada($remetente['idTecnico'], $idSolicitacao));
+        $this->notificacoes->criar(Notificacao::solicitacaoRecebida($destinatario['idTecnico'], $idSolicitacao));
 
         return $idSolicitacao;
     }

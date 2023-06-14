@@ -97,4 +97,73 @@ class AtletaCompeticaoRepositoryTest extends TestCase
 
         $this->assertTrue($result);
     }
+
+    public function testGet(): void
+    {
+        $atleta = (new Atleta())->setId(1);
+        $competicao = (new Competicao())->setId(1);
+
+        $row = [
+            'informacoes' => 'Informações Teste',
+            'criado_em' => '2023-01-01 00:00:00.000000',
+            'alterado_em' => '2023-01-01 00:00:00.000000',
+            'sexo_dupla' => json_encode(['M', 'F']),
+            'categorias' => json_encode([
+                ['id' => 1, 'descricao' => 'Categoria 1', 'idade_maior_que' => 10, 'idade_menor_que' => 20],
+                ['id' => 2, 'descricao' => 'Categoria 2', 'idade_maior_que' => 15, 'idade_menor_que' => 30]
+            ]),
+        ];
+
+        $this->pdo
+            ->expects($this->once())
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+        $this->stmt
+            ->expects($this->once())
+            ->method('execute')
+            ->with([
+                'atleta_id' => $atleta->id(),
+                'competicao_id' => $competicao->id()
+            ])
+            ->willReturn(true);
+
+        $this->stmt
+            ->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([$row]);
+
+        $atletaCompeticao = $this->repository->get($atleta, $competicao);
+
+        $this->assertInstanceOf(AtletaCompeticao::class, $atletaCompeticao);
+    }
+
+    public function testGetReturnsNull(): void
+    {
+        $atleta = (new Atleta())->setId(1);
+        $competicao = (new Competicao())->setId(1);
+
+        $this->pdo
+            ->expects($this->once())
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+        $this->stmt
+            ->expects($this->once())
+            ->method('execute')
+            ->with([
+                'atleta_id' => $atleta->id(),
+                'competicao_id' => $competicao->id()
+            ])
+            ->willReturn(true);
+
+        $this->stmt
+            ->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([]);
+
+        $atletaCompeticao = $this->repository->get($atleta, $competicao);
+
+        $this->assertNull($atletaCompeticao);
+    }
 }
