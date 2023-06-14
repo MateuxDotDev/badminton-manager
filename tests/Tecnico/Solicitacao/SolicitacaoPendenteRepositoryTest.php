@@ -90,4 +90,82 @@ class SolicitacaoPendenteRepositoryTest extends TestCase
 
         $this->assertSame(1, $id);
     }
+
+    /**
+     * @throws Exception
+     * @throws \Exception
+     */
+    public function testGetEnvolvendoMesmosAtletasECategoria(): void
+    {
+        $pdo = $this->createMock(PDO::class);
+        $stmt = $this->createMock(PDOStatement::class);
+
+        $pdo->expects($this->once())
+            ->method('prepare')
+            ->willReturn($stmt);
+
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->willReturn(true);
+
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([
+                [
+                    'id' => '1',
+                    'competicao_id' => '2',
+                    'atleta_origem_id' => '3',
+                    'atleta_destino_id' => '4',
+                    'categoria_id' => '5',
+                    'criado_em' => '2023-06-15 13:45:30.123456',
+                    'alterado_em' => '2023-06-15 13:45:30.123456',
+                    'informacoes' => 'Teste',
+                ],
+                [
+                    'id' => '1',
+                    'competicao_id' => '2',
+                    'atleta_origem_id' => '3',
+                    'atleta_destino_id' => '4',
+                    'categoria_id' => '5',
+                    'criado_em' => '2023-06-15 13:45:30.123456',
+                    'alterado_em' => '2023-06-15 13:45:30.123456',
+                    'informacoes' => 'Teste',
+                ],
+            ]);
+
+        $repo = new SolicitacaoPendenteRepository($pdo);
+
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionMessage('Mais de uma solicitação envolvendo os mesmos atleta e a mesma categoria dentro da mesma competição.');
+        $repo->getEnvolvendo(2, 3, 4, 5);
+    }
+
+    /**
+     * @throws Exception
+     * @throws \Exception
+     */
+    public function testGetEnvolvendoRetornaNull(): void
+    {
+        $pdo = $this->createMock(PDO::class);
+        $stmt = $this->createMock(PDOStatement::class);
+
+        $pdo->expects($this->once())
+            ->method('prepare')
+            ->willReturn($stmt);
+
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->willReturn(true);
+
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([]);
+
+        $repo = new SolicitacaoPendenteRepository($pdo);
+
+        $solicitacao = $repo->getEnvolvendo(2, 3, 4, 5);
+
+        $this->assertNull($solicitacao);
+    }
+
 }
