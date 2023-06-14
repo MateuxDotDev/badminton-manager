@@ -1,22 +1,19 @@
-<?php
+<?php  /** @noinspection PhpClassCanBeReadonlyInspection */
 
 namespace App\Competicoes;
 
 use App\Util\General\Dates;
 use PDO;
 
-readonly class CompeticaoRepository
+class CompeticaoRepository implements CompeticaoRepositoryInterface
 {
-    private PDO $pdo;
-
-    public function __construct(PDO $pdo)
-    {
-        $this->pdo = $pdo;
-    }
+    public function __construct(
+        private readonly PDO $pdo
+    ) {}
 
     public function todasAsCompeticoes(): array
     {
-        $qry = $this->pdo->query("
+        $sql = <<<SQL
             SELECT id,
                    nome,
                    prazo,
@@ -25,9 +22,11 @@ readonly class CompeticaoRepository
                    alterado_em
               FROM competicao
           ORDER BY prazo DESC
-        ");
+        SQL;
+
+        $query = $this->pdo->query($sql);
         $competicoes = [];
-        foreach ($qry as $linha) {
+        foreach ($query as $linha) {
             $competicoes[] = (new Competicao)
                 ->setId((int) $linha['id'])
                 ->setNome($linha['nome'])

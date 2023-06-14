@@ -16,13 +16,13 @@ class TecnicoRepository implements TecnicoRepositoryInterface
     ) {}
 
     /**
-     * Chaves válidas: 'email', 'id'
+     * Chaves válidas: 'email', 'id', 'atleta'
      *
      * @throws Exception
      */
-    public function getViaChave(string $chave, string $valor): ?Tecnico
+    public function getViaChave(string $chave, string $valor, bool $comSenha=false): ?Tecnico
     {
-        if ($chave != 'email' && $chave != 'id') {
+        if (!in_array($chave, ['email', 'id', 'atleta'])) {
             throw new ValidatorException("Chave de técnico '$chave' inválida", HttpStatus::UNAUTHORIZED);
         }
 
@@ -46,9 +46,12 @@ class TecnicoRepository implements TecnicoRepositoryInterface
         if ($chave == 'email') {
             $sql .= ' WHERE email = :email';
             $params = ['email' => $valor];
-        } else {
+        } elseif ($chave == 'id') {
             $sql .= ' WHERE id = :id';
             $params = ['id' => $valor];
+        } else {
+            $sql .= ' WHERE t.id IN (SELECT a.tecnico_id FROM atleta a WHERE a.id = :atleta)';
+            $params = ['atleta' => $valor];
         }
 
         $stmt = $this->pdo->prepare($sql);
@@ -61,9 +64,6 @@ class TecnicoRepository implements TecnicoRepositoryInterface
 
         $row = $rows[0];
 
-        $dataCriacao   = Dates::parseMicro($row['criado_em']);
-        $dataAlteracao = Dates::parseMicro($row['alterado_em']);
-
         $clube = (new Clube)
             ->setId((int) $row['clube_id'])
             ->setNome($row['clube_nome'])
@@ -71,31 +71,44 @@ class TecnicoRepository implements TecnicoRepositoryInterface
 
         $senha = SenhaCriptografada::existente($row['hash_senha'], $row['salt_senha']);
 
-        return (new Tecnico)
+        $tecnico = (new Tecnico)
             ->setId((int) $row['id'])
             ->setEmail($row['email'])
-            ->setSenhaCriptografada($senha)
             ->setNomeCompleto($row['nome_completo'])
             ->setInformacoes($row['informacoes'])
-            ->setDataCriacao($dataCriacao)
-            ->setDataAlteracao($dataAlteracao)
+            ->setDataCriacao(Dates::parseMicro($row['criado_em']))
+            ->setDataAlteracao(Dates::parseMicro($row['alterado_em']))
             ->setClube($clube);
+
+        if ($comSenha) {
+            $tecnico->setSenhaCriptografada($senha);
+        }
+
+        return $tecnico;
     }
 
     /**
      * @throws Exception
      */
-    public function getViaEmail(string $email): ?Tecnico
+    public function getViaAtleta(int $idAtleta): ?Tecnico
     {
-        return $this->getViaChave('email', $email);
+        return $this->getViaChave('atleta', $idAtleta);
     }
 
     /**
      * @throws Exception
      */
-    public function getViaId(int $id): ?Tecnico
+    public function getViaEmail(string $email, bool $comSenha=true): ?Tecnico
     {
-        return $this->getViaChave('id', (string) $id);
+        return $this->getViaChave('email', $email, $comSenha);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getViaId(int $id, bool $comSenha=true): ?Tecnico
+    {
+        return $this->getViaChave('id', $id, $comSenha);
     }
 
     /**

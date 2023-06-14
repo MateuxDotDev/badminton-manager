@@ -2,7 +2,6 @@
 
 namespace App\Mail;
 
-use App\Util\Exceptions\MailException;
 use App\Util\Mail\MailerInterface;
 
 class NovaSolicitacaoMail extends MailTemplate

@@ -2,10 +2,16 @@
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
-use App\Tecnico\Atleta\PesquisaAtleta;
+use App\Competicoes\CompeticaoRepository;
+use App\Notificacao\NotificacaoRepository;
+use App\Competicoes\PesquisaAtletaCompeticao;
 use App\Tecnico\Atleta\Sexo;
+use App\Tecnico\Solicitacao\EnviarSolicitacao;
+use App\Tecnico\Solicitacao\EnviarSolicitacaoDTO;
+use App\Tecnico\Solicitacao\SolicitacaoPendenteRepository;
 use App\Util\Database\Connection;
 use App\Util\Exceptions\ValidatorException;
+use App\Util\General\UserSession;
 use App\Util\Http\Request;
 use App\Util\Http\Response;
 
@@ -25,6 +31,7 @@ function atletaCompeticaoController(): Response
 
     return match ($acao) {
         'pesquisar' => pesquisarAtletas($req),
+        'enviarSolicitacao' => enviarSolicitacao($req),
         default => Response::erro("Ação desconhecida: '$acao'")
     };
 }
@@ -34,9 +41,8 @@ function atletaCompeticaoController(): Response
 function pesquisarAtletas($req): Response
 {
     $pdo   = Connection::getInstance();
-    $dados = PesquisaAtleta::parse($req);
+    $dados = PesquisaAtletaCompeticao::parse($req);
 
-    // TODO fazer como enum também
     $colunaOrdenacao = match($dados->colunaOrdenacao) {
         'nomeAtleta'    => 'a.nome_completo',
         'nomeTecnico'   => 't.nome_completo',
@@ -66,7 +72,15 @@ function pesquisarAtletas($req): Response
     $parametros[] = $dados->idCompeticao;
 
 
-    $pesquisaTermos = function (string $coluna, string $texto) use (&$condicoes, &$parametros): void {
+    $session = UserSession::obj();
+    $tecnico = $session->getTecnico();
+
+    // Não mostrar os atletas do próprio técnico
+    $condicoes[]  = 'a.tecnico_id != ?';
+    $parametros[] = $tecnico->id();
+
+
+    $pesquisarTermos = function (string $coluna, string $texto) use (&$condicoes, &$parametros): void {
         $termos = preg_split('/\s+/', $texto);
         foreach ($termos as $termo) {
             $condicoes[]  = $coluna.' ILIKE ?';
@@ -74,9 +88,9 @@ function pesquisarAtletas($req): Response
         }
     };
 
-    if ($dados->nomeAtleta  != null) $pesquisaTermos('a.nome_completo', $dados->nomeAtleta);
-    if ($dados->nomeTecnico != null) $pesquisaTermos('t.nome_completo', $dados->nomeTecnico);
-    if ($dados->clube       != null) $pesquisaTermos('clu.nome',        $dados->clube);
+    if ($dados->nomeAtleta  != null) $pesquisarTermos('a.nome_completo', $dados->nomeAtleta);
+    if ($dados->nomeTecnico != null) $pesquisarTermos('t.nome_completo', $dados->nomeTecnico);
+    if ($dados->clube       != null) $pesquisarTermos('clu.nome',        $dados->clube);
 
 
     $colunaIdade = 'extract(year from age(a.data_nascimento))';
@@ -106,8 +120,6 @@ function pesquisarAtletas($req): Response
 
 
     $where = implode(' AND ', $condicoes);
-
-    // TODO ainda falta testar [[cada um]] dos filtros + ordenação + paginação
 
 
     $sql = <<<SQL
@@ -181,4 +193,31 @@ function pesquisarAtletas($req): Response
     }
 
     return Response::ok('Busca realizada com sucesso', ['resultados' => $resultados]);
+}
+
+function enviarSolicitacao(array $req): Response
+{
+    $dto = EnviarSolicitacaoDTO::parse($req);
+
+    $pdo = Connection::getInstance();
+
+    $session = UserSession::obj();
+
+    $competicoes  = new CompeticaoRepository($pdo);
+    $solicitacoes = new SolicitacaoPendenteRepository($pdo);
+    $notificacoes = new NotificacaoRepository($pdo);
+
+    try {
+        $pdo->beginTransaction();
+
+        $enviar = new EnviarSolicitacao($pdo, $session, $competicoes, $solicitacoes, $notificacoes);
+        $id = $enviar($dto);
+
+        $pdo->commit();
+        return Response::ok('Solicitação enviada com sucesso', ['id' => $id]);
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+
 }

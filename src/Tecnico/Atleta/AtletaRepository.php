@@ -5,6 +5,7 @@ namespace App\Tecnico\Atleta;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use App\Util\Http\HttpStatus;
+use App\Util\Services\UploadImagemService\UploadImagemService;
 use App\Util\Services\UploadImagemService\UploadImagemServiceInterface;
 use Exception;
 use PDO;
@@ -13,7 +14,7 @@ class AtletaRepository implements AtletaRepositoryInterface
 {
     public function __construct(
         private readonly PDO $pdo,
-        private readonly UploadImagemServiceInterface $uploadImagemService
+        private readonly UploadImagemServiceInterface $uploadImagemService = new UploadImagemService()
     ) {}
 
     /**
@@ -21,16 +22,13 @@ class AtletaRepository implements AtletaRepositoryInterface
      */
     public function criarAtleta(Atleta $atleta): int
     {
-        $pdo = $this->pdo;
-
-        $pdo->beginTransaction();
         try {
             $sql = <<<SQL
                 SELECT id
                   FROM tecnico
                  WHERE id = :id
             SQL;
-            $stmt = $pdo->prepare($sql);
+            $stmt = $this->pdo->prepare($sql);
             $stmt->execute(['id' => $atleta->tecnico()->id()]);
             $rows = $stmt->fetchAll();
             if (count($rows) != 1) {
@@ -59,7 +57,7 @@ class AtletaRepository implements AtletaRepositoryInterface
                 )
             SQL;
 
-            $stmt = $pdo->prepare($sql);
+            $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
                 'tecnico_id' => $atleta->tecnico()->id(),
                 'nome_completo' => $atleta->nomeCompleto(),
@@ -69,28 +67,42 @@ class AtletaRepository implements AtletaRepositoryInterface
                 'path_foto' => $atleta->foto()
             ]);
 
-            $atleta->setId($pdo->lastInsertId());
-            $pdo->commit();
+            $atleta->setId($this->pdo->lastInsertId());
 
             return $atleta->id();
         } catch (Exception $e) {
             $this->uploadImagemService->removerImagem($atleta->foto());
-            $pdo->rollback();
             throw $e;
         }
     }
 
-    public function getViaTecnico(int $tecnicoId): array
+    private function get(array $filtros=[]): array
     {
+        $condicoes  = [];
+        $parametros = [];
+
+        if (array_key_exists('tecnico', $filtros)) {
+            $condicoes[]  = 'tecnico_id = ?';
+            $parametros[] = (int) $filtros['tecnico'];
+        }
+
+        if (array_key_exists('id', $filtros)) {
+            $condicoes[]  = 'id = ?';
+            $parametros[] = (int) $filtros['id'];
+        }
+
+        $where = implode(' AND ', $condicoes);
+
         $sql = <<<SQL
             SELECT id, nome_completo, sexo, data_nascimento, informacoes, path_foto, criado_em, alterado_em
               FROM atleta
              WHERE tecnico_id = :tecnico_id
           ORDER BY nome_completo
+             WHERE $where
         SQL;
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['tecnico_id' => $tecnicoId]);
+        $stmt->execute($parametros);
         $rows = $stmt->fetchAll();
 
         $atletas = [];
@@ -101,9 +113,9 @@ class AtletaRepository implements AtletaRepositoryInterface
                 ->setSexo(Sexo::from($row['sexo']))
                 ->setDataNascimento(Dates::parseDay($row['data_nascimento']))
                 ->setInformacoesAdicionais($row['informacoes'])
+                ->setFoto($row['path_foto'])
                 ->setDataCriacao(Dates::parseMicro($row['criado_em']))
-                ->setDataAlteracao(Dates::parseMicro($row['alterado_em']))
-                ->setFoto($row['path_foto']);
+                ->setDataAlteracao(Dates::parseMicro($row['alterado_em']));
         }
 
         return $atletas;
@@ -146,5 +158,16 @@ class AtletaRepository implements AtletaRepositoryInterface
         ]);
 
         return $stmt->rowCount() === 1;
+    }
+
+    public function getViaTecnico(int $tecnicoId): array
+    {
+        return $this->get(['tecnico' => $tecnicoId]);
+    }
+
+    public function getViaId(int $idAtleta): ?Atleta
+    {
+        $atletas = $this->get(['id' => $idAtleta]);
+        return empty($atletas) ? null : $atletas[0];
     }
 }

@@ -2,14 +2,13 @@
 
 namespace App\Categorias;
 
-use App\Util\Traits\TemId;
-use \DateTimeInterface;
+use DateTimeInterface;
 
 readonly class Categoria
 {
     public function __construct(
-        private int $id,
-        private string $descricao,
+        private ?int $id,
+        private ?string $descricao,
         private ?int $idadeMaiorQue,
         private ?int $idadeMenorQue,
     ) {}
@@ -32,6 +31,16 @@ readonly class Categoria
     public function idadeMenorQue(): ?int
     {
         return $this->idadeMenorQue;
+    }
+
+    public function toJson(): array
+    {
+        return [
+            'id' => $this->id,
+            'descricao' => $this->descricao,
+            'idadeMaiorQue' => $this->idadeMaiorQue,
+            'idadeMenorQue' => $this->idadeMenorQue,
+        ];
     }
 
     public function podeParticipar(

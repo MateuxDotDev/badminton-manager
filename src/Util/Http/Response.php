@@ -52,6 +52,11 @@ class Response
         return $this->code;
     }
 
+    public function dados(): array
+    {
+        return $this->dados;
+    }
+
     public function mensagem(): string
     {
         return $this->mensagem;
@@ -73,9 +78,6 @@ class Response
     {
         http_response_code($this->statusCode()->value);
         header('Content-Type: application/json');
-        die(json_encode(
-            $this->array(),
-            JSON_PRETTY_PRINT
-        ));
+        die(json_encode($this->array()));
     }
 }

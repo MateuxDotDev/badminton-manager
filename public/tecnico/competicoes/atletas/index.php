@@ -1,9 +1,11 @@
 <?php
 
-require __DIR__ . '/../../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../../vendor/autoload.php';
 
 use App\Competicoes\CompeticaoRepository;
 use App\Categorias\CategoriaRepository;
+use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoRepository;
+use App\Tecnico\Atleta\Sexo;
 use App\Util\Database\Connection;
 use App\Util\General\UserSession;
 use App\Util\Template\Template;
@@ -25,6 +27,31 @@ $categoriaRepo  = new CategoriaRepository($pdo);
 $competicao = null;
 if ($idCompeticao != null) {
   $competicao = $competicaoRepo->getViaId($idCompeticao);
+}
+
+$atleta = null;
+if (array_key_exists('atleta', $_GET) && is_int($_GET['atleta'])) {
+  $idAtleta = $_GET['atleta'];
+  $atletaRepo = new AtletaCompeticaoRepository($pdo);
+  $atleta = $atletaRepo->getViaId($idAtleta, $idCompeticao);
+}
+
+function categoriaChecked(int $idCategoria): bool
+{
+  global $atleta;
+  return $atleta == null || in_array($idCategoria, $atleta['categorias']);
+}
+
+function sexoAtletaChecked(Sexo $sexo): bool
+{
+  global $atleta;
+  return $atleta == null || in_array($sexo, $atleta['sexoDuplas']);
+}
+
+function sexoBuscadoChecked(Sexo $sexo): bool
+{
+  global $atleta;
+  return $atleta == null || $sexo == $atleta['sexo'];
 }
 
 if ($competicao == null) {
@@ -52,26 +79,20 @@ $inputsCategorias = [];
 foreach ($categorias as $categoria) {
   $id        = $categoria->id();
   $descricao = $categoria->descricao();
+  $checked   = categoriaChecked($id) ? 'checked' : '';
 
   $inputsCategorias[] = "
     <div class='form-check'>
-      <input checked class='form-check-input input-categoria' type='checkbox' id='categoria-$id' value='$id'>
+      <input $checked class='form-check-input input-categoria' type='checkbox' id='categoria-$id' value='$id'>
       <label for='categoria-$id' class='form-check-label'>$descricao</label>
     </div>
   ";
 }
 
+
 ?>
 
 <style>
-  #btn-marcar-todas-categorias, #btn-desmarcar-todas-categorias {
-    transition: 0.2s ease-in-out;
-    color: var(--bs-primary);
-    opacity: 0.4;
-  }
-  #btn-marcar-todas-categorias:hover, #btn-desmarcar-todas-categorias:hover {
-    opacity: 1.0;
-  }
 </style>
 
 <div class="container">
@@ -118,9 +139,11 @@ foreach ($categorias as $categoria) {
             <label class="form-label">Idade</label>
             <div class="input-group">
               <div class="input-group-text">Entre</div>
-              <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*" id="idade-maior-que"/>
+              <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*"
+                id="idade-maior-que"/>
               <div class="input-group-text">e</div>
-              <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*" id="idade-menor-que"/>
+              <input class="form-control" type="number" min=0 inputmode="numeric" pattern="[0-9]*"
+                id="idade-menor-que"/>
             </div>
           </div>
           <div class="col">
@@ -130,44 +153,31 @@ foreach ($categorias as $categoria) {
         </div>
   
         <div class="row mb-3">
-          <div class="col-12 col-md-6 mb-3 mb-md-0">
-            <span class="form-label d-flex flex-row gap-3 align-items-center">
-              <span>Categorias</span>
-              <button id="btn-marcar-todas-categorias" class="btn btn-link btn-sm" title="Marcar todas">
-                <i class="bi bi-check-square-fill fs-5"></i>
-              </button>
-              <button id="btn-desmarcar-todas-categorias" class="btn btn-link btn-sm" title="Desmarcar todas">
-                <i class="bi bi-x-square fs-5"></i>
-              </button>
-            </span>
-            <div class="d-flex flex-row gap-5">
-              <div>
-                <?= implode('', array_slice($inputsCategorias, 0, 7)) ?>
-              </div>
-              <div>
-                <?= implode('', array_slice($inputsCategorias, 7)) ?>
-              </div>
-            </div>
+          <div class="col-12 col-md-6 mb-3 mb-md-0" id="container-input-categorias">
           </div>
           <div class="col-12 col-md-3 mb-3 mb-md-0">
             <label class="form-label">Sexo</label>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='M' id='sexo-masculino'>
+              <input class='form-check-input input-sexo-atleta' type='checkbox' value='M' id='sexo-masculino'
+                     <?= sexoAtletaChecked(Sexo::from('M')) ? 'checked' : '' ?>>
               <label for='sexo-masculino' class='form-check-label'>Masculino</label>
             </div>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-atleta' type='checkbox' value='F' id='sexo-feminino'>
+              <input class='form-check-input input-sexo-atleta' type='checkbox' value='F' id='sexo-feminino'
+                     <?= sexoAtletaChecked(Sexo::from('F')) ? 'checked' : '' ?>>
               <label for='sexo-feminino' class='form-check-label'>Feminino</label>
             </div>
           </div>
           <div class="col-12 col-md-3 mb-3 mb-md-0">
             <label class="form-label">Buscando dupla</label>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='M' id='dupla-masculina>
+              <input class='form-check-input input-sexo-dupla' type='checkbox' value='M' id='dupla-masculina'
+                     <?= sexoBuscadoChecked(Sexo::from('M')) ? 'checked' : '' ?>>
               <label for='dupla-masculina' class='form-check-label'>Masculina</label>
             </div>
             <div class='form-check'>
-              <input checked class='form-check-input input-sexo-dupla' type='checkbox' value='F' id='dupla-feminina'>
+              <input class='form-check-input input-sexo-dupla' type='checkbox' value='F' id='dupla-feminina'
+                     <?= sexoBuscadoChecked(Sexo::from('F')) ? 'checked' : '' ?>>
               <label for='dupla-feminina' class='form-check-label'>Feminina</label>
             </div>
           </div>
@@ -220,15 +230,52 @@ foreach ($categorias as $categoria) {
 
 </div>
 
-<?php require 'template-atleta.html' ?> 
+
+<div id="modal-enviar-solicitacao" class="modal modal-lg">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Formar dupla</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label>
+            Selecione um atleta para formar dupla com o(a) <strong id="nome-atleta-clicado"></strong>
+          </label>
+          <select id="select-atleta-modal" class="form-control"></select>
+        </div>
+        <div id="container-input-categorias-modal" class="mb-3">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" id="btn-enviar-solicitacao">
+          Enviar solicitação
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<?php require_once 'template-atleta.html' ?>
 
 <?php Template::scripts(); ?>
 
 <script>
 
+let tecnicoEstaLogado = <?= $session->isTecnico() ? 'true' : 'false' ?>;
+
+let inputCategorias = null;
+
+fetchCategorias().then(categorias => {
+  inputCategorias = new InputCategorias(categorias);
+  qs('#container-input-categorias').append(inputCategorias.elemento());
+});
+
+
 const baseUrl = location.origin;
 
-const inputsCategorias = qsa('.input-categoria');
 const btnOrdenacaoTipo = qs('#btn-ordenacao-tipo');
 
 const idCompeticao = <?= $_GET['competicao'] ?>;
@@ -249,18 +296,6 @@ btnOrdenacaoTipo.addEventListener('click', () => {
 
 qs('#btn-limpar').addEventListener('click', limparFiltros);
 
-qs('#btn-marcar-todas-categorias').addEventListener('click', () => {
-  for (const input of inputsCategorias) {
-    input.checked = true;
-  }
-});
-
-qs('#btn-desmarcar-todas-categorias').addEventListener('click', () => {
-  for (const input of inputsCategorias) {
-    input.checked = false;
-  }
-});
-
 qs('#btn-filtrar').addEventListener('click', clicouFiltrar);
 clicouFiltrar();
 
@@ -271,7 +306,7 @@ async function clicouFiltrar() {
   const carregando = qs('#carregando');
   carregando.classList.remove('d-none');
 
-  const {resultados: atletas} = await pesquisarAtletas(filtros);
+  const atletas = await pesquisarAtletas(filtros);
 
   carregando.classList.add('d-none');
 
@@ -291,59 +326,48 @@ async function clicouFiltrar() {
 function criarElementoAtleta(atleta) {
   const elem = templateAtleta.content.firstElementChild.cloneNode(true);
 
-  // Fica melhor com um ícone de info no lado
-  // talvez fazer isso e deixar disponível no utils.js
-  function criarTooltip(elem, title) {
-    title ??= '';
-    if (title.trim().length > 0) {
-      elem.setAttribute('title', title);
-      elem.classList.add('has-tooltip');
-      new bootstrap.Tooltip(elem);
-    }
-  }
-
   {
-    const foto = qse(elem, '.atleta-foto')
+    const foto = eqs(elem, '.atleta-foto')
     foto.src = `/assets/images/profile/${atleta.pathFoto}`;
     foto.alt = `Foto de perfil do atleta '${atleta.nome}'`;
   }
 
   {
-    const nome = qse(elem, '.atleta-nome');
+    const nome = eqs(elem, '.atleta-nome');
     nome.innerText = `${atleta.nome}`;
     nome.append(iconeSexo(atleta.sexo));
   
-    criarTooltip(nome, atleta.informacoes);
+    adicionarTooltip(nome, atleta.informacoes);
   }
 
   {
     const idade = atleta.idade;
     const nascimento = new Date(atleta.dataNascimento);
     const html = `${pluralizar(idade, 'ano', 'anos')} <small>(${dataBr(nascimento)})</small>`;
-    qse(elem, '.atleta-idade-e-nascimento').innerHTML = html;
+    eqs(elem, '.atleta-idade-e-nascimento').innerHTML = html;
   }
 
-  qse(elem, '.atleta-categorias').innerText = (atleta.categorias ?? []).map(cat => cat.descricao).join(', ');
+  eqs(elem, '.atleta-categorias').innerText = (atleta.categorias ?? []).map(cat => cat.descricao).join(', ');
 
   {
-    const buscaDuplas = qse(elem, '.atleta-busca-duplas');
+    const buscaDuplas = eqs(elem, '.atleta-busca-duplas');
     for (const sexo of atleta.sexoDupla) {
       buscaDuplas.append(iconeSexo(sexo));
     }
   }
 
   {
-    const tecnico = qse(elem, '.atleta-tecnico');
+    const tecnico = eqs(elem, '.atleta-tecnico');
     tecnico.innerText = atleta.tecnico.nome;
 
-    criarTooltip(tecnico, atleta.tecnico.informacoes);
+    adicionarTooltip(tecnico, atleta.tecnico.informacoes);
   }
 
-  qse(elem, '.atleta-clube').innerText = atleta.tecnico.clube.nome;
+  eqs(elem, '.atleta-clube').innerText = atleta.tecnico.clube.nome;
 
   {
-    const containerInformacoes = qse(elem, '.atleta-container-informacoes');
-    const elementoInformacoes  = qse(elem, '.atleta-informacoes');
+    const containerInformacoes = eqs(elem, '.atleta-container-informacoes');
+    const elementoInformacoes  = eqs(elem, '.atleta-informacoes');
 
     const informacoes = atleta.informacoesCompeticao.trim();
     if (informacoes.length == 0) {
@@ -353,8 +377,15 @@ function criarElementoAtleta(atleta) {
     }
   }
 
+  {
+    const formarDupla = eqs(elem, '.atleta-link-formar-dupla');
+    const link = `/tecnico/competicoes/atletas/formar_dupla.php?atleta=${atleta.id}&competicao=${idCompeticao}`;
+    formarDupla.setAttribute('href', link);
+  }
+
   return elem;
 }
+
 
 function getFiltros() {
   const filtros = {};
@@ -379,7 +410,8 @@ function getFiltros() {
   addFiltroText('idadeMaiorQue', qs('#idade-maior-que'));
   addFiltroText('idadeMenorQue', qs('#idade-menor-que'));
 
-  addFiltroCheckbox('categorias', Array.from(qsa('.input-categoria')));
+  filtros.categorias = inputCategorias?.marcadas ?? [];
+
   addFiltroCheckbox('sexoAtleta', Array.from(qsa('.input-sexo-atleta')));
   addFiltroCheckbox('sexoDupla', Array.from(qsa('.input-sexo-dupla')));
 
@@ -412,12 +444,14 @@ async function pesquisarAtletas(filtros) {
   const text     = await response.text();
 
   try {
-    return JSON.parse(text);
+    const retorno = JSON.parse(text);
+    return retorno.resultados ?? [];
   } catch (err) {
     console.error('text', text);
     console.error('err', err);
   }
 }
+
 
 function limparFiltros() {
   qs('#nome-atleta').value = '';

@@ -2,9 +2,9 @@
 
 namespace Tests\Categorias;
 
-use PHPUnit\Framework\TestCase;
 use App\Categorias\Categoria;
 use DateTime;
+use PHPUnit\Framework\TestCase;
 
 class CategoriaTest extends TestCase
 {
@@ -34,5 +34,17 @@ class CategoriaTest extends TestCase
         $dataNascimento = new DateTime('2026-01-01');
 
         $this->assertFalse($categoria->podeParticipar($dataNascimento, $dataCompeticao));
+    }
+
+    public function testToJson(): void
+    {
+        $categoria = new Categoria(1, 'Categoria Teste', 10, 20);
+
+        $this->assertSame([
+            'id' => 1,
+            'descricao' => 'Categoria Teste',
+            'idadeMaiorQue' => 10,
+            'idadeMenorQue' => 20,
+        ], $categoria->toJson());
     }
 }

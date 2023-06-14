@@ -1,48 +1,69 @@
 <?php
 
-namespace Tests\Unit\App\Categorias;
+namespace Tests\Categorias;
 
-use PHPUnit\Framework\MockObject\Exception;
-use PHPUnit\Framework\TestCase;
+use App\Categorias\Categoria;
 use App\Categorias\CategoriaRepository;
 use PDO;
 use PDOStatement;
+use PHPUnit\Framework\TestCase;
 
 class CategoriaRepositoryTest extends TestCase
 {
-    /**
-     * @throws Exception
-     */
+    private PDO $pdo;
+    private PDOStatement $stmt;
+    private CategoriaRepository $repository;
+
+    protected function setUp(): void
+    {
+        $this->pdo = $this->createMock(PDO::class);
+        $this->stmt = $this->createMock(PDOStatement::class);
+        $this->repository = new CategoriaRepository($this->pdo);
+    }
+
     public function testBuscarCategorias(): void
     {
-        $stmt = $this->createMock(PDOStatement::class);
+        $categoriasEsperadas = [
+            new Categoria(1, 'Categoria 1', 15, 20),
+            new Categoria(2, 'Categoria 2', 20, 30)
+        ];
 
-        $stmt->expects($this->once())
+        $this->pdo
+            ->expects($this->once())
+            ->method('query')
+            ->willReturn($this->stmt);
+
+        $this->stmt
+            ->expects($this->once())
             ->method('fetchAll')
             ->willReturn([
-                [
-                    'id' => 1,
-                    'descricao' => 'Categoria Teste',
-                    'idade_maior_que' => 10,
-                    'idade_menor_que' => 20,
-                ],
+                ['id' => 1, 'descricao' => 'Categoria 1', 'idade_maior_que' => 15, 'idade_menor_que' => 20],
+                ['id' => 2, 'descricao' => 'Categoria 2', 'idade_maior_que' => 20, 'idade_menor_que' => 30]
             ]);
 
-        $pdo = $this->createMock(PDO::class);
+        $categorias = $this->repository->buscarCategorias();
 
-        $pdo->expects($this->once())
+        $this->assertEquals($categoriasEsperadas, $categorias);
+    }
+
+    public function testGetCategoriaById(): void
+    {
+        $categoriaEsperada = new Categoria(1, 'Categoria 1', 15, 20);
+
+        $this->pdo
+            ->expects($this->once())
             ->method('query')
-            ->with($this->isType('string'))
-            ->willReturn($stmt);
+            ->willReturn($this->stmt);
 
-        $repository = new CategoriaRepository($pdo);
-        $categorias = $repository->buscarCategorias();
+        $this->stmt
+            ->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([
+                ['id' => 1, 'descricao' => 'Categoria 1', 'idade_maior_que' => 15, 'idade_menor_que' => 20]
+            ]);
 
-        $this->assertCount(1, $categorias);
+        $categoria = $this->repository->getCategoriaById(1);
 
-        $this->assertSame(1, $categorias[0]->id());
-        $this->assertSame('Categoria Teste', $categorias[0]->descricao());
-        $this->assertSame(10, $categorias[0]->idadeMaiorQue());
-        $this->assertSame(20, $categorias[0]->idadeMenorQue());
+        $this->assertEquals($categoriaEsperada, $categoria);
     }
 }

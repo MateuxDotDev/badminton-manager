@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Tecnico\Atleta;
+namespace App\Competicoes;
 
+use App\Tecnico\Atleta\Sexo;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Ordenacao;
 
-readonly class PesquisaAtleta
+readonly class PesquisaAtletaCompeticao
 {
     public function __construct(
         public int $idCompeticao,
@@ -24,7 +25,7 @@ readonly class PesquisaAtleta
     /**
      * @throws ValidatorException
      */
-    public static function parse(array $req): PesquisaAtleta
+    public static function parse(array $req): PesquisaAtletaCompeticao
     {
         if (!array_key_exists('idCompeticao', $req)) {
             throw new ValidatorException('É obrigatório informar a competição que está sendo pesquisada');

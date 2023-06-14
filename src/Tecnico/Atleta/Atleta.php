@@ -7,7 +7,6 @@ use App\Util\General\Dates;
 use App\Util\Traits\TemDataAlteracao;
 use App\Util\Traits\TemDataCriacao;
 use App\Util\Traits\TemId;
-use DateTime;
 use DateTimeInterface;
 
 class Atleta
@@ -87,6 +86,11 @@ class Atleta
         return $this->foto;
     }
 
+    public function idade(): int
+    {
+        return Dates::age($this->dataNascimento());
+    }
+
     public function toJson(): array
     {
         return [
@@ -96,7 +100,7 @@ class Atleta
             'dataNascimento' => $this->dataNascimento()->format('d/m/Y'),
             'informacoesAdicionais' => $this->informacoesAdicionais(),
             'foto' => $this->foto(),
-            'idade' => Dates::age($this->dataNascimento()),
+            'idade' => $this->idade(),
             'dataCriacao' => Dates::formatBr($this->dataCriacao()),
             'dataAlteracao' => Dates::formatBr($this->dataAlteracao())
         ];
