@@ -24,7 +24,9 @@ try {
     Response::erroException($e)->enviar();
 }
 
-
+/**
+ * @throws ValidatorException
+ */
 function atletaCompeticaoController(): Response
 {
     $acao = $_POST['acao'] ?? 'Ação não informada';
@@ -35,12 +37,15 @@ function atletaCompeticaoController(): Response
     };
 }
 
+/**
+ * @throws ValidatorException
+ */
 function realizarCadastro($pdo) : Response
 {
     if ($_POST['userChoice']) {
         return $_POST['userChoice'] == 1
-            ? realizarCadastroAtletaSelecionado($pdo)
-            : realizarCadastroComNovoAtleta($pdo);
+             ? realizarCadastroAtletaSelecionado($pdo)
+             : realizarCadastroComNovoAtleta($pdo);
     }
 
     return Response::erro(
@@ -49,6 +54,9 @@ function realizarCadastro($pdo) : Response
     );
 }
 
+/**
+ * @throws ValidatorException
+ */
 function realizarCadastroAtletaSelecionado($pdo): Response
 {
     $atleta     = getAtletaSelecionadoValidado($pdo);
@@ -60,7 +68,7 @@ function realizarCadastroAtletaSelecionado($pdo): Response
         ->setCompeticao($competicao)
         ->addCategoria(...getAtletaCategoria($pdo, $atleta, $competicao))
         ->addSexoDupla(...getSexoDuplaValidado())
-    ;
+        ;
 
     try {
         $pdo->beginTransaction();
@@ -79,6 +87,9 @@ function realizarCadastroAtletaSelecionado($pdo): Response
     }
 }
 
+/**
+ * @throws ValidatorException
+ */
 function realizarCadastroComNovoAtleta($pdo): Response
 {
     $atleta     = validaAtleta();
@@ -89,7 +100,7 @@ function realizarCadastroComNovoAtleta($pdo): Response
         ->setCompeticao($competicao)
         ->addCategoria(...getAtletaCategoria($pdo, $atleta, $competicao))
         ->addSexoDupla(...getSexoDuplaValidado())
-    ;
+        ;
 
     try {
         $pdo->beginTransaction();
@@ -97,17 +108,20 @@ function realizarCadastroComNovoAtleta($pdo): Response
         if ($response->statusCode() == HttpStatus::OK) {
             $response = cadastrarAtletaCompeticao($pdo, $atletaCompeticao);
             $pdo->commit();
-            return $response;
         } else {
             $pdo->rollback();
-            return $response;
         }
+        return $response;
     } catch (Exception $e) {
         $pdo->rollback();
         return Response::erroException($e);
     }
 }
 
+/**
+ * @throws ValidatorException
+ * @throws Exception
+ */
 function cadastrarNovoAtleta($pdo, Atleta $atleta): Response
 {
     $imagemService = new UploadImagemService();
@@ -140,7 +154,7 @@ function cadastrarAtletaCompeticao(PDO $pdo, AtletaCompeticao $dados): Response
 function getCompeticao(PDO $pdo): ?Competicao
 {
     $repo = new CompeticaoRepository($pdo);
-    return $repo->buscarCompeticao($_POST['competicao']);
+    return $repo->getViaId($_POST['competicao']);
 }
 
 function getAtletaSelecionadoValidado(PDO $pdo): ?Atleta
@@ -208,13 +222,14 @@ function getSexoDuplaFormulario(): array
             $sexoDupla[] = Sexo::FEMININO;
         }
     }
+
     return $sexoDupla;
 }
 
 function getAtletaById(PDO $pdo, int $idAtleta): ?Atleta
 {
     $repo = new AtletaRepository($pdo, new UploadImagemService());
-    return $repo->getAtletaViaId($idAtleta);
+    return $repo->getViaId($idAtleta);
 }
 
 /**

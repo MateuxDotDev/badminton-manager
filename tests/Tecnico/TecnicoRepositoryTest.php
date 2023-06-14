@@ -136,6 +136,9 @@ class TecnicoRepositoryTest extends TestCase
         $this->assertNull($tecnico);
     }
 
+    /**
+     * @throws \PHPUnit\Framework\MockObject\Exception
+     */
     public function testCriarTecnico()
     {
         $senha = SenhaCriptografada::existente('hashed_password', 'salt');
@@ -185,6 +188,9 @@ class TecnicoRepositoryTest extends TestCase
         }
     }
 
+    /**
+     * @throws \PHPUnit\Framework\MockObject\Exception
+     */
     public function testCriarTecnicoComNovoClube()
     {
         $senha = SenhaCriptografada::existente('hashed_password', 'salt');
@@ -279,5 +285,47 @@ class TecnicoRepositoryTest extends TestCase
         $this->expectException(Exception::class);
 
         $this->tecnicoRepository->criarTecnico($tecnico, $nomeClube);
+    }
+
+    /**
+     * @throws \PHPUnit\Framework\MockObject\Exception
+     * @throws Exception
+     */
+    public function testGetViaAtleta(): void
+    {
+        $idAtleta = 1;
+
+        $stmtMock = $this->createMock(PDOStatement::class);
+        $this->pdoMock
+            ->expects($this->once())
+            ->method('prepare')
+            ->willReturn($stmtMock);
+
+        $stmtMock
+            ->expects($this->once())
+            ->method('execute')
+            ->with(['atleta' => $idAtleta]);
+
+        $row = [
+            'id' => 1,
+            'email' => 'john@example.com',
+            'nome_completo' => 'John Doe',
+            'informacoes' => 'Informações sobre o técnico',
+            'hash_senha' => 'hashed_password',
+            'salt_senha' => 'salt',
+            'clube_id' => 1,
+            'clube_nome' => 'Clube A',
+            'clube_criado_em' => '2021-01-01 00:00:00.000000',
+            'criado_em' => '2021-01-01 00:00:00.000000',
+            'alterado_em' => '2021-01-01 00:00:00.000000'
+        ];
+
+        $stmtMock->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([$row]);
+
+        $tecnico = $this->tecnicoRepository->getViaAtleta($idAtleta);
+
+        $this->assertEquals($row['id'], $tecnico->id());
     }
 }

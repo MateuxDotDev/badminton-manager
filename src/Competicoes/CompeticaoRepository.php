@@ -1,18 +1,15 @@
-<?php
+<?php  /** @noinspection PhpClassCanBeReadonlyInspection */
 
 namespace App\Competicoes;
 
 use App\Util\General\Dates;
 use PDO;
 
-readonly class CompeticaoRepository
+class CompeticaoRepository implements CompeticaoRepositoryInterface
 {
-    private PDO $pdo;
-
-    public function __construct(PDO $pdo)
-    {
-        $this->pdo = $pdo;
-    }
+    public function __construct(
+        private readonly PDO $pdo
+    ) {}
 
     public function todasAsCompeticoes(): array
     {
@@ -40,32 +37,6 @@ readonly class CompeticaoRepository
                 ;
         }
         return $competicoes;
-    }
-
-    public function buscarCompeticao(int $id) : Competicao
-    {
-        $competicao = new Competicao();
-        $qry = $this->pdo->query("
-            SELECT id,
-                   nome,
-                   prazo,
-                   descricao,
-                   criado_em,
-                   alterado_em
-              FROM competicao
-             WHERE id = $id
-        ");
-        
-        foreach ($qry as $linha) {
-            $competicao->setId((int) $linha['id']);
-            $competicao->setNome($linha['nome']);
-            $competicao->setDescricao($linha['descricao']);
-            $competicao->setPrazo(Dates::parseDay($linha['prazo']));
-            $competicao->setDataAlteracao(Dates::parseMicro($linha['alterado_em']));
-            $competicao->setDataCriacao(Dates::parseMicro($linha['criado_em']));
-        }
-
-        return $competicao;
     }
 
     public function competicoesAbertas(): array

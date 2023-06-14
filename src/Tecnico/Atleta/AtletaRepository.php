@@ -78,16 +78,31 @@ class AtletaRepository implements AtletaRepositoryInterface
         }
     }
 
-    public function getViaTecnico(int $tecnicoId): array
+    private function get(array $filtros=[]): array
     {
+        $condicoes  = [];
+        $parametros = [];
+
+        if (array_key_exists('tecnico', $filtros)) {
+            $condicoes[]  = 'tecnico_id = ?';
+            $parametros[] = (int) $filtros['tecnico'];
+        }
+
+        if (array_key_exists('id', $filtros)) {
+            $condicoes[]  = 'id = ?';
+            $parametros[] = (int) $filtros['id'];
+        }
+
+        $where = implode(' AND ', $condicoes);
+
         $sql = <<<SQL
             SELECT id, nome_completo, sexo, data_nascimento, informacoes, path_foto, criado_em, alterado_em
               FROM atleta
-             WHERE tecnico_id = :tecnico_id
+             WHERE $where
         SQL;
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['tecnico_id' => $tecnicoId]);
+        $stmt->execute($parametros);
         $rows = $stmt->fetchAll();
 
         $atletas = [];
@@ -98,39 +113,22 @@ class AtletaRepository implements AtletaRepositoryInterface
                 ->setSexo(Sexo::from($row['sexo']))
                 ->setDataNascimento(Dates::parseDay($row['data_nascimento']))
                 ->setInformacoesAdicionais($row['informacoes'])
+                ->setFoto($row['path_foto'])
                 ->setDataCriacao(Dates::parseMicro($row['criado_em']))
-                ->setDataAlteracao(Dates::parseMicro($row['alterado_em']))
-                ->setFoto($row['path_foto']);
+                ->setDataAlteracao(Dates::parseMicro($row['alterado_em']));
         }
 
         return $atletas;
     }
 
-    public function getAtletaViaId(int $id): ?Atleta
+    public function getViaTecnico(int $tecnicoId): array
     {
-        $sql = <<<SQL
-            SELECT id, nome_completo, sexo, data_nascimento, informacoes, path_foto, criado_em, alterado_em
-              FROM atleta
-             WHERE id = :id
-        SQL;
+        return $this->get(['tecnico' => $tecnicoId]);
+    }
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['id' => $id]);
-        $rows = $stmt->fetchAll();
-
-        $atleta = null;
-        foreach ($rows as $row) {
-            $atleta = (new Atleta())
-                ->setId($row['id'])
-                ->setNomeCompleto($row['nome_completo'])
-                ->setSexo(Sexo::from($row['sexo']))
-                ->setDataNascimento(Dates::parseDay($row['data_nascimento']))
-                ->setInformacoesAdicionais($row['informacoes'])
-                ->setDataCriacao(Dates::parseMicro($row['criado_em']))
-                ->setDataAlteracao(Dates::parseMicro($row['alterado_em']))
-                ->setFoto($row['path_foto']);
-        }
-
-        return $atleta;
+    public function getViaId(int $idAtleta): ?Atleta
+    {
+        $atletas = $this->get(['id' => $idAtleta]);
+        return empty($atletas) ? null : $atletas[0];
     }
 }

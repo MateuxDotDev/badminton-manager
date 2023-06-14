@@ -56,7 +56,7 @@ function throttle(t, f) {
 /**
  * Shortcut for document.querySelector
  * 
- * @param {string} s query
+ * @param {string} s
  * @returns {Element|null}
  */
 function qs(s) {
@@ -66,7 +66,7 @@ function qs(s) {
 /**
  * Shortcut for document.querySelectorAll
  * 
- * @param {string} s 
+ * @param {string} s
  * @returns {NodeList}
  */
 function qsa(s) {
@@ -82,9 +82,23 @@ function qsa(s) {
  * 
  * @returns {Element|null}
  */
-function qse(e, s) {
+function eqs(e, s) {
     return e.querySelector(s);
 }
+
+
+/**
+ * Shortcut for element.querySelectorAll
+ *
+ * @param {HTMLElement} e
+ * @param {string} s
+ *
+ * @returns {NodeList}
+ */
+function eqsa(e, s) {
+    return e.querySelectorAll(s);
+}
+
 
 /**
  * Retorna ícone representando o sexo masculino
@@ -159,14 +173,58 @@ function esvaziar(e) {
 }
 
 /**
+ * Retorna a interseção entre dois arrays, com função
+ * de comparação customizável.
+ */
+function intersectArrays(a, b, fn=null) {
+    fn ??= (x, y) => x === y;
+    return a.filter(x => b.some(y => fn(x, y)))
+}
+
+/**
+ * Quebra um array em chunks de tamanho n
+ * @param {Array} a
+ * @param {number} n
+ * @returns {Array}
+ */
+function arrayIntoChunks(a, n) {
+    const ret = [];
+    for (let i = 0; i < a.length; i += n) {
+        ret.push(a.slice(i, i+n));
+    }
+    return ret;
+}
+
+/**
+ * Busca as lista de categorias disponíveis
+ */
+async function fetchCategorias() {
+    const emCache = localStorage.getItem("categorias");
+    if (emCache) return JSON.parse(emCache);
+
+    const response = await fetch('/categorias.php');
+    const text = await response.text();
+
+    let categorias = [];
+    try {
+        categorias = JSON.parse(text);
+        localStorage.setItem("categorias", JSON.stringify(categorias));
+    } catch (err) {
+        console.error('Erro ao buscar a lista de categorias: ', { text, err });
+    }
+
+    return categorias;
+}
+
+/**
  * @param {HTMLElement} elemento
  * @param {string} texto
- * 
+ *
  * @returns {void}
  */
 function adicionarTooltip(elemento, texto) {
     texto = (texto ?? '').trim();
-    if (texto.length == 0) return;
+    if (texto.length === 0) return;
     elemento.setAttribute('title', texto);
     elemento.style.textDecoration = 'underline dotted 1px';
     new bootstrap.Tooltip(elemento);

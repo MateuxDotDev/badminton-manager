@@ -237,23 +237,30 @@ class CompeticaoRepositoryTest extends TestCase
     {
         $pdo = $this->createMock(PDO::class);
         $stmt = $this->createMock(PDOStatement::class);
-        $pdo->method('query')
+        $pdo->expects($this->once())
+            ->method('prepare')
             ->willReturn($stmt);
 
-        $data = [
-            'id' => '1',
-            'nome' => 'Competicao 1',
-            'descricao' => 'Descrição da Competição 1',
-            'prazo' => '2023-01-01',
-            'criado_em' => '2022-12-12 01:01:01.123456',
-            'alterado_em' => '2023-12-12 02:02:03.121233'
-        ];
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->with(['id' => 1])
+            ->willReturn(true);
 
-        $stmt->method('getIterator')
-            ->willReturn(new ArrayIterator([$data]));
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([
+                [
+                    'id' => '1',
+                    'nome' => 'Competicao 1',
+                    'descricao' => 'Descrição da Competição 1',
+                    'prazo' => '2023-01-01',
+                    'criado_em' => '2022-12-12 01:01:01.123456',
+                    'alterado_em' => '2023-12-12 02:02:03.121233'
+                ]
+            ]);
 
         $repo = new CompeticaoRepository($pdo);
-        $competicao = $repo->buscarCompeticao(1);
+        $competicao = $repo->getViaId(1);
 
         $this->assertInstanceOf(Competicao::class, $competicao);
         $this->assertEquals(1, $competicao->id());

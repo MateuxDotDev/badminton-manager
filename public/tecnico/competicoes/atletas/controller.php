@@ -2,8 +2,13 @@
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
-use App\Tecnico\Atleta\PesquisaAtleta;
+use App\Competicoes\CompeticaoRepository;
+use App\Notificacao\NotificacaoRepository;
+use App\Competicoes\PesquisaAtletaCompeticao;
 use App\Tecnico\Atleta\Sexo;
+use App\Tecnico\Solicitacao\EnviarSolicitacao;
+use App\Tecnico\Solicitacao\EnviarSolicitacaoDTO;
+use App\Tecnico\Solicitacao\SolicitacaoPendenteRepository;
 use App\Util\Database\Connection;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
@@ -26,6 +31,7 @@ function atletaCompeticaoController(): Response
 
     return match ($acao) {
         'pesquisar' => pesquisarAtletas($req),
+        'enviarSolicitacao' => enviarSolicitacao($req),
         default => Response::erro("Ação desconhecida: '$acao'")
     };
 }
@@ -35,7 +41,7 @@ function atletaCompeticaoController(): Response
 function pesquisarAtletas($req): Response
 {
     $pdo   = Connection::getInstance();
-    $dados = PesquisaAtleta::parse($req);
+    $dados = PesquisaAtletaCompeticao::parse($req);
 
     $colunaOrdenacao = match($dados->colunaOrdenacao) {
         'nomeAtleta'    => 'a.nome_completo',
@@ -187,4 +193,31 @@ function pesquisarAtletas($req): Response
     }
 
     return Response::ok('Busca realizada com sucesso', ['resultados' => $resultados]);
+}
+
+function enviarSolicitacao(array $req): Response
+{
+    $dto = EnviarSolicitacaoDTO::parse($req);
+
+    $pdo = Connection::getInstance();
+
+    $session = UserSession::obj();
+
+    $competicoes  = new CompeticaoRepository($pdo);
+    $solicitacoes = new SolicitacaoPendenteRepository($pdo);
+    $notificacoes = new NotificacaoRepository($pdo);
+
+    try {
+        $pdo->beginTransaction();
+
+        $enviar = new EnviarSolicitacao($pdo, $session, $competicoes, $solicitacoes, $notificacoes);
+        $id = $enviar($dto);
+
+        $pdo->commit();
+        return Response::ok('Solicitação enviada com sucesso', ['id' => $id]);
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+
 }

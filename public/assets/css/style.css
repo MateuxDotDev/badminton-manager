@@ -39,3 +39,17 @@ pre.sf-dump {
     object-position: center;
     border: 2px solid var(--bs-success);
 }
+
+.has-tooltip {
+    text-decoration: underline dotted 1px;
+}
+
+.cat-btn-marcar-todas, .cat-btn-desmarcar-todas {
+    transition: 0.2s ease-in-out;
+    color: var(--bs-primary);
+    opacity: 0.4;
+}
+
+.cat-btn-marcar-todas:hover, .cat-btn-marcar-todasias:hover {
+    opacity: 1.0;
+}
