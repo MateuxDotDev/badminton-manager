@@ -133,9 +133,7 @@ readonly class EnviarSolicitacao
 
         $existente = $solicitacoes->getEnvolvendo($competicao->id(), $idRemetente, $idDestinatario, $idCategoria);
         if ($existente != null) {
-            throw new ValidatorException(
-                'Já existe uma solicitação pendente envolvendo esses atletas e essa categoria na competição'
-            );
+            throw new ValidatorException('Essa solicitação já foi enviada');
         }
 
         // TODO (em task futura): Validar se esses atletas realmente ainda precisam de dupla
