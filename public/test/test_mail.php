@@ -5,6 +5,8 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use App\Mail\InclusaoCompeticaoMail;
 use App\Token\TokenRepository;
 use App\Util\Database\Connection;
+use App\Util\Exceptions\ResponseException;
+use App\Util\Exceptions\ValidatorException;
 use App\Util\Mail\Mailer;
 use App\Util\Exceptions\MailException;
 use App\Util\Services\TokenService\TokenService;
@@ -21,7 +23,7 @@ try {
         1,
         2,
         [
-            'acao' => 'alterar',
+            'acao' => 'alterarAtleta',
             'tecnico' => [
                 'id' => 1,
                 'nome' => 'Mateus Lucas',
@@ -33,7 +35,7 @@ try {
         1,
         2,
         [
-            'acao' => 'remover',
+            'acao' => 'removerAtleta',
             'tecnico' => [
                 'id' => 1,
                 'nome' => 'Mateus Lucas',
@@ -59,6 +61,6 @@ try {
     ]);
 
     echo $mail->send() ? 'Email enviado com sucesso!' : 'Email não enviado!';
-} catch (MailException $e) {
+} catch (MailException|ResponseException|ValidatorException $e) {
     echo $e;
 }

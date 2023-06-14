@@ -12,27 +12,25 @@ use App\Util\Http\Request;
 use App\Util\Http\Response;
 use App\Util\Services\TokenService\TokenService;
 use App\Util\Services\UploadImagemService\UploadImagemService;
-use stdClass;
 
 try {
     $decodedToken = null;
     $session = UserSession::obj();
     $reqToken = Request::getJson()['token'] ?? null;
 
-    if ($session->getTecnico() === null && $reqToken === null) {
+    if (!$session->isTecnico() && $reqToken === null) {
         Response::erroNaoAutorizado()->enviar();
     }
 
-    if ($session->getTecnico() !== null) {
-        $idTecnico = $session->getTecnico()->id();
-    } else {
+    if (!$session->isTecnico()) {
         $tokenRepo = new TokenRepository(Connection::getInstance(), new TokenService());
         $decodedToken = $tokenRepo->consumeToken($reqToken);
-        if (empty($decodedToken->acao) || !in_array($decodedToken->acao, ['alterar', 'remover'])) {
+        if (empty($decodedToken->acao) || !in_array($decodedToken->acao, ['alterarAtleta', 'removerAtleta'])) {
             Response::erroNaoAutorizado()->enviar();
         }
     }
-    atletasController($session, $token)->enviar();
+
+    atletasController($session, $reqToken)->enviar();
 } catch (Exception $e) {
     Response::erroException($e)->enviar();
 }
@@ -40,7 +38,12 @@ try {
 function atletasController(?UserSession $session, ?stdClass $token): Response
 {
     try {
-        $req = Request::getJson();
+        $req = $_POST;
+
+        if (!array_key_exists('acao', $req)) {
+            return Response::erro('Ação não informada');
+        }
+
         $acao = $req['acao'] ?? 'Ação não informada';
         return match ($acao) {
             'alterar' => alterarAtleta($req, $session, $token),
@@ -58,7 +61,7 @@ function atletasController(?UserSession $session, ?stdClass $token): Response
  */
 function alterarAtleta(array $req, ?UserSession $session, ?stdClass $token): Response
 {
-    if ($session === null && $token->acao !== 'alterar') {
+    if ($session === null && $token->acao !== 'alterarAtleta') {
         Response::erroNaoAutorizado()->enviar();
     }
     Request::camposRequeridos($req, ['id', 'fotoPerfil']);
@@ -86,7 +89,7 @@ function alterarAtleta(array $req, ?UserSession $session, ?stdClass $token): Res
  */
 function removerAtleta(array $req, ?UserSession $session, ?stdClass $token): Response
 {
-    if ($session === null && $token->acao !== 'remover') {
+    if ($session === null && $token->acao !== 'removerAtleta') {
         Response::erroNaoAutorizado()->enviar();
     }
 

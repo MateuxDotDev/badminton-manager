@@ -12,7 +12,7 @@ use App\Util\Services\UploadImagemService\UploadImagemService;
 
 $session = UserSession::obj();
 
-if ($session->getTecnico() === null) {
+if (!$session->isTecnico()) {
     Response::erroNaoAutorizado()->enviar();
 }
 

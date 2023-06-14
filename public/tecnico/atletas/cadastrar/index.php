@@ -8,7 +8,7 @@ use App\Util\Template\Template;
 
 $session = UserSession::obj();
 
-if ($session->getTecnico() === null) {
+if (!$session->isTecnico()) {
     Response::erroNaoAutorizado()->enviar();
 }
 
