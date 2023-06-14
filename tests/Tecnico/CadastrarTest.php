@@ -2,12 +2,11 @@
 
 use App\Tecnico\Conta\Cadastrar;
 use App\Tecnico\Conta\CadastroDTO;
-use App\Util\General\Dates;
-use App\Tecnico\Clube;
 use App\Tecnico\Tecnico;
 use App\Tecnico\TecnicoRepositoryArray;
-use PHPUnit\Framework\TestCase;
 use App\Util\Exceptions\ValidatorException;
+use App\Util\General\Dates;
+use PHPUnit\Framework\TestCase;
 
 class CadastrarTest extends TestCase
 {

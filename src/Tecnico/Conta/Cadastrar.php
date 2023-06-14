@@ -2,13 +2,12 @@
 
 namespace App\Tecnico\Conta;
 
-use App\Util\Http\HttpStatus;
-use App\Tecnico\TecnicoRepositoryInterface;
 use App\Tecnico\Tecnico;
-use App\Tecnico\Clube;
+use App\Tecnico\TecnicoRepositoryInterface;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\SenhaCriptografada;
-use \Exception;
+use App\Util\Http\HttpStatus;
+use Exception;
 
 readonly class Cadastrar
 {

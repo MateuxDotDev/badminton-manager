@@ -21,7 +21,6 @@ const filterByMultipleKeys = (array, keys, value) => {
     });
 }
 
-
 /**
  * Creates a timeout that will be cleared if the function is called again
  *
@@ -36,7 +35,6 @@ function debounce(t, f) {
         timeout = setTimeout(f, t, ...args)
     }
 }
-
 
 /**
  * Slows down the execution of a function
@@ -55,7 +53,6 @@ function throttle(t, f) {
     }
 }
 
-
 /**
  * Shortcut for document.querySelector
  * 
@@ -65,7 +62,6 @@ function throttle(t, f) {
 function qs(s) {
     return document.querySelector(s);
 }
-
 
 /**
  * Shortcut for document.querySelectorAll
@@ -93,10 +89,10 @@ function eqs(e, s) {
 
 /**
  * Shortcut for element.querySelectorAll
- * 
+ *
  * @param {HTMLElement} e
  * @param {string} s
- * 
+ *
  * @returns {NodeList}
  */
 function eqsa(e, s) {
@@ -129,7 +125,6 @@ function iconeFeminino() {
     return i;
 }
 
-
 /**
  * Retorna ícone representando o sexo (caractere 'M' ou 'F') informado
  * 
@@ -142,7 +137,6 @@ function iconeSexo(sexo) {
     if (sexo == 'F') return iconeFeminino();
     return null;
 }
-
 
 /**
  * Formata data no padrão brasileiro
@@ -158,7 +152,6 @@ function dataBr(date) {
     return `${dia}/${mes}/${ano}`;
 }
 
-
 /**
  * Retorna string em singular ou plural dependendo da quantidade
  * 
@@ -170,7 +163,6 @@ function pluralizar(qtd, singular, plural) {
     return qtd == 1 ? `${qtd} ${singular}` : `${qtd} ${plural}`;
 }
 
-
 /**
  * Remove todos os elementos filhos
  * 
@@ -180,7 +172,6 @@ function esvaziar(e) {
     while (e.firstChild) e.firstChild.remove();
 }
 
-
 /**
  * Retorna a interseção entre dois arrays, com função
  * de comparação customizável.
@@ -189,7 +180,6 @@ function intersectArrays(a, b, fn=null) {
     fn ??= (x, y) => x === y;
     return a.filter(x => b.some(y => fn(x, y)))
 }
-
 
 /**
  * Quebra um array em chunks de tamanho n
@@ -204,7 +194,6 @@ function arrayIntoChunks(a, n) {
     }
     return ret;
 }
-
 
 /**
  * Busca as lista de categorias disponíveis
@@ -225,4 +214,18 @@ async function fetchCategorias() {
     }
 
     return categorias;
+}
+
+/**
+ * @param {HTMLElement} elemento
+ * @param {string} texto
+ *
+ * @returns {void}
+ */
+function adicionarTooltip(elemento, texto) {
+    texto = (texto ?? '').trim();
+    if (texto.length === 0) return;
+    elemento.setAttribute('title', texto);
+    elemento.style.textDecoration = 'underline dotted 1px';
+    new bootstrap.Tooltip(elemento);
 }

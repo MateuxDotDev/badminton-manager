@@ -2,8 +2,7 @@
 
 namespace App\Categorias;
 
-use App\Util\Traits\TemId;
-use \DateTimeInterface;
+use DateTimeInterface;
 
 readonly class Categoria
 {

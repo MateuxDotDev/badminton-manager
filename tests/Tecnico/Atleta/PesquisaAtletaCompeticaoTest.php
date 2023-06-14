@@ -159,6 +159,9 @@ class PesquisaAtletaCompeticaoTest extends TestCase
         PesquisaAtletaCompeticao::parse($req);
     }
 
+    /**
+     * @throws ValidatorException
+     */
     public function testParseComCamposNulos(): void
     {
         $req = [

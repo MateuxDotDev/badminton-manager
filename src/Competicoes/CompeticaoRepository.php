@@ -5,7 +5,7 @@ namespace App\Competicoes;
 use App\Util\General\Dates;
 use PDO;
 
-readonly class CompeticaoRepository
+class CompeticaoRepository
 {
     private PDO $pdo;
 
@@ -16,7 +16,7 @@ readonly class CompeticaoRepository
 
     public function todasAsCompeticoes(): array
     {
-        $qry = $this->pdo->query("
+        $sql = <<<SQL
             SELECT id,
                    nome,
                    prazo,
@@ -25,9 +25,11 @@ readonly class CompeticaoRepository
                    alterado_em
               FROM competicao
           ORDER BY prazo DESC
-        ");
+        SQL;
+
+        $query = $this->pdo->query($sql);
         $competicoes = [];
-        foreach ($qry as $linha) {
+        foreach ($query as $linha) {
             $competicoes[] = (new Competicao)
                 ->setId((int) $linha['id'])
                 ->setNome($linha['nome'])

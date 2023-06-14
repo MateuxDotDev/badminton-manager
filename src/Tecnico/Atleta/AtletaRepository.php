@@ -7,27 +7,23 @@ use App\Util\General\Dates;
 use App\Util\Http\HttpStatus;
 use App\Util\Services\UploadImagemService\UploadImagemService;
 use App\Util\Services\UploadImagemService\UploadImagemServiceInterface;
-use \Exception;
-use \PDO;
+use Exception;
+use PDO;
 
 class AtletaRepository implements AtletaRepositoryInterface
 {
 
-    private bool $defineTransaction;
 
     public function __construct(
         private readonly PDO $pdo,
         private readonly UploadImagemServiceInterface $uploadImagemService = new UploadImagemService()
-    ) {
-        $this->defineTransaction = true;
-    }
+    ) {}
 
     /**
      * @throws Exception
      */
     public function criarAtleta(Atleta $atleta): int
     {
-        $this->begin();
         try {
             $sql = <<<SQL
                 SELECT id
@@ -74,12 +70,10 @@ class AtletaRepository implements AtletaRepositoryInterface
             ]);
 
             $atleta->setId($this->pdo->lastInsertId());
-            $this->commit();
 
             return $atleta->id();
         } catch (Exception $e) {
             $this->uploadImagemService->removerImagem($atleta->foto());
-            $this->rollback();
             throw $e;
         }
     }
@@ -107,8 +101,6 @@ class AtletaRepository implements AtletaRepositoryInterface
              WHERE $where
         SQL;
 
-
-
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($parametros);
         $rows = $stmt->fetchAll();
@@ -116,43 +108,17 @@ class AtletaRepository implements AtletaRepositoryInterface
         $atletas = [];
         foreach ($rows as $row) {
             $atletas[] = (new Atleta())
+                ->setId($row['id'])
                 ->setNomeCompleto($row['nome_completo'])
                 ->setSexo(Sexo::from($row['sexo']))
                 ->setDataNascimento(Dates::parseDay($row['data_nascimento']))
                 ->setInformacoesAdicionais($row['informacoes'])
                 ->setFoto($row['path_foto'])
-                ->setId($row['id'])
                 ->setDataCriacao(Dates::parseMicro($row['criado_em']))
                 ->setDataAlteracao(Dates::parseMicro($row['alterado_em']));
         }
 
         return $atletas;
-    }
-
-    public function defineTransaction(bool $define)
-    {
-        $this->defineTransaction = $define;
-    }
-
-    private function begin()
-    {
-        if ($this->defineTransaction) {
-            $this->pdo->beginTransaction();
-        }
-    }
-
-    private function commit()
-    {
-        if ($this->defineTransaction) {
-            $this->pdo->commit();
-        }
-    }
-
-    private function rollback()
-    {
-        if ($this->defineTransaction) {
-            $this->pdo->rollback();
-        }
     }
 
     public function getViaTecnico(int $tecnicoId): array

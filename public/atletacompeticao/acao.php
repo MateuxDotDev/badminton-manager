@@ -24,7 +24,9 @@ try {
     Response::erroException($e)->enviar();
 }
 
-
+/**
+ * @throws ValidatorException
+ */
 function atletaCompeticaoController(): Response
 {
     $acao = $_POST['acao'] ?? 'Ação não informada';
@@ -35,6 +37,9 @@ function atletaCompeticaoController(): Response
     };
 }
 
+/**
+ * @throws ValidatorException
+ */
 function realizarCadastro($pdo) : Response
 {
     if ($_POST['userChoice']) {
@@ -49,6 +54,9 @@ function realizarCadastro($pdo) : Response
     );
 }
 
+/**
+ * @throws ValidatorException
+ */
 function realizarCadastroAtletaSelecionado($pdo): Response
 {
     $atleta     = getAtletaSelecionadoValidado($pdo);
@@ -79,6 +87,9 @@ function realizarCadastroAtletaSelecionado($pdo): Response
     }
 }
 
+/**
+ * @throws ValidatorException
+ */
 function realizarCadastroComNovoAtleta($pdo): Response
 {
     $atleta     = validaAtleta();
@@ -97,17 +108,20 @@ function realizarCadastroComNovoAtleta($pdo): Response
         if ($response->statusCode() == HttpStatus::OK) {
             $response = cadastrarAtletaCompeticao($pdo, $atletaCompeticao);
             $pdo->commit();
-            return $response;
         } else {
             $pdo->rollback();
-            return $response;
         }
+        return $response;
     } catch (Exception $e) {
         $pdo->rollback();
         return Response::erroException($e);
     }
 }
 
+/**
+ * @throws ValidatorException
+ * @throws Exception
+ */
 function cadastrarNovoAtleta($pdo, Atleta $atleta): Response
 {
     $imagemService = new UploadImagemService();
@@ -119,7 +133,6 @@ function cadastrarNovoAtleta($pdo, Atleta $atleta): Response
     }
 
     $repo = new AtletaRepository($pdo, $imagemService);
-    $repo->defineTransaction(false);
     $criado = $repo->criarAtleta($atleta);
     if ($criado > 0) {
         $atleta->setId($criado);
@@ -132,7 +145,6 @@ function cadastrarNovoAtleta($pdo, Atleta $atleta): Response
 function cadastrarAtletaCompeticao(PDO $pdo, AtletaCompeticao $dados): Response
 {
     $repo = new AtletaCompeticaoRepository($pdo);
-    $repo->defineTransaction(false);
 
     $repo->incluirAtletaCompeticao($dados);
 
@@ -210,6 +222,7 @@ function getSexoDuplaFormulario(): array
             $sexoDupla[] = Sexo::FEMININO;
         }
     }
+
     return $sexoDupla;
 }
 
@@ -242,19 +255,15 @@ function validaAtleta(): Atleta
     if (!($dataNascimento instanceof DateTimeInterface)) {
         throw new ValidatorException('Data de nascimento inválida');
     }
-    
+
     $currentDate = new DateTime();
     $currentDate->setTime(0, 0);
     if ($dataNascimento >= $currentDate) {
         throw new ValidatorException('Data de nascimento não pode estar no futuro');
     }
-    
+
     $tecnico = new Tecnico();
     $tecnico->setId($_POST["tecnico"]);
-
-    if (!($tecnico instanceof Tecnico)) {
-        throw new ValidatorException('Técnico não encontrado');
-    }
 
     return (new Atleta())
         ->setNomeCompleto($req['cadastrar_nomeCompleto'])

@@ -43,7 +43,6 @@ function pesquisarAtletas($req): Response
     $pdo   = Connection::getInstance();
     $dados = PesquisaAtletaCompeticao::parse($req);
 
-    // TODO fazer como enum também
     $colunaOrdenacao = match($dados->colunaOrdenacao) {
         'nomeAtleta'    => 'a.nome_completo',
         'nomeTecnico'   => 't.nome_completo',
@@ -73,7 +72,15 @@ function pesquisarAtletas($req): Response
     $parametros[] = $dados->idCompeticao;
 
 
-    $pesquisaTermos = function (string $coluna, string $texto) use (&$condicoes, &$parametros): void {
+    $session = UserSession::obj();
+    $tecnico = $session->getTecnico();
+
+    // Não mostrar os atletas do próprio técnico
+    $condicoes[]  = 'a.tecnico_id != ?';
+    $parametros[] = $tecnico->id();
+
+
+    $pesquisarTermos = function (string $coluna, string $texto) use (&$condicoes, &$parametros): void {
         $termos = preg_split('/\s+/', $texto);
         foreach ($termos as $termo) {
             $condicoes[]  = $coluna.' ILIKE ?';
@@ -81,9 +88,9 @@ function pesquisarAtletas($req): Response
         }
     };
 
-    if ($dados->nomeAtleta  != null) $pesquisaTermos('a.nome_completo', $dados->nomeAtleta);
-    if ($dados->nomeTecnico != null) $pesquisaTermos('t.nome_completo', $dados->nomeTecnico);
-    if ($dados->clube       != null) $pesquisaTermos('clu.nome',        $dados->clube);
+    if ($dados->nomeAtleta  != null) $pesquisarTermos('a.nome_completo', $dados->nomeAtleta);
+    if ($dados->nomeTecnico != null) $pesquisarTermos('t.nome_completo', $dados->nomeTecnico);
+    if ($dados->clube       != null) $pesquisarTermos('clu.nome',        $dados->clube);
 
 
     $colunaIdade = 'extract(year from age(a.data_nascimento))';
@@ -113,8 +120,6 @@ function pesquisarAtletas($req): Response
 
 
     $where = implode(' AND ', $condicoes);
-
-    // TODO ainda falta testar [[cada um]] dos filtros + ordenação + paginação
 
 
     $sql = <<<SQL

@@ -7,11 +7,10 @@ use App\Tecnico\Conta\LoginDTO;
 use App\Tecnico\Conta\RealizarLogin;
 use App\Tecnico\Tecnico;
 use App\Tecnico\TecnicoRepository;
-use App\Util\General\{Dates, SenhaCriptografada, UserSession};
-use \Exception;
-use \Throwable;
-use PHPUnit\Framework\TestCase;
 use App\Util\Exceptions\ValidatorException;
+use App\Util\General\{Dates, SenhaCriptografada, UserSession};
+use Exception;
+use PHPUnit\Framework\TestCase;
 
 class RealizarLoginTest extends TestCase
 {

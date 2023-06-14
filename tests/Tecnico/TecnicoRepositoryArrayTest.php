@@ -2,7 +2,6 @@
 
 namespace Tests\Tecnico;
 
-use App\Tecnico\Clube;
 use App\Tecnico\Tecnico;
 use App\Tecnico\TecnicoRepositoryArray;
 use App\Util\General\SenhaCriptografada;

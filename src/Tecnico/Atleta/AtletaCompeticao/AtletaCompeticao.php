@@ -24,19 +24,19 @@ class AtletaCompeticao
         $this->atleta = new Atleta();
         $this->competicao = new Competicao();
     }
-    
+
     public function setAtleta(Atleta $a): self
     {
         $this->atleta = $a;
         return $this;
     }
-    
+
     public function setCompeticao(Competicao $c): self
     {
         $this->competicao = $c;
         return $this;
     }
-    
+
     public function setInformacao(string $s): self
     {
         $this->informacao = $s;
