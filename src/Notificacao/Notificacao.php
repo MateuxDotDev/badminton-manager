@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Notificacao;
+
 use DateTimeInterface;
 
 readonly class Notificacao
@@ -22,21 +23,18 @@ readonly class Notificacao
     ): self
     {
         return new self(
-            tipo: TipoNotificacao::SOLICITACAO_ENVIADA,
-            idTecnico: $idTecnico,
-            id1: $idSolicitacao,
+            TipoNotificacao::SOLICITACAO_ENVIADA,
+            $idTecnico,
+            $idSolicitacao,
         );
     }
 
-    public static function solicitacaoRecebida(
-        int $idTecnico,
-        int $idSolicitacao,
-    ): self
+    public static function solicitacaoRecebida(int $idTecnico, int $idSolicitacao): self
     {
         return new self(
-            tipo: TipoNotificacao::SOLICITACAO_RECEBIDA,
-            idTecnico: $idTecnico,
-            id1: $idSolicitacao,
+            TipoNotificacao::SOLICITACAO_RECEBIDA,
+            $idTecnico,
+            $idSolicitacao,
         );
     }
 }

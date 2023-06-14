@@ -15,12 +15,16 @@ enum TipoDupla
             self::FEMININA => 'Feminina',
             self::MISTA => 'Mista',
         };
-    } 
+    }
 
-    public static function criar(Sexo $a, Sexo $b)
+    public static function criar(Sexo $a, Sexo $b): TipoDupla
     {
-        if ($a != $b) return self::MISTA;
-        if ($a == Sexo::MASCULINO) return self::MASCULINA;
+        if ($a != $b) {
+            return self::MISTA;
+        } elseif ($a == Sexo::MASCULINO) {
+            return self::MASCULINA;
+        }
+
         return self::FEMININA;
     }
 }

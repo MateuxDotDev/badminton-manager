@@ -1,17 +1,27 @@
-<?php
+<?php  /** @noinspection PhpClassCanBeReadonlyInspection */
 
 namespace App\Tecnico\Solicitacao;
 
-use Exception;
+use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
+use Exception;
+use PDO;
 
-readonly class SolicitacaoPendenteRepository
+class SolicitacaoPendenteRepository implements SolicitacaoPendenteRepositoryInterface
 {
     public function __construct(
-        private \PDO $pdo
+        private readonly PDO $pdo
     ) {}
 
-    public function getEnvolvendo(int $idCompeticao, int $idAtleta1, int $idAtleta2, int $idCategoria): ?SolicitacaoPendente
+    /**
+     * @throws Exception
+     */
+    public function getEnvolvendo(
+        int $idCompeticao,
+        int $idAtleta1,
+        int $idAtleta2,
+        int $idCategoria
+    ): ?SolicitacaoPendente
     {
         $pdo = $this->pdo;
 
@@ -42,9 +52,11 @@ readonly class SolicitacaoPendenteRepository
         $rows = $stmt->fetchAll();
 
         if (count($rows) > 1) {
-            throw new Exception('Erro interno: mais de uma solicitação envolvendo os mesmos atleta e a mesma categoria dentro da mesma competição');
+            throw new ValidatorException(
+                'Mais de uma solicitação envolvendo os mesmos atleta e a mesma categoria dentro da mesma competição.'
+            );
         }
-        if (count($rows) == 0) {
+        if (empty($rows)) {
             return null;
         }
         $row = $rows[0];

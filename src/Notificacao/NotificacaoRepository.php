@@ -1,12 +1,13 @@
-<?php
+<?php  /** @noinspection PhpClassCanBeReadonlyInspection */
 
 namespace App\Notificacao;
-use \PDO;
 
-readonly class NotificacaoRepository
+use PDO;
+
+class NotificacaoRepository implements NotificacaoRepositoryInterface
 {
     public function __construct(
-        public PDO $pdo,
+        private readonly PDO $pdo,
     ) {}
 
     public function criar(Notificacao $notificacao): ?int

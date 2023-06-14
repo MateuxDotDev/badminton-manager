@@ -35,4 +35,16 @@ class CategoriaTest extends TestCase
 
         $this->assertFalse($categoria->podeParticipar($dataNascimento, $dataCompeticao));
     }
+
+    public function testToJson(): void
+    {
+        $categoria = new Categoria(1, 'Categoria Teste', 10, 20);
+
+        $this->assertSame([
+            'id' => 1,
+            'descricao' => 'Categoria Teste',
+            'idadeMaiorQue' => 10,
+            'idadeMenorQue' => 20,
+        ], $categoria->toJson());
+    }
 }

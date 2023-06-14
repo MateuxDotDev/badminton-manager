@@ -11,7 +11,6 @@ use App\Tecnico\Atleta\Sexo;
 use App\Tecnico\Tecnico;
 use App\Util\General\Dates;
 use ArrayIterator;
-use DateTime;
 use PDO;
 use PDOStatement;
 use PHPUnit\Framework\MockObject\Exception;

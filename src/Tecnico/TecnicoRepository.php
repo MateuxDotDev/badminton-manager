@@ -43,12 +43,10 @@ class TecnicoRepository implements TecnicoRepositoryInterface
                 ON c.id = t.clube_id
         SQL;
 
-        $params = [];
-
         if ($chave == 'email') {
             $sql .= ' WHERE email = :email';
             $params = ['email' => $valor];
-        } else if ($chave == 'id') {
+        } elseif ($chave == 'id') {
             $sql .= ' WHERE id = :id';
             $params = ['id' => $valor];
         } else {

@@ -1,18 +1,15 @@
-<?php
+<?php  /** @noinspection PhpClassCanBeReadonlyInspection */
 
 namespace App\Competicoes;
 
 use App\Util\General\Dates;
 use PDO;
 
-class CompeticaoRepository
+class CompeticaoRepository implements CompeticaoRepositoryInterface
 {
-    private PDO $pdo;
-
-    public function __construct(PDO $pdo)
-    {
-        $this->pdo = $pdo;
-    }
+    public function __construct(
+        private readonly PDO $pdo
+    ) {}
 
     public function todasAsCompeticoes(): array
     {

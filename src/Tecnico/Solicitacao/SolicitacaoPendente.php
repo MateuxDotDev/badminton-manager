@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Tecnico\Solicitacao;
+
 use DateTimeInterface;
 
 readonly class SolicitacaoPendente

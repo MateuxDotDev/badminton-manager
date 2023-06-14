@@ -2,24 +2,25 @@
 
 namespace App\Tecnico\Solicitacao;
 
-use App\Competicoes\CompeticaoRepository;
+use App\Competicoes\CompeticaoRepositoryInterface;
 use App\Notificacao\Notificacao;
-use App\Notificacao\NotificacaoRepository;
+use App\Notificacao\NotificacaoRepositoryInterface;
 use App\Tecnico\Atleta\Sexo;
 use App\Tecnico\Atleta\TipoDupla;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
 use App\Util\Http\HttpStatus;
-use \PDO;
+use Exception;
+use PDO;
 
 readonly class EnviarSolicitacao
 {
     public function __construct(
         private PDO $pdo,
         private UserSession $session,
-        private CompeticaoRepository $competicoes,
-        private SolicitacaoPendenteRepository $solicitacoes,
-        private NotificacaoRepository $notificacoes,
+        private CompeticaoRepositoryInterface $competicoes,
+        private SolicitacaoPendenteRepositoryInterface $solicitacoes,
+        private NotificacaoRepositoryInterface $notificacoes,
     ) {}
 
     private function getAtleta(int $idCompeticao, int $idAtleta): ?array
@@ -38,7 +39,7 @@ readonly class EnviarSolicitacao
                      AND ac.competicao_id = :idCompeticao
                 GROUP BY a.id, ac.atleta_id, ac.competicao_id
         SQL;
-        
+
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             'idCompeticao' => $idCompeticao,
@@ -77,9 +78,9 @@ readonly class EnviarSolicitacao
         if (!$sexoOk) {
             $tipo = TipoDupla::criar($a['sexo'], $b['sexo']);
             $erro = 'Um dos atletas não precisa formar dupla ' . $tipo->toString();
-        } else if (!$categoriaOk) {
+        } elseif (!$categoriaOk) {
             $erro = 'Não jogam ambos na categoria selecionada';
-        } else if (!$tecnicoOk) {
+        } elseif (!$tecnicoOk) {
             $erro = 'Ambos têm o mesmo técnico';
         }
 
@@ -88,6 +89,10 @@ readonly class EnviarSolicitacao
         }
     }
 
+    /**
+     * @throws ValidatorException
+     * @throws Exception
+     */
     public function __invoke(EnviarSolicitacaoDTO $dto): int
     {
         $competicoes = $this->competicoes;
@@ -128,17 +133,20 @@ readonly class EnviarSolicitacao
 
         $existente = $solicitacoes->getEnvolvendo($competicao->id(), $idRemetente, $idDestinatario, $idCategoria);
         if ($existente != null) {
-            throw new ValidatorException('Já existe uma solicitação pendente envolvendo esses atletas e essa categoria na competição');
+            throw new ValidatorException(
+                'Já existe uma solicitação pendente envolvendo esses atletas e essa categoria na competição'
+            );
         }
 
         // TODO (em task futura): Validar se esses atletas realmente ainda precisam de dupla
         // (se um deles é homem e o outro já tem dupla masculina, então não dá pra formar dupla)
-        // (porém se um deles já tem uma dupla de um sexo mas não do outro, e precisa de dupla do outro sexo, e o outro atleta é esse outro sexo, então ok)
+        // (porém se um deles já tem uma dupla de um sexo mas não do outro, e precisa de dupla
+        // do outro sexo, e o outro atleta é esse outro sexo, então ok)
 
         $idSolicitacao = $solicitacoes->enviar($dto);
 
         $notificacoes = $this->notificacoes;
-        $notificacoes->criar(Notificacao::solicitacaoEnviada ($remetente['idTecnico'],    $idSolicitacao));
+        $notificacoes->criar(Notificacao::solicitacaoEnviada($remetente['idTecnico'], $idSolicitacao));
         $notificacoes->criar(Notificacao::solicitacaoRecebida($destinatario['idTecnico'], $idSolicitacao));
 
         return $idSolicitacao;

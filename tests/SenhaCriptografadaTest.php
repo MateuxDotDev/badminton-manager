@@ -7,6 +7,9 @@ use PHPUnit\Framework\TestCase;
 
 class SenhaCriptografadaTest extends TestCase
 {
+    /**
+     * @throws \Exception
+     */
     public function testEncryptsAndValidates()
     {
         $email = 'tecnico@mail.com';
