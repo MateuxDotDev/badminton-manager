@@ -8,3 +8,4 @@ Docker/**/data/
 .phpunit.cache
 coverage.xml
 .run/
+xdebug.log
