@@ -20,8 +20,8 @@ try {
     $tokenRepo = new TokenRepository(Connection::getInstance(), new TokenService());
 
     $tokenAlterar = $tokenRepo->createToken(
-        1,
-        2,
+        999,
+        999,
         [
             'acao' => 'alterarAtleta',
             'tecnico' => [
@@ -32,8 +32,8 @@ try {
     );
 
     $tokenExcluir = $tokenRepo->createToken(
-        1,
-        2,
+        999,
+        999,
         [
             'acao' => 'removerAtleta',
             'tecnico' => [
@@ -54,8 +54,8 @@ try {
         'convite_tecnico' => 'Bruno Henrique',
         'convite_sexo' => 'Masculino',
         'convite_observacoes' => 'Nenhuma observação',
-        'link_alterar' =>  $baseUrl . '/tecnico/atletas/index.php?id=1&acao=alterar&token=' . $tokenAlterar['token'],
-        'link_remover' => $baseUrl . '/tecnico/atletas/index.php?id=1&acao=remover&token=' . $tokenExcluir['token'],
+        'link_alterar' =>  $baseUrl . '/tecnico/atletas/?id=2&acao=alterar&token=' . $tokenAlterar['token'],
+        'link_remover' => $baseUrl . '/tecnico/atletas/?id=2&acao=remover&token=' . $tokenExcluir['token'],
         'link_buscar' => 'http://localhost:8080/tecnico/competicoes/',
         'ano_atual' => date('Y')
     ]);

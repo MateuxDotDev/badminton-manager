@@ -37,9 +37,10 @@ try {
 
     $repo = new AtletaRepository(Connection::getInstance(), new UploadImagemService());
     $atletas = $repo->getViaTecnico($idTecnico);
-} catch (ResponseException|ValidatorException $e) {
+} catch (ResponseException | ValidatorException $e) {
     Response::erroException($e)->enviar();
 } catch (Exception $e) {
+    var_dump($e);
     $hasError = true;
 }
 
@@ -69,10 +70,10 @@ Template::nav($session);
         <span class="input-group-text input-group-prepend">
             <i class="bi bi-search"></i><label for="pesquisa" class="d-none d-md-inline-block ms-2">Pesquisar</label>
         </span>
-        <input class="form-control" type="search" id="pesquisa" placeholder="Digite aqui informações do atleta que deseja buscar..."/>
+        <input class="form-control" type="search" id="pesquisa" placeholder="Digite aqui informações do atleta que deseja buscar..." />
     </section>
 
-    <?php if (empty($atletas)): ?>
+    <?php if (empty($atletas)) : ?>
         <section id="sem-atletas" class="d-none alert alert-info">
             <p class="mb-0">
                 <i class="bi bi-info-circle"></i> Nenhum atleta cadastrado. <a href="/tecnico/atletas/cadastrar">Clique aqui</a> para cadastrar um novo atleta.
@@ -80,7 +81,7 @@ Template::nav($session);
         </section>
     <?php endif ?>
 
-    <?php if ($hasError): ?>
+    <?php if ($hasError) : ?>
         <section class="alert alert-danger">
             <p class="mb-0">
                 <i class="bi bi-exclamation-circle"></i> Ocorreu um erro ao carregar os atletas. Tente novamente mais tarde.
@@ -94,7 +95,7 @@ Template::nav($session);
 
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <form class="modal-content" id="form-alterar" method="get" action="#" >
+        <form class="modal-content" id="form-alterar" method="get" action="#">
             <input type="hidden" id="id" name="id" />
             <input type="hidden" id="acao" name="acao" value="alterar" />
             <input type="hidden" id="fotoPerfil" name="fotoPerfil" />
@@ -148,13 +149,13 @@ Template::nav($session);
 <?php require_once './atleta-card.html'; ?>
 
 <script>
-    const atletas = <?= json_encode(array_map(fn($a) => $a->toJson(), $atletas)) ?>;
+    const atletas = <?= json_encode(array_map(fn ($a) => $a->toJson(), $atletas)) ?>;
 
     const conteudo = document.querySelector('#conteudo');
     const inputPesquisa = document.querySelector('#pesquisa');
     const componentesAtletas = [];
     const template = document.querySelector('#atleta-card-template');
-    const token = new URLSearchParams(window.location.search).get('token');
+    let token;
 
     const createAtletaCard = (atleta) => {
         let card = template.content.cloneNode(true);
@@ -193,7 +194,7 @@ Template::nav($session);
         });
 
         [...document.querySelectorAll('[data-bs-toggle="popover"]')]
-            .map(el => new bootstrap.Popover(el))
+        .map(el => new bootstrap.Popover(el))
 
         componentesAtletas.push(...document.querySelectorAll('.atleta-card'));
         inputPesquisa.addEventListener('keydown', debounce(300, () => {
@@ -320,6 +321,14 @@ Template::nav($session);
         const idAtleta = urlParams.get('id');
         if (!idAtleta) return;
         const atleta = atletas.find(a => a.id === parseInt(idAtleta));
+
+        if (atleta === undefined) {
+            Toast.fire({
+                icon: 'warning',
+                text: 'Atleta não encontrado.',
+            })
+        }
+
         const acao = urlParams.get('acao');
         if (acao === 'alterar') {
             prepararModalEditar(atleta);
@@ -332,6 +341,7 @@ Template::nav($session);
         } else {
             console.warn('Ação não reconhecida.');
         }
+        token = urlParams.get('token');
     }
 </script>
 

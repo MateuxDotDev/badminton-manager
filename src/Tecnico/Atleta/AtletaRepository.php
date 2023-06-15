@@ -96,9 +96,8 @@ class AtletaRepository implements AtletaRepositoryInterface
         $sql = <<<SQL
             SELECT id, nome_completo, sexo, data_nascimento, informacoes, path_foto, criado_em, alterado_em
               FROM atleta
-             WHERE tecnico_id = :tecnico_id
-          ORDER BY nome_completo
              WHERE $where
+          ORDER BY nome_completo
         SQL;
 
         $stmt = $this->pdo->prepare($sql);

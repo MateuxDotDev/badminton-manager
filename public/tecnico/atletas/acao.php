@@ -16,7 +16,12 @@ use App\Util\Services\UploadImagemService\UploadImagemService;
 try {
     $decodedToken = null;
     $session = UserSession::obj();
-    $reqToken = Request::getJson()['token'] ?? null;
+    $req = Request::getDados();
+    $reqToken = $req['token'] ?? null;
+
+    if (!array_key_exists('acao', $req)) {
+        return Response::erro('Ação não informada');
+    }
 
     if (!$session->isTecnico() && $reqToken === null) {
         Response::erroNaoAutorizado()->enviar();
@@ -30,24 +35,18 @@ try {
         }
     }
 
-    atletasController($session, $reqToken)->enviar();
+    atletasController($req, $session, $decodedToken)->enviar();
 } catch (Exception $e) {
     Response::erroException($e)->enviar();
 }
 
-function atletasController(?UserSession $session, ?stdClass $token): Response
+function atletasController(array $request, ?UserSession $session, ?stdClass $token): Response
 {
     try {
-        $req = $_POST;
-
-        if (!array_key_exists('acao', $req)) {
-            return Response::erro('Ação não informada');
-        }
-
-        $acao = $req['acao'] ?? 'Ação não informada';
+        $acao = $request['acao'];
         return match ($acao) {
-            'alterar' => alterarAtleta($req, $session, $token),
-            'remover' => removerAtleta($req, $session, $token),
+            'alterar' => alterarAtleta($request, $session, $token),
+            'remover' => removerAtleta($request, $session, $token),
             default => Response::erro("Ação '$acao' inválida")
         };
     } catch (Exception $e) {
@@ -64,13 +63,14 @@ function alterarAtleta(array $req, ?UserSession $session, ?stdClass $token): Res
     if ($session === null && $token->acao !== 'alterarAtleta') {
         Response::erroNaoAutorizado()->enviar();
     }
+
     Request::camposRequeridos($req, ['id', 'fotoPerfil']);
     $atleta = validaAtleta($req);
     $atleta->setId($req['id']);
     $imagemService = new UploadImagemService();
 
-    if (isset($_FILES["foto"]) && !empty($_FILES["foto"]["name"])) {
-        $atleta->setFoto($imagemService->upload($_FILES["foto"]));
+    if (isset($req["foto"]) && !empty($req["foto"]["name"])) {
+        $atleta->setFoto($imagemService->upload($req["foto"]));
     } else {
         $atleta->setFoto($req['fotoPerfil']);
     }

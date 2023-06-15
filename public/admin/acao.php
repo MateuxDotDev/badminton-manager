@@ -14,7 +14,7 @@ loginAdminController()->enviar();
 
 function loginAdminController(): Response
 {
-    $req = Request::getJson();
+    $req = Request::getDados();
     $pdo = Connection::getInstance();
 
     $acao = array_key_exists('acao', $req) ? $req['acao'] : '';
@@ -51,4 +51,3 @@ function acaoLogin(PDO $pdo, array $req): Response
         return Response::erro($e);
     }
 }
-

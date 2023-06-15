@@ -2,9 +2,6 @@
 
 namespace App\Util\Http;
 
-// poderia ser uma classe Request não só com esses métodos estáticos,
-// mas podia ser um objeto que a gente instancia mesmo
-// tipo a Request do symfony e outros frameworks
 use App\Util\Exceptions\ValidatorException;
 
 class Request
@@ -12,11 +9,25 @@ class Request
     public static function getDados(): array
     {
         $metodo = $_SERVER['REQUEST_METHOD'];
-        return ($metodo == 'GET') ? $_GET : self::getJson();
+        switch ($metodo) {
+            case 'GET':
+                return $_GET;
+            case 'POST':
+                if (!empty($_FILES)) {
+                    $json = self::getJson();
+                    return array_merge($json != [] ? $json : $_POST, $_FILES);
+                }
+                return self::getJson();
+            case 'PUT':
+            case 'PATCH':
+            case 'DELETE':
+                return self::getJson();
+            default:
+                die('Metodo não suportado');
+        }
     }
 
-    // TODO tornar getJson private, utilizar somente getDados por fora
-    public static function getJson(): array
+    private static function getJson(): array
     {
         $json = file_get_contents('php://input');
         if ($json === false) {
