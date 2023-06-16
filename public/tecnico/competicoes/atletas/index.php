@@ -253,7 +253,7 @@ if ($atletaCompeticao !== null) {
 
 <script>
 
-let tecnicoEstaLogado = <?= $session->isTecnico() ? 'true' : 'false' ?>;
+const idAtletaRemetente = <?= $atletaCompeticao?->atleta()?->id() ?? 'null' ?>;
 
 let inputCategorias = null;
 const categoriasMarcadas = <?= json_encode($categoriasMarcadas) ?>;
@@ -370,8 +370,15 @@ function criarElementoAtleta(atleta) {
 
   {
     const formarDupla = eqs(elem, '.atleta-link-formar-dupla');
-    const link = `/tecnico/competicoes/atletas/formar_dupla.php?atleta=${atleta.id}&competicao=${idCompeticao}`;
-    formarDupla.setAttribute('href', link);
+
+    const url = new URL(baseUrl + '/tecnico/competicoes/atletas/formar_dupla.php');
+    url.searchParams.append('destino', atleta.id);
+    url.searchParams.append('competicao', idCompeticao);
+    if (idAtletaRemetente != null) {
+      url.searchParams.append('remetente', idAtletaRemetente);
+    }
+
+    formarDupla.setAttribute('href', url.toString());
   }
 
   return elem;
