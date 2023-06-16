@@ -11,3 +11,23 @@ function array_index_by(array $a, int|string $key): array
     }
     return $r;
 }
+
+function array_some(array $a, callable $p): bool
+{
+    foreach ($a as $x) {
+        if ($p($x)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function array_every(array $a, callable $p): bool
+{
+    foreach ($a as $x) {
+        if (!$p($x)) {
+            return false;
+        }
+    }
+    return true;
+}
