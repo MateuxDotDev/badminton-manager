@@ -153,6 +153,17 @@ function dataBr(date) {
 }
 
 /**
+ * Formata data no padrão ISO
+ *
+ * @param date
+ * @returns {string}
+ */
+function brDateToYmd(date) {
+    let partesData = date.split("/");
+    return `${partesData[2]}-${partesData[1]}-${partesData[0]}`;
+}
+
+/**
  * Retorna string em singular ou plural dependendo da quantidade
  * 
  * @param {number} qtd

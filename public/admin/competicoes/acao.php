@@ -29,7 +29,7 @@ try {
  */
 function competicaoController(): Response
 {
-    $req = Request::getJson();
+    $req = Request::getDados();
     $acao = array_key_exists('acao', $req) ? $req['acao'] : '';
 
     return match ($acao) {

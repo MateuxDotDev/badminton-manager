@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>{{ assunto }}</title>
+  <style>
+    @media only screen and (max-width: 620px) {
+      main {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+<main style="display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 16px 32px; font-family: sans-serif; background-color: #F8F9FA; max-width: 50%; margin: auto;">
+  <center>
+    <img src="https://i.imgur.com/QLJoMQq.png" style="margin-bottom: 32px; height: 32px;" height="32">
+  </center>
+  <h1 style="margin: 8px 0; width: 100%; font-size: 24px;">Olá {{ nome_tecnico }}!</h1>
+  <p style="margin: 8px 0; width: 100%;">Você incluiu recentemente o atleta {{ nome_atleta }} na competição {{ nome_competicao }}!</p>
+  <table cellspacing="0" style="border: 1px solid #D2D2D2; border-collapse: separate; border-radius: 4px; margin-top: 8px; width: 100%; background-color: white;" width="100%" bgcolor="white">
+    <tr>
+      <th style="border: 1px solid #D2D2D2; padding: 8px;">Atleta</th>
+      <th style="border: 1px solid #D2D2D2; padding: 8px;">Clube</th>
+      <th style="border: 1px solid #D2D2D2; padding: 8px;">Técnico</th>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #D2D2D2; padding: 4px;">{{ convite_atleta }}</td>
+      <td style="border: 1px solid #D2D2D2; padding: 4px;">{{ convite_clube }}</td>
+      <td style="border: 1px solid #D2D2D2; padding: 4px;">{{ convite_tecnico }}</td>
+    </tr>
+    <tr>
+      <th style="border: 1px solid #D2D2D2; padding: 8px;">Sexo</th>
+      <th colspan="2" style="border: 1px solid #D2D2D2; padding: 8px;">Observações</th>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #D2D2D2; padding: 4px;">{{ convite_sexo }}</td>
+      <td colspan="2" style="border: 1px solid #D2D2D2; padding: 4px;">{{ convite_observacoes }}</td>
+    </tr>
+  </table>
+  <center style="height: 32px; margin-top: 32px">
+    <a href="{{ link_buscar }}" style="font-size: 14px; text-align: center; padding: 8px 16px; border-radius: 4px; cursor: pointer; text-decoration: none; width: 50%; font-weight: bold; color: white; background-color: #198754; margin-top: 16px;" class="aceitar">Clique aqui para BUSCAR atletas compatíveis.</a>
+  </center>
+  <center style="height: 32px; margin-top: 8px">
+    <a href="{{ link_alterar }}" style="font-size: 14px; text-align: center; padding: 8px 16px; border-radius: 4px; cursor: pointer; text-decoration: none; width: 50%; font-weight: bold; color: white; background-color: #6C757D; margin-top: 16px;" class="aceitar">Clique aqui para ALTERAR o atleta.</a>
+  </center>
+  <center style="height: 32px; margin-top: 8px">
+    <a href="{{ link_remover }}" class="recusar" style="margin-top: 8px; font-size: 14px; text-align: center; padding: 8px 16px; border-radius: 4px; cursor: pointer; text-decoration: none; width: 50%; font-weight: bold; color: white; background-color: #DC3545;">Clique aqui para REMOVER o atleta.</a>
+  </center>
+  <footer style="margin-top: 32px; text-align: center; color: #9E9E9E; font-size: 12px;">
+    <p style="margin: 8px 0; width: 100%;">Esse é um e-mail automático. Por favor não responda.</p>
+    © {{ ano_atual }} Match Point - Gerenciamento de Competições de Badminton.
+  </footer>
+</main>
+</body>
+</html>

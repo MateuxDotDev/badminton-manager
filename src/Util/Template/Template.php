@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Util\Template;
+
 use App\Util\General\UserSession;
 
 class Template
