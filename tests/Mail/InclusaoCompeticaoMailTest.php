@@ -85,8 +85,8 @@ class InclusaoCompeticaoMailTest extends TestCase
             'convite_tecnico' => 'Roberto Carlos',
             'convite_sexo' => 'Feminino',
             'convite_observacoes' => 'Competidora altamente habilidosa',
-            'link_alterar' =>  'http://example.com/tecnico/atletas/index.php?id=1&acao=alterar&token=token123',
-            'link_remover' => 'http://example.com/tecnico/atletas/index.php?id=1&acao=remover&token=token123',
+            'link_alterar' =>  'http://example.com/tecnico/atletas/?id=1&acao=alterar&token=token123',
+            'link_remover' => 'http://example.com/tecnico/atletas/?id=1&acao=remover&token=token123',
             'link_buscar' => 'http://example.com/tecnico/competicoes/',
             'ano_atual' => date('Y')
         ];

@@ -10,6 +10,7 @@ use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
 use App\Util\Http\Request;
 use App\Util\Http\Response;
+use App\Util\Services\TokenService\AcoesToken;
 use App\Util\Services\TokenService\TokenService;
 use App\Util\Services\UploadImagemService\UploadImagemService;
 
@@ -30,7 +31,8 @@ try {
     if (!$session->isTecnico()) {
         $tokenRepo = new TokenRepository(Connection::getInstance(), new TokenService());
         $decodedToken = $tokenRepo->consumeToken($reqToken);
-        if (empty($decodedToken->acao) || !in_array($decodedToken->acao, ['alterarAtleta', 'removerAtleta'])) {
+        $acoesValidas = [AcoesToken::ALTERAR_ATLETA->value, AcoesToken::REMOVER_ATLETA->value];
+        if (empty($decodedToken->acao) || !in_array($decodedToken->acao, $acoesValidas)) {
             Response::erroNaoAutorizado()->enviar();
         }
     }
@@ -60,7 +62,7 @@ function atletasController(array $request, ?UserSession $session, ?stdClass $tok
  */
 function alterarAtleta(array $req, ?UserSession $session, ?stdClass $token): Response
 {
-    if ($session === null && $token->acao !== 'alterarAtleta') {
+    if ($session === null && $token->acao !== AcoesToken::ALTERAR_ATLETA->value) {
         Response::erroNaoAutorizado()->enviar();
     }
 
@@ -89,7 +91,7 @@ function alterarAtleta(array $req, ?UserSession $session, ?stdClass $token): Res
  */
 function removerAtleta(array $req, ?UserSession $session, ?stdClass $token): Response
 {
-    if ($session === null && $token->acao !== 'removerAtleta') {
+    if ($session === null && $token->acao !== AcoesToken::REMOVER_ATLETA->value) {
         Response::erroNaoAutorizado()->enviar();
     }
 

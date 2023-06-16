@@ -1,6 +1,6 @@
 <?php
 
-require_once(__DIR__.'/../../vendor/autoload.php');
+require_once(__DIR__ . '/../../../../../vendor/autoload.php');
 
 use App\Util\Template\Template;
 use App\Util\Database\Connection;
@@ -226,7 +226,7 @@ $tecnico = $session->getTecnico();
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
         <div class="modal-header">
-            <input id="pesquisa-atleta-modal" type="text" class="form-control" placeholder="Digite o nome do atleta...">
+            <input id="pesquisa-atleta-modal" type="text" class="form-control me-2" placeholder="Digite o nome do atleta...">
             <button id="btn-close-modal" type="button" class="btn btn-outline-primary close"
                     data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -374,7 +374,7 @@ $tecnico = $session->getTecnico();
 
     async function submitAtletaCompeticao(dados){
         try{
-            const response = await fetch('/atletacompeticao/acao.php', {
+            const response = await fetch('/tecnico/competicoes/atletas/incluir/acao.php', {
                 method: 'POST',
                 body: dados
             });
@@ -427,7 +427,7 @@ $tecnico = $session->getTecnico();
     }
 
     /**Adicionar evento no btn-close-modal */
-    btnCloseModal.addEventListener('click', (event) =>{
+    btnCloseModal.addEventListener('click', () =>{
         closeModal();
     });
     
@@ -524,7 +524,9 @@ $tecnico = $session->getTecnico();
     }
 </script>
 
+<!-- TODO: remover dependencia desnecessaria pois ja passou 2016 -->
 <!-- Importando o jQuery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
 <?php Template::footer() ?>
+

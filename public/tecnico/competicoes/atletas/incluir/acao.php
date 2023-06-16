@@ -1,7 +1,12 @@
 <?php
 
-require_once(__DIR__.'/../../vendor/autoload.php');
+require_once(__DIR__ . '/../../../../../vendor/autoload.php');
 
+use App\Mail\InclusaoCompeticaoMail;
+use App\Tecnico\TecnicoRepository;
+use App\Token\TokenRepository;
+use App\Util\Environment\Environment;
+use App\Util\Exceptions\ResponseException;
 use App\Util\Http\Response;
 use App\Util\Database\Connection;
 use App\Tecnico\Tecnico;
@@ -14,6 +19,9 @@ use App\Competicoes\Competicao;
 use App\Categorias\CategoriaRepository;
 use App\Tecnico\Atleta\Sexo;
 use App\Util\Http\HttpStatus;
+use App\Util\Mail\Mailer;
+use App\Util\Services\TokenService\AcoesToken;
+use App\Util\Services\TokenService\TokenService;
 use App\Util\Services\UploadImagemService\UploadImagemService;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
@@ -76,11 +84,10 @@ function realizarCadastroAtletaSelecionado($pdo): Response
 
         if ($response->statusCode() == HttpStatus::OK) {
             $pdo->commit();
-            return $response;
         } else {
             $pdo->rollback();
-            return $response;
         }
+        return $response;
     } catch (Exception $e) {
         $pdo->rollback();
         return Response::erroException($e);
@@ -142,13 +149,73 @@ function cadastrarNovoAtleta($pdo, Atleta $atleta): Response
     return Response::erro('Erro ao cadastrar atleta');
 }
 
+/**
+ * @throws Exception
+ */
 function cadastrarAtletaCompeticao(PDO $pdo, AtletaCompeticao $dados): Response
 {
     $repo = new AtletaCompeticaoRepository($pdo);
 
-    $repo->incluirAtletaCompeticao($dados);
+    if ($repo->incluirAtletaCompeticao($dados) && enviarEmailInclusao($pdo, $dados)) {
+        return Response::ok('Atleta inserido na competição');
+    } else {
+        return Response::erro('Algo deu errado ao inserir o atleta na competição');
+    }
+}
 
-    return Response::ok('Atleta inserido na competição');
+/**
+ * @throws Exception
+ */
+function enviarEmailInclusao(PDO $pdo, AtletaCompeticao $dados): bool
+{
+    $competicao = $dados->competicao();
+    $atleta = $dados->atleta();
+
+    $tecnicoRepo = new TecnicoRepository($pdo);
+    $tecnico = $tecnicoRepo->getViaAtleta($atleta->id());
+
+    $mail = (new InclusaoCompeticaoMail(new Mailer(), $atleta->nomeCompleto(), $competicao->nome()))
+        ->setToName($tecnico->nomeCompleto())
+        ->setToEmail($tecnico->email())
+        ->setAltBody('Você recentemente incluiu um novo atleta em uma competição!');
+
+    $tokenAlterar = gerarToken($pdo, $tecnico, AcoesToken::ALTERAR_ATLETA->value)['token'];
+    $tokenRemover = gerarToken($pdo, $tecnico, AcoesToken::REMOVER_ATLETA->value)['token'];
+
+    $baseUrl = Environment::getBaseUrl();
+    $linkAlterar = sprintf('%s/tecnico/atletas/?id=%d&acao=alterar&token=%s', $baseUrl, $atleta->id(), $tokenAlterar);
+    $linkRemover = sprintf('%s/tecnico/atletas/?id=%d&acao=remover&token=%s', $baseUrl, $atleta->id(), $tokenRemover);
+    $linkBuscar = sprintf('%s/tecnico/competicoes/atletas/?competicao=%d&atleta=%d', $baseUrl, $competicao->id(), $atleta->id());
+
+    $mail->fillTemplate([
+        'nome_tecnico' => $tecnico->nomeCompleto(),
+        'nome_atleta' => $atleta->nomeCompleto(),
+        'nome_competicao' => $competicao->nome(),
+        'nome_clube' => $tecnico->clube()->nome(),
+        'atleta_sexo' => $atleta->sexo()->toString(),
+        'atleta_observacoes' => $atleta->informacoesAdicionais(),
+        'link_alterar' =>  $linkAlterar,
+        'link_remover' => $linkRemover,
+        'link_buscar' => $linkBuscar,
+        'ano_atual' => date('Y')
+    ]);
+
+    return $mail->send();
+}
+
+/**
+ * @throws ValidatorException
+ * @throws ResponseException
+ */
+function gerarToken(PDO $pdo, Tecnico $tecnico, string $acao): array
+{
+    $tokenRepo = new TokenRepository($pdo, new TokenService());
+
+    return $tokenRepo->createToken(
+        7,
+        10,
+        ['acao' => $acao, 'tecnico' => serialize($tecnico)]
+    );
 }
 
 function getCompeticao(PDO $pdo): ?Competicao

@@ -118,9 +118,7 @@ function pesquisarAtletas($req): Response
     $pesquisarIn('a.sexo', array_map(fn(Sexo $s): string => $s->value, $dados->sexoAtleta));
     $pesquisarIn('acs_filtrar.sexo_dupla', array_map(fn(Sexo $s): string => $s->value, $dados->sexoDupla));
 
-
     $where = implode(' AND ', $condicoes);
-
 
     $sql = <<<SQL
           select a.id,
@@ -195,6 +193,9 @@ function pesquisarAtletas($req): Response
     return Response::ok('Busca realizada com sucesso', ['resultados' => $resultados]);
 }
 
+/**
+ * @throws ValidatorException
+ */
 function enviarSolicitacao(array $req): Response
 {
     $dto = EnviarSolicitacaoDTO::parse($req);
@@ -219,5 +220,4 @@ function enviarSolicitacao(array $req): Response
         $pdo->rollBack();
         throw $e;
     }
-
 }

@@ -55,10 +55,8 @@ class AtletaCompeticao
 
     public function buscaDuplaDoSexo(Sexo $sexo): bool
     {
-        foreach ($this->sexoDupla as $sexoRegistrado) {
-            if ($sexoRegistrado == $sexo) {
-                return true;
-            }
+        if (in_array($sexo, $this->sexoDupla)) {
+            return true;
         }
         return false;
     }
