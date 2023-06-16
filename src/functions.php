@@ -12,8 +12,9 @@ function array_index_by(array $a, int|string $key): array
     return $r;
 }
 
-function array_some(array $a, callable $p): bool
+function array_some(array $a, callable $p=null): bool
 {
+    $p ??= fn($x) => $x;
     foreach ($a as $x) {
         if ($p($x)) {
             return true;
@@ -22,8 +23,9 @@ function array_some(array $a, callable $p): bool
     return false;
 }
 
-function array_every(array $a, callable $p): bool
+function array_every(array $a, callable $p=null): bool
 {
+    $p ??= fn($x) => $x;
     foreach ($a as $x) {
         if (!$p($x)) {
             return false;
