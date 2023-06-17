@@ -126,7 +126,7 @@ readonly class EnviarSolicitacao
 
         $this->validarCompatibilidade($remetente, $destinatario, $idCategoria);
 
-        $existente = $this->solicitacoes->getEnvolvendo($competicao->id(), $idRemetente, $idDestinatario, $idCategoria);
+        $existente = $this->solicitacoes->getViaIds($competicao->id(), $idRemetente, $idDestinatario, $idCategoria);
         if ($existente != null) {
             throw new ValidatorException('Essa solicitação já foi enviada');
         }

@@ -16,7 +16,7 @@ class SolicitacaoPendenteRepositoryTest extends TestCase
      * @throws Exception
      * @throws \Exception
      */
-    public function testGetEnvolvendo(): void
+    public function testgetViaIds(): void
     {
         $pdo = $this->createMock(PDO::class);
         $stmt = $this->createMock(PDOStatement::class);
@@ -46,7 +46,7 @@ class SolicitacaoPendenteRepositoryTest extends TestCase
 
         $repo = new SolicitacaoPendenteRepository($pdo);
 
-        $solicitacao = $repo->getEnvolvendo(2, 3, 4, 5);
+        $solicitacao = $repo->getViaIds(2, 3, 4, 5);
 
         $this->assertSame(1, $solicitacao->id);
         $this->assertSame(2, $solicitacao->idCompeticao);
@@ -95,7 +95,7 @@ class SolicitacaoPendenteRepositoryTest extends TestCase
      * @throws Exception
      * @throws \Exception
      */
-    public function testGetEnvolvendoMesmosAtletasECategoria(): void
+    public function testgetViaIdsMesmosAtletasECategoria(): void
     {
         $pdo = $this->createMock(PDO::class);
         $stmt = $this->createMock(PDOStatement::class);
@@ -137,14 +137,14 @@ class SolicitacaoPendenteRepositoryTest extends TestCase
 
         $this->expectException(ValidatorException::class);
         $this->expectExceptionMessage('Mais de uma solicitação envolvendo os mesmos atleta e a mesma categoria dentro da mesma competição.');
-        $repo->getEnvolvendo(2, 3, 4, 5);
+        $repo->getViaIds(2, 3, 4, 5);
     }
 
     /**
      * @throws Exception
      * @throws \Exception
      */
-    public function testGetEnvolvendoRetornaNull(): void
+    public function testgetViaIdsRetornaNull(): void
     {
         $pdo = $this->createMock(PDO::class);
         $stmt = $this->createMock(PDOStatement::class);
@@ -163,7 +163,7 @@ class SolicitacaoPendenteRepositoryTest extends TestCase
 
         $repo = new SolicitacaoPendenteRepository($pdo);
 
-        $solicitacao = $repo->getEnvolvendo(2, 3, 4, 5);
+        $solicitacao = $repo->getViaIds(2, 3, 4, 5);
 
         $this->assertNull($solicitacao);
     }
