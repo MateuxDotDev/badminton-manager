@@ -125,16 +125,36 @@ class CompeticaoRepository implements CompeticaoRepositoryInterface
         if (empty($rows)) {
             return null;
         }
+        return Competicao::fromRow($rows[0]);
+    }
 
-        $row = $rows[0];
 
-        return (new Competicao)
-            ->setId((int) $row['id'])
-            ->setNome($row['nome'])
-            ->setDescricao($row['descricao'])
-            ->setPrazo(Dates::parseDay($row['prazo']))
-            ->setDataCriacao(Dates::parseMicro($row['criado_em']))
-            ->setDataAlteracao(Dates::parseMicro($row['alterado_em']))
-            ;
+    public function getViaIds(array $idCompeticoes): array
+    {
+        if (empty($idCompeticoes)) {
+            return [];
+        }
+
+        $condicao = 'id IN ('.implode(',', array_fill(0, count($idCompeticoes), '?')).')';
+        $parametros = $idCompeticoes;
+
+        $sql = <<<SQL
+            SELECT id,
+                   nome,
+                   descricao,
+                   prazo,
+                   criado_em,
+                   alterado_em
+              FROM competicao
+             WHERE $condicao
+        SQL;
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($parametros);
+
+        $retorno = [];
+        while ($row = $stmt->fetch()) {
+            $retorno[] = Competicao::fromRow($row);
+        }
+        return $retorno;
     }
 }

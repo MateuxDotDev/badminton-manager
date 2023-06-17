@@ -41,7 +41,7 @@ class ArrayIndexByTest extends TestCase
 
         $result = array_index_by($input, 0);
 
-        $this->assertSame($expected, $result);
+        $this->assertEquals($expected, $result);
     }
 
     public function testIndexByMissingKey()
@@ -56,6 +56,25 @@ class ArrayIndexByTest extends TestCase
 
         $result = array_index_by($input, 'missing_key');
 
-        $this->assertSame($expected, $result);
+        $this->assertEquals($expected, $result);
+    }
+
+    public function testIndexByCallable()
+    {
+        $input = [
+            ['id' => '1', 'name' => 'foo'],
+            ['id' => '2', 'name' => 'bar'],
+            ['id' => '3', 'name' => 'baz'],
+        ];
+
+        $expected = [
+            '10f' => ['id' => '1', 'name' => 'foo'],
+            '20b' => ['id' => '2', 'name' => 'bar'],
+            '30b' => ['id' => '3', 'name' => 'baz'],
+        ];
+
+        $actual = array_index_by($input, fn($x) => $x['id']*10 . $x['name'][0]);
+
+        $this->assertEquals($expected, $actual);
     }
 }

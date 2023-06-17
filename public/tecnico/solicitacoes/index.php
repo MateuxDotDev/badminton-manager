@@ -2,6 +2,9 @@
 
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
+use App\Categorias\CategoriaRepository;
+use App\Competicoes\CompeticaoRepository;
+use App\Tecnico\Atleta\AtletaRepository;
 use App\Tecnico\Solicitacao\SolicitacaoPendenteRepository;
 use App\Util\Database\Connection;
 use App\Util\General\UserSession;
@@ -15,34 +18,40 @@ if (!$session->isTecnico()) {
 Template::head('Solicitações de formação de dupla');
 
 $pdo = Connection::getInstance();
-$repo = new SolicitacaoPendenteRepository($pdo);
 
-$tecnico = $session->getTecnico();
+$tecnicoLogado = $session->getTecnico();
 
-[
-    'competicoes'  => $competicoes,
-    'atletas'      => $atletas,
-    'solicitacoes' => $solicitacoes
-] = $repo->getViaTecnico($session->getTecnico()->id());
+$solicitacoes = (new SolicitacaoPendenteRepository($pdo))->getViaTecnico($tecnicoLogado->id());
 
-// TODO
-// 2 abas
-// enviadas / recebidas
+$idAtletas     = [];
+$idCompeticoes = [];
+foreach ($solicitacoes as $solicitacao) {
+    // Pode haver duplicados, mas não importa
+    $idAtletas[] = $solicitacao->idAtletaDestinatario;
+    $idAtletas[] = $solicitacao->idAtletaRemetente;
+    $idCompeticoes[] = $solicitacao->idCompeticao;
+}
 
-$recebidas = array_filter($solicitacoes, function($solicitacao) use ($atletas, $tecnico) {
-    $atleta = $atletas[$solicitacao->idAtletaDestinatario];
-    return $atleta->tecnico()->id() == $tecnico->id();
-});
+$atletas     = array_index_by((new AtletaRepository($pdo))->getViaIds($idAtletas),         fn($a) => $a->id());
+$competicoes = array_index_by((new CompeticaoRepository($pdo))->getViaIds($idCompeticoes), fn($c) => $c->id());
+$categorias  = (new CategoriaRepository($pdo))->buscarCategorias();
 
-$enviadas = array_filter($solicitacoes, function($solicitacao) use ($atletas, $tecnico) {
-    $atleta = $atletas[$solicitacao->idAtletaRemetente];
-    return $atleta->tecnico()->id() == $tecnico->id();
-});
+dump($solicitacoes);
+dump($atletas);
+dump($competicoes);
+dump($categorias);
 
-// uma aba para recebidas e outra para enviadas
-// solicitação recebida: pode aceitar / rejeitar
-// solicitação enviada: pode cancelar
 
+$enviadas = [];
+$recebidas = [];
+
+foreach ($solicitacoes as $solicitacao) {
+    if ($solicitacao->idAtletaRemetente == $tecnicoLogado->id()) {
+        $enviadas[] = $solicitacao;
+    } else {
+        $recebidas[] = $solicitacao;
+    }
+}
 
 ?>
 
