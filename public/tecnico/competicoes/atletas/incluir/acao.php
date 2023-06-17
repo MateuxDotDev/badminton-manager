@@ -214,7 +214,7 @@ function gerarToken(PDO $pdo, Tecnico $tecnico, string $acao): array
     return $tokenRepo->createToken(
         7,
         10,
-        ['acao' => $acao, 'tecnico' => serialize($tecnico)]
+        ['acao' => $acao, 'tecnico' => json_encode(serialize($tecnico))]
     );
 }
 

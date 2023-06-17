@@ -53,3 +53,7 @@ pre.sf-dump {
 .cat-btn-marcar-todas:hover, .cat-btn-marcar-todasias:hover {
     opacity: 1.0;
 }
+
+.help-cursor {
+    cursor: help;
+}

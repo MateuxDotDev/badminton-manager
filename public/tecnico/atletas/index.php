@@ -28,7 +28,8 @@ try {
     } else {
         $tokenService = new TokenService();
         $decodedToken = $tokenService->decodeToken($urlToken);
-        $idTecnico = $decodedToken->tecnico->id;
+        $tecnicoJson = json_decode($decodedToken->tecnico);
+        $idTecnico = $tecnicoJson['id'];
 
         if ($idTecnico === null) {
             Response::erroNaoAutorizado()->enviar();
