@@ -15,3 +15,19 @@ function array_index_by(array $a, int|string|callable $key): array
     }
     return $r;
 }
+
+
+function fill_template(string $template, array $data)
+{
+    return str_replace(
+        array_map(fn ($key) => "{{ $key }}", array_keys($data)),
+        array_values($data),
+        $template
+    );
+}
+
+
+function pluralize(int $n, string $singular, string $plural): string
+{
+    return $n == 1 ? "$n $singular" : "$n $plural";
+}
