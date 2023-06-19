@@ -32,4 +32,24 @@ class NotificacaoRepository implements NotificacaoRepositoryInterface
 
         return $ok ? $pdo->lastInsertId() : null;
     }
+
+    public function getViaId1(int $id1): array
+    {
+        $sql = <<<SQL
+            SELECT n.id,
+                   n.tipo,
+                   n.tecnico_id,
+                   n.id_1,
+                   n.id_2,
+                   n.id_3,
+                   n.criado_em
+              FROM notificacao n
+             WHERE n.id_1 = :id_1
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id_1' => $id1]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

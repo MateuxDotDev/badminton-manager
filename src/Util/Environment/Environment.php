@@ -70,4 +70,10 @@ class Environment
         self::loadEnv();
         return $_ENV['BASE_URL'];
     }
+
+    public static function getCronToken(): string
+    {
+        self::loadEnv();
+        return $_ENV['CRON_TOKEN'];
+    }
 }

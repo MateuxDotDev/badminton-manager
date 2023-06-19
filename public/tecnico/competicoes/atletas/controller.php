@@ -2,18 +2,26 @@
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
+use App\Categorias\CategoriaRepository;
 use App\Competicoes\CompeticaoRepository;
+use App\Mail\EmailDTO;
+use App\Mail\MailRepository;
+use App\Mail\MailRepositoryInterface;
+use App\Mail\NovaSolicitacaoMail;
 use App\Notificacao\NotificacaoRepository;
 use App\Competicoes\PesquisaAtletaCompeticao;
+use App\Tecnico\Atleta\AtletaRepository;
 use App\Tecnico\Atleta\Sexo;
 use App\Tecnico\Solicitacao\EnviarSolicitacao;
 use App\Tecnico\Solicitacao\EnviarSolicitacaoDTO;
 use App\Tecnico\Solicitacao\SolicitacaoPendenteRepository;
+use App\Tecnico\TecnicoRepository;
 use App\Util\Database\Connection;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
 use App\Util\Http\Request;
 use App\Util\Http\Response;
+use App\Util\Mail\Mailer;
 
 try {
     atletaCompeticaoController()->enviar();
@@ -22,7 +30,7 @@ try {
 }
 
 /**
- * @throws \Exception
+ * @throws Exception
  */
 function atletaCompeticaoController(): Response
 {
@@ -195,6 +203,9 @@ function pesquisarAtletas($req): Response
     return Response::ok('Busca realizada com sucesso', ['resultados' => $resultados]);
 }
 
+/**
+ * @throws ValidatorException
+ */
 function enviarSolicitacao(array $req): Response
 {
     $dto = EnviarSolicitacaoDTO::parse($req);
@@ -203,15 +214,58 @@ function enviarSolicitacao(array $req): Response
 
     $session = UserSession::obj();
 
-    $competicoes  = new CompeticaoRepository($pdo);
-    $solicitacoes = new SolicitacaoPendenteRepository($pdo);
-    $notificacoes = new NotificacaoRepository($pdo);
+    $competicoesRepo  = new CompeticaoRepository($pdo);
+    $solicitacoesRepo = new SolicitacaoPendenteRepository($pdo);
+    $notificacoesRepo = new NotificacaoRepository($pdo);
+    $mailRepo = new MailRepository($pdo);
+    $tecnicoRepo = new TecnicoRepository($pdo);
+    $atletaRepo = new AtletaRepository($pdo);
+    $categoriaRepo = new CategoriaRepository($pdo);
 
     try {
         $pdo->beginTransaction();
 
-        $enviar = new EnviarSolicitacao($pdo, $session, $competicoes, $solicitacoes, $notificacoes);
+        $enviar = new EnviarSolicitacao($pdo, $session, $competicoesRepo, $solicitacoesRepo, $notificacoesRepo);
         $id = $enviar($dto);
+
+        $atletaDest = $atletaRepo->getViaId($dto->idAtletaDestinatario);
+        $atletaRem = $atletaRepo->getViaId($dto->idAtletaRemetente);
+        $tecnicoDest = $tecnicoRepo->getViaAtleta($atletaDest->id());
+        $tecnicoRem = $tecnicoRepo->getViaAtleta($atletaRem->id());
+        $categoria = $categoriaRepo->getCategoriaById($dto->idCategoria);
+        $notificacoes = $notificacoesRepo->getViaId1($id);
+        $notificacaoIdRem = 0;
+        foreach ($notificacoes as $notificacao) {
+            if ($notificacao['tecnico_id'] == $tecnicoRem->id()) {
+                $notificacaoIdRem = $notificacao->id();
+                break;
+            }
+        }
+
+        $mail = new NovaSolicitacaoMail(new Mailer());
+        $mail->fillTemplate([
+            'nome_tecnico' => $tecnicoDest->nomeCompleto(),
+            'convite_atleta' => $atletaRem->nomeCompleto(),
+            'convite_clube' => $tecnicoRem->clube()->nome(),
+            'convite_tecnico' => $tecnicoRem->nomeCompleto(),
+            'convite_sexo' => $atletaRem->sexo()->toString(),
+            'convite_categoria' => $categoria->descricao(),
+            'convite_modalidade' => 'Simples',
+            'convite_observacoes' => $dto->informacoes ?? 'Nenhuma observação',
+            'link_aceite' => 'TODO',
+            'link_rejeicao' => 'TODO',
+            'ano_atual' => date('Y'),
+        ]);
+
+        $mailDto = new EmailDTO(
+            $tecnicoDest->nomeCompleto(),
+            $tecnicoDest->email(),
+            $mail->getSubject(),
+            $mail->getBody(),
+            $mail->getAltBody(),
+            $notificacaoIdRem
+        );
+        $mailRepo->criar($mailDto);
 
         $pdo->commit();
         return Response::ok('Solicitação enviada com sucesso', ['id' => $id]);
@@ -219,5 +273,4 @@ function enviarSolicitacao(array $req): Response
         $pdo->rollBack();
         throw $e;
     }
-
 }

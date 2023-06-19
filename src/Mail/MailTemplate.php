@@ -14,11 +14,12 @@ abstract class MailTemplate
     private string $toEmail;
     private string $altBody;
 
-    public function __construct(MailerInterface $mailer, string $body, string $subject = '')
+    public function __construct(MailerInterface $mailer, string $body, string $subject = '', $altBody = '')
     {
         $this->mailer = $mailer;
         $this->body = $body;
         $this->subject = $subject;
+        $this->altBody = $altBody;
     }
 
     public function fillTemplate(array $data): void
@@ -65,5 +66,15 @@ abstract class MailTemplate
     public function getBody(): string
     {
         return $this->body;
+    }
+
+    public function getSubject(): string
+    {
+        return $this->subject;
+    }
+
+    public function getAltBody(): string
+    {
+        return $this->altBody;
     }
 }

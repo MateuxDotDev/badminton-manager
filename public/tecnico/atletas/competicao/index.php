@@ -1,6 +1,6 @@
 <?php
 
-require_once(__DIR__.'/../../vendor/autoload.php');
+require_once(__DIR__ . '/../../../../vendor/autoload.php');
 
 use App\Util\Template\Template;
 use App\Util\Database\Connection;
@@ -374,7 +374,7 @@ $tecnico = $session->getTecnico();
 
     async function submitAtletaCompeticao(dados){
         try{
-            const response = await fetch('/atletacompeticao/acao.php', {
+            const response = await fetch('/tecnico/atletas/competicao/acao.php', {
                 method: 'POST',
                 body: dados
             });
@@ -382,7 +382,7 @@ $tecnico = $session->getTecnico();
             const retorno = JSON.parse(text);
             if (response.ok) {
                 agendarAlertaSucesso('Atleta inserido na competição');
-                location.assign('/tecnico/index.php');
+                location.assign('/tecnico/');
             } else {
                 Toast.fire({
                     icon: 'error',
