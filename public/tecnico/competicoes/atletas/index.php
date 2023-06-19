@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../../../vendor/autoload.php';
 use App\Competicoes\CompeticaoRepository;
 use App\Categorias\CategoriaRepository;
 use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoRepository;
+use App\Tecnico\Atleta\AtletaRepository;
 use App\Tecnico\Atleta\Sexo;
 use App\Util\Database\Connection;
 use App\Util\General\UserSession;
@@ -29,29 +30,27 @@ if ($idCompeticao != null) {
   $competicao = $competicaoRepo->getViaId($idCompeticao);
 }
 
-$atleta = null;
-if (array_key_exists('atleta', $_GET) && is_int($_GET['atleta'])) {
-  $idAtleta = $_GET['atleta'];
-  $atletaRepo = new AtletaCompeticaoRepository($pdo);
-  $atleta = $atletaRepo->getViaId($idAtleta, $idCompeticao);
-}
+$atletaCompeticao = null;
+if (array_key_exists('atleta', $_GET) && is_numeric($_GET['atleta'])) {
+  $aRepo = new AtletaRepository($pdo);
+  $atleta = $aRepo->getViaId($_GET['atleta']);
 
-function categoriaChecked(int $idCategoria): bool
-{
-  global $atleta;
-  return $atleta == null || in_array($idCategoria, $atleta['categorias']);
+  if ($atleta !== null) {
+    $acRepo = new AtletaCompeticaoRepository($pdo);
+    $atletaCompeticao = $acRepo->get($atleta, $competicao);
+  }
 }
 
 function sexoAtletaChecked(Sexo $sexo): bool
 {
-  global $atleta;
-  return $atleta == null || in_array($sexo, $atleta['sexoDuplas']);
+  global $atletaCompeticao;
+  return $atletaCompeticao == null || in_array($sexo, $atletaCompeticao->sexoDupla());
 }
 
 function sexoBuscadoChecked(Sexo $sexo): bool
 {
-  global $atleta;
-  return $atleta == null || $sexo == $atleta['sexo'];
+  global $atletaCompeticao;
+  return $atletaCompeticao == null || $sexo == $atletaCompeticao->atleta()->sexo();
 }
 
 if ($competicao == null) {
@@ -72,23 +71,6 @@ if ($competicao == null) {
 
   return;
 }
-
-$categorias = $categoriaRepo->buscarCategorias();
-
-$inputsCategorias = [];
-foreach ($categorias as $categoria) {
-  $id        = $categoria->id();
-  $descricao = $categoria->descricao();
-  $checked   = categoriaChecked($id) ? 'checked' : '';
-
-  $inputsCategorias[] = "
-    <div class='form-check'>
-      <input $checked class='form-check-input input-categoria' type='checkbox' id='categoria-$id' value='$id'>
-      <label for='categoria-$id' class='form-check-label'>$descricao</label>
-    </div>
-  ";
-}
-
 
 ?>
 
@@ -260,16 +242,25 @@ foreach ($categorias as $categoria) {
 
 <?php require_once 'template-atleta.html' ?>
 
-<?php Template::scripts(); ?>
+<?php
+Template::scripts();
+
+$categoriasMarcadas = [];
+if ($atletaCompeticao !== null) {
+  $categoriasMarcadas = array_map(fn($c) => $c->id(), $atletaCompeticao->categorias());
+}
+?>
 
 <script>
 
-let tecnicoEstaLogado = <?= $session->isTecnico() ? 'true' : 'false' ?>;
+const idAtletaRemetente = <?= $atletaCompeticao?->atleta()?->id() ?? 'null' ?>;
 
 let inputCategorias = null;
+const categoriasMarcadas = <?= json_encode($categoriasMarcadas) ?>;
 
 fetchCategorias().then(categorias => {
   inputCategorias = new InputCategorias(categorias);
+  inputCategorias.marcadas = categoriasMarcadas;
   qs('#container-input-categorias').append(inputCategorias.elemento());
 });
 
@@ -379,8 +370,15 @@ function criarElementoAtleta(atleta) {
 
   {
     const formarDupla = eqs(elem, '.atleta-link-formar-dupla');
-    const link = `/tecnico/competicoes/atletas/formar_dupla.php?atleta=${atleta.id}&competicao=${idCompeticao}`;
-    formarDupla.setAttribute('href', link);
+
+    const url = new URL(baseUrl + '/tecnico/competicoes/atletas/formar_dupla.php');
+    url.searchParams.append('destino', atleta.id);
+    url.searchParams.append('competicao', idCompeticao);
+    if (idAtletaRemetente != null) {
+      url.searchParams.append('remetente', idAtletaRemetente);
+    }
+
+    formarDupla.setAttribute('href', url.toString());
   }
 
   return elem;

@@ -22,15 +22,22 @@ Template::nav($session);
 
 $pdo = Connection::getInstance();
 
-$idAtleta     = (int) $_GET['atleta'];
-$idCompeticao = (int) $_GET['competicao'];
+if (!array_key_exists('destino', $_GET) || !array_key_exists('competicao', $_GET)) {
+    Template::alerta('Link inválido');
+}
+
+$idAtletaDestinatario = (int) $_GET['destino'];
+$idCompeticao         = (int) $_GET['competicao'];
+
+// atleta que vem pré-selecionado (opcional)
+$idAtletaRemetente    = array_key_exists('remetente', $_GET) ? $_GET['remetente'] : null;
 
 $competicao = (new CompeticaoRepository($pdo))->getViaId($idCompeticao);
 if (!$competicao) {
     Template::alerta('Competição não encontrada');
 }
 
-$atleta = (new AtletaRepository($pdo))->getViaId($idAtleta);
+$atleta = (new AtletaRepository($pdo))->getViaId($idAtletaDestinatario);
 if (!$atleta) {
     Template::alerta('Atleta não encontrado');
 }
@@ -121,9 +128,15 @@ function buscarAtletasCompetiveisNaCompeticao(\PDO $pdo, int $idTecnico, int $id
     <div class="mb-3">
         <label>Selecione um(a) atleta para formar dupla com o(a) "<strong><?= $atleta->nomeCompleto() ?></strong>"</label>
         <select class="form-control" id="select-atleta-remetente">
-            <? foreach ($compativeis as $compativel): ?>
-                <option value=<?=$compativel['id']?>><?=$compativel['nome']?></option>
-            <? endforeach ?>
+            <?php foreach ($compativeis as $compativel) {
+                $selected = $compativel['id'] == $idAtletaRemetente ? 'selected' : '';
+                printf(
+                    "<option %s value=%s>%s</option>",
+                    $selected,
+                    $compativel['id'],
+                    $compativel['nome'],
+                );
+            } ?>
         </select>
     </div>
     <div id="container-input-categoria" class="mb-3">
@@ -148,7 +161,7 @@ function buscarAtletasCompetiveisNaCompeticao(\PDO $pdo, int $idTecnico, int $id
 const urlBase = '/tecnico/competicoes/atletas/';
 
 const idCompeticao = <?=$idCompeticao?>;
-const idDestinatario = <?=$idAtleta?>;
+const idDestinatario = <?=$idAtletaDestinatario?>;
 
 const categorias = <?=json_encode(array_map(fn($c) => $c->toJson(), $categorias))?>;
 const inputCategorias = new InputCategorias(categorias, {

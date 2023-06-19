@@ -31,3 +31,27 @@ function pluralize(int $n, string $singular, string $plural): string
 {
     return $n == 1 ? "$n $singular" : "$n $plural";
 }
+
+
+function array_some(array $a, callable $p=null): bool
+{
+    $p ??= fn($x) => $x;
+    foreach ($a as $x) {
+        if ($p($x)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+
+function array_every(array $a, callable $p=null): bool
+{
+    $p ??= fn($x) => $x;
+    foreach ($a as $x) {
+        if (!$p($x)) {
+            return false;
+        }
+    }
+    return true;
+}
