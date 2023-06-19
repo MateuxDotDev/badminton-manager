@@ -237,6 +237,6 @@ function adicionarTooltip(elemento, texto) {
     texto = (texto ?? '').trim();
     if (texto.length === 0) return;
     elemento.setAttribute('title', texto);
-    elemento.style.textDecoration = 'underline dotted 1px';
+    elemento.classList.add('contem-tooltip');
     new bootstrap.Tooltip(elemento);
 }

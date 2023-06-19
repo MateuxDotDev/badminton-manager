@@ -14,5 +14,6 @@ document.querySelectorAll('[data-click-switch]').forEach(elem => {
 });
 
 document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(elem => {
+    console.log('ué mano', elem)
     new bootstrap.Tooltip(elem);
 });

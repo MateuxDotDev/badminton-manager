@@ -60,3 +60,7 @@ pre.sf-dump {
 .hover-shadow:hover {
     box-shadow: 0 .25rem .5rem rgba(0,0,0,.075) !important;
 }
+
+.contem-tooltip {
+    text-decoration: underline dotted 1px;
+}

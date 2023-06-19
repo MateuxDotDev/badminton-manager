@@ -41,23 +41,29 @@ class Html
         $dataNascimento = $atleta->dataNascimento();
         $idade          = $atleta->idade();
 
-        // TODO abbr descrição nome
-
         static $template = '
             <div class="d-flex flex-column">
                 <div class="d-flex flex-row gap-2 fs-5">
-                    {{ nome }} {{ icone_sexo }}
+                    <span class="{{ contem_tooltip }}" {{ title }} data-bs-toggle="tooltip">
+                        {{ nome }}
+                    </span>
+                    {{ icone_sexo }}
                 </div>
                 <span>
                     {{ anos }} <small>({{ data_nascimento }})</small>
                 </span>
             </div>
         ';
+
+        $info = addslashes(htmlspecialchars(trim($atleta->informacoesAdicionais())));
+
         return fill_template($template, [
             'nome'            => $nome,
             'icone_sexo'      => self::iconeSexo($sexo),
             'anos'            => pluralize($idade, 'ano', 'anos'),
             'data_nascimento' => Dates::formatDayBr($dataNascimento),
+            'contem_tooltip'  => empty($info) ? '' : 'contem-tooltip',
+            'title'           => empty($info) ? '' : 'title="'.$info.'"',
         ]);
     }
 
@@ -73,7 +79,51 @@ class Html
         );
     }
 
-    public static function alerta(string $nivel, string $mensagem) {
-        return sprintf('<div class="mt-3 alert alert-%s">%s</div>', $nivel, $mensagem);
+
+    public static function campoAbbr(string $label, string $value, ?string $abbr): string
+    {
+        $abbr = addslashes(htmlspecialchars(trim($abbr)));
+        $contemTooltip = empty($abbr) ? '' : 'contem-tooltip';
+        $title         = empty($abbr) ? '' : 'title="'.$abbr.'"';
+
+        static $template = '
+            <div class="d-flex flex-column">
+                <small class="text-secondary">{{ label }}</small>
+                <span data-bs-toggle="tooltip" class="{{ contem_tooltip }}" {{ title }}>{{ value }}</span>
+            </div>
+        ';
+
+        return fill_template($template, [
+            'title'          => $title,
+            'label'          => $label,
+            'contem_tooltip' => $contemTooltip,
+            'value'          => $value,
+        ]);
+    }
+
+    public static function alerta(string $nivel, string $mensagem, array $attrMap=[])
+    {
+        $class = [
+            'mt-3 alert alert-'.$nivel
+        ];
+
+        $attrs = [];
+        foreach ($attrMap as $k => $v) {
+            if ($k == 'class') {
+                $class[] = $v;
+            } else {
+                $attrs[] = "$k='$v'";
+            }
+        }
+
+        $attrs[] = 'class="'.implode(' ', $class).'"';
+
+        $attrString = implode(' ', $attrs);
+
+        return sprintf(
+            '<div %s>%s</div>',
+            $attrString,
+            $mensagem
+        );
     }
 }
