@@ -1,9 +1,5 @@
 <?php
 
-// TODO ! mostrar as observações da solicitação, importante.
-// mostrar que nem as informações adicionais do atleta na consulta
-// ^- colocar a categoria embaixo também!
-
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use App\Categorias\CategoriaRepository;
