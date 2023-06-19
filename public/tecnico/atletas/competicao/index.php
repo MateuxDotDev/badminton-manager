@@ -525,6 +525,7 @@ $tecnico = $session->getTecnico();
 </script>
 
 <!-- Importando o jQuery -->
+<!-- TODO: remover dependencia desnecessaria em 2017 -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
 <?php Template::footer() ?>

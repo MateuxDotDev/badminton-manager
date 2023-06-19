@@ -1,0 +1,1 @@
+*/5 * * * * curl '$CRON_URL_BASE/notificar/?token=$CRON_TOKEN_ENV' >> /var/log/cron.log 2>&1
