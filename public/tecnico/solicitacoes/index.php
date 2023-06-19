@@ -218,7 +218,7 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
     <div class="d-flex flex-row align-items-center">
         <h1>Solicitações pendentes</h1>
         <div class="ms-auto d-flex flex-row gap-3 align-items-center">
-            <span>Competição: </span>
+            <span>Competição</span>
             <select class="form-control" id="select-competicao">
                 <?php
                     foreach ($competicoes as $competicao) {
