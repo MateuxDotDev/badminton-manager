@@ -1,1 +1,1 @@
-*/5 * * * * curl '$CRON_URL_BASE/notificar/?token=$CRON_TOKEN_ENV' >> /var/log/cron.log 2>&1
+*/5 * * * * /usr/bin/curl 'http://localhost:8080/notificar/?token=ziBT6ecqbhBBsUnRC*iGrV8AufN!7LWDjuACxGLVWA6jtUMBBrVwLt6ZAS6farNN' >> ~/logs/cron.log 2>&1

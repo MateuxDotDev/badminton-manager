@@ -12,7 +12,7 @@ trait TemUuid
         return $this;
     }
 
-    public function id(): ?int
+    public function id(): ?string
     {
         return $this->uuid;
     }

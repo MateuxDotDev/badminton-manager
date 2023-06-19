@@ -64,6 +64,8 @@ class NovaSolicitacaoMailTest extends TestCase
         $result = $mail->send();
 
         $this->assertTrue($result);
+        $this->assertSame($altBody, $mail->getAltBody());
+        $this->assertSame($subject, $mail->getSubject());
     }
 
     public function testFillTemplate()
