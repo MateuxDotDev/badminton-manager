@@ -198,7 +198,7 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
         'competicao_id'          => $solicitacao->idCompeticao,
         'destinatario_foto'      => Html::imgAtleta($destinatario->foto(), 80),
         'destinatario_descricao' => Html::campoDescricaoAtleta($destinatario),
-        'destinatario_tecnico'   => Html::campoAbbr('Técnico', $tecnicoDest->nomeCompleto(), $tecnicoDest->informacoes),
+        'destinatario_tecnico'   => Html::campoAbbr('Técnico', $tecnicoDest->nomeCompleto(), $tecnicoDest->informacoes()),
         'destinatario_clube'     => Html::campo('Clube', $tecnicoDest->clube()->nome()),
         'remetente_foto'         => Html::imgAtleta($remetente->foto(), 80),
         'remetente_descricao'    => Html::campoDescricaoAtleta($remetente),
