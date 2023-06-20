@@ -107,10 +107,6 @@ class AtletaRepository implements AtletaRepositoryInterface
             }
         }
 
-        if (empty($condicoes)) {
-            throw new ValidatorException('Condições não foram informadas');
-        }
-
         $where = implode(' AND ', $condicoes);
 
         $sql = <<<SQL
