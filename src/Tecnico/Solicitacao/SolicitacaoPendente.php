@@ -2,8 +2,9 @@
 
 namespace App\Tecnico\Solicitacao;
 
-use \DateTimeInterface;
+use DateTimeInterface;
 use App\Util\General\Dates;
+
 readonly class SolicitacaoPendente
 {
     public function __construct(

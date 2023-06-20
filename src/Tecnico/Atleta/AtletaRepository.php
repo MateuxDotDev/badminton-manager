@@ -9,8 +9,8 @@ use App\Util\General\Dates;
 use App\Util\Http\HttpStatus;
 use App\Util\Services\UploadImagemService\UploadImagemService;
 use App\Util\Services\UploadImagemService\UploadImagemServiceInterface;
-use \Exception;
-use \PDO;
+use Exception;
+use PDO;
 
 class AtletaRepository implements AtletaRepositoryInterface
 {
@@ -78,6 +78,9 @@ class AtletaRepository implements AtletaRepositoryInterface
         }
     }
 
+    /**
+     * @throws ValidatorException
+     */
     private function get(array $filtros=[]): array
     {
         $condicoes  = [];
@@ -105,7 +108,7 @@ class AtletaRepository implements AtletaRepositoryInterface
         }
 
         if (empty($condicoes)) {
-            throw new Exception('Condições não foram informadas');
+            throw new ValidatorException('Condições não foram informadas');
         }
 
         $where = implode(' AND ', $condicoes);

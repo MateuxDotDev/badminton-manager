@@ -269,4 +269,81 @@ class AtletaRepositoryTest extends TestCase
 
         $this->assertFalse($result);
     }
+
+    /**
+     * @throws Exception
+     */
+    public function testGetViaIds(): void
+    {
+        $rows = [
+            [
+                'a_id' => 1,
+                'a_nome_completo' => 'Teste Atleta',
+                'a_sexo' => Sexo::MASCULINO->value,
+                'a_data_nascimento' => '2000-01-01',
+                'a_informacoes' => 'Teste Informacoes',
+                'a_path_foto' => 'Teste Foto',
+                'a_criado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
+                'a_alterado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
+                't_id' => 1,
+                't_nome_completo' => 'Márcio Medeiros',
+                't_email' => 'marcio@mail.com',
+                't_informacoes' => '',
+                't_criado_em' => '2023-02-02 12:12:12.012345',
+                't_alterado_em' => '2023-12-02 12:12:12.012345',
+                'c_id' => 1,
+                'c_nome' => 'Clube X',
+                'c_criado_em' => '2023-02-02 12:12:12.012345'
+            ],
+            [
+                'a_id' => 2,
+                'a_nome_completo' => 'Atleta 2',
+                'a_sexo' => Sexo::FEMININO->value,
+                'a_data_nascimento' => '2001-02-02',
+                'a_informacoes' => 'Informações Atleta 2',
+                'a_path_foto' => 'Foto Atleta 2',
+                'a_criado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
+                'a_alterado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
+                't_id' => 2,
+                't_nome_completo' => 'Patrícia Silva',
+                't_email' => 'patricia@mail.com',
+                't_informacoes' => 'Informações Treinador 2',
+                't_criado_em' => '2023-02-02 12:12:12.012345',
+                't_alterado_em' => '2023-12-02 12:12:12.012345',
+                'c_id' => 2,
+                'c_nome' => 'Clube Y',
+                'c_criado_em' => '2023-02-02 12:12:12.012345'
+            ]
+        ];
+
+        $this->pdo->method('prepare')->willReturn($this->pdoStatement);
+        $this->pdoStatement->method('execute')->willReturn(true);
+        $this->pdoStatement->method('fetchAll')->willReturn($rows);
+
+        $atletas = $this->atletaRepository->getViaIds([1, 2]);
+
+        for ($i = 0; $i < count($atletas) - 1; $i++) {
+            $atleta = $atletas[$i];
+            $row = $rows[$i];
+
+            $this->assertSame($row['a_id'], $atleta->id());
+            $this->assertSame($row['a_nome_completo'], $atleta->nomeCompleto());
+            $this->assertSame(Sexo::from($row['a_sexo']), $atleta->sexo());
+            $this->assertSame($row['a_data_nascimento'], $atleta->dataNascimento()->format('Y-m-d'));
+            $this->assertSame($row['a_informacoes'], $atleta->informacoesAdicionais());
+            $this->assertSame($row['a_path_foto'], $atleta->foto());
+            $this->assertSame($row['a_criado_em'], $atleta->dataCriacao()->format('Y-m-d H:i:s.u'));
+            $this->assertSame($row['a_alterado_em'], $atleta->dataAlteracao()->format('Y-m-d H:i:s.u'));
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testGetViaIdsEmpty(): void
+    {
+        $atletas = $this->atletaRepository->getViaIds([]);
+
+        $this->assertEmpty($atletas);
+    }
 }
