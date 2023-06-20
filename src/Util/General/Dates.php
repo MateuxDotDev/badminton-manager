@@ -10,6 +10,7 @@ class Dates
     const DAY = 'Y-m-d';
     const MICRO = 'Y-m-d H:i:s.u';
     const BRAZIL = 'd/m/Y H:i:s';
+    const BRAZIL_DAY = 'd/m/Y';
 
     private static function parse(?string $s, string $fmt): DateTimeImmutable|null|false
     {
@@ -45,6 +46,11 @@ class Dates
     public static function formatBr(?DateTimeInterface $d): ?string
     {
         return self::format($d, self::BRAZIL);
+    }
+
+    public static function formatDayBr(?DateTimeInterface $d): ?string
+    {
+        return self::format($d, self::BRAZIL_DAY);
     }
 
     public static function age(DateTimeInterface $d): int

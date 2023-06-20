@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests;
+namespace Tests\Functions;
 
 use App\Util\General\SenhaCriptografada;
 use PHPUnit\Framework\TestCase;

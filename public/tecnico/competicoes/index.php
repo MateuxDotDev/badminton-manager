@@ -56,7 +56,13 @@ else Template::navTecnicoNaoLogado();
                         <?= $competicao->prazo()->format('d/m/Y') ?>
                     </td>
 
-                    <!-- TODO após implementar essas telas, colocar os links aqui -->
+                    <td class="td-botao">
+                        <a href="/tecnico/solicitacoes?competicao=<?= $competicao->id() ?>" class="btn btn-outline-secondary">
+                            <i class="bi bi-send"></i>
+                            Solicitações pendentes
+                        </a>
+                    </td>
+
                     <td class="td-botao">
                         <a href="/tecnico/competicoes/atletas/?competicao=<?= $competicao->id() ?>" class="btn btn-outline-primary">
                             <i class="bi bi-person"></i>

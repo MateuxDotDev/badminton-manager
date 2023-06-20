@@ -53,3 +53,14 @@ pre.sf-dump {
 .cat-btn-marcar-todas:hover, .cat-btn-marcar-todasias:hover {
     opacity: 1.0;
 }
+
+.hover-shadow {
+    transition: 0.2s ease-in-out;
+}
+.hover-shadow:hover {
+    box-shadow: 0 .25rem .5rem rgba(0,0,0,.075) !important;
+}
+
+.contem-tooltip {
+    text-decoration: underline dotted 1px;
+}

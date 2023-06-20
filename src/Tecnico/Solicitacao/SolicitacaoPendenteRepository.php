@@ -3,7 +3,6 @@
 namespace App\Tecnico\Solicitacao;
 
 use App\Util\Exceptions\ValidatorException;
-use App\Util\General\Dates;
 use Exception;
 use PDO;
 
@@ -16,7 +15,7 @@ class SolicitacaoPendenteRepository implements SolicitacaoPendenteRepositoryInte
     /**
      * @throws Exception
      */
-    public function getEnvolvendo(
+    public function getViaIds(
         int $idCompeticao,
         int $idAtleta1,
         int $idAtleta2,
@@ -61,16 +60,7 @@ class SolicitacaoPendenteRepository implements SolicitacaoPendenteRepositoryInte
         }
         $row = $rows[0];
 
-        return new SolicitacaoPendente(
-            (int) $row['id'],
-            Dates::parseMicro($row['criado_em']),
-            Dates::parseMicro($row['alterado_em']),
-            (int) $row['competicao_id'],
-            (int) $row['atleta_origem_id'],
-            (int) $row['atleta_destino_id'],
-            (int) $row['categoria_id'],
-            $row['informacoes'],
-        );
+        return SolicitacaoPendente::fromRow($row);
     }
 
     public function enviar(EnviarSolicitacaoDTO $solicitacao): int
@@ -94,5 +84,34 @@ class SolicitacaoPendenteRepository implements SolicitacaoPendenteRepositoryInte
         ]);
 
         return $pdo->lastInsertId();
+    }
+
+    public function getViaTecnico(int $idTecnico): array
+    {
+        $sql = <<<SQL
+            SELECT s.id
+                 , s.competicao_id
+                 , s.atleta_origem_id
+                 , s.atleta_destino_id
+                 , s.informacoes
+                 , s.categoria_id
+                 , s.criado_em
+                 , s.alterado_em
+              FROM solicitacao_dupla_pendente s
+              JOIN competicao c ON c.id = s.competicao_id
+              JOIN atleta ori   ON ori.id  = s.atleta_origem_id
+              JOIN atleta dest  ON dest.id = s.atleta_destino_id
+             WHERE :tecnico_id IN (ori.tecnico_id, dest.tecnico_id)
+               AND NOW() <= c.prazo
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['tecnico_id' => $idTecnico]);
+
+        $retorno = [];
+        while ($row = $stmt->fetch()) {
+            $retorno[] = SolicitacaoPendente::fromRow($row);
+        }
+        return $retorno;
     }
 }

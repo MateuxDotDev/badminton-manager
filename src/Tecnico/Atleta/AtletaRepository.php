@@ -2,6 +2,8 @@
 
 namespace App\Tecnico\Atleta;
 
+use App\Tecnico\Clube;
+use App\Tecnico\Tecnico;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use App\Util\Http\HttpStatus;
@@ -76,28 +78,62 @@ class AtletaRepository implements AtletaRepositoryInterface
         }
     }
 
+    /**
+     * @throws ValidatorException
+     */
     private function get(array $filtros=[]): array
     {
         $condicoes  = [];
         $parametros = [];
 
         if (array_key_exists('tecnico', $filtros)) {
-            $condicoes[]  = 'tecnico_id = ?';
+            $condicoes[]  = 'a.tecnico_id = ?';
             $parametros[] = (int) $filtros['tecnico'];
         }
 
         if (array_key_exists('id', $filtros)) {
-            $condicoes[]  = 'id = ?';
+            $condicoes[]  = 'a.id = ?';
             $parametros[] = (int) $filtros['id'];
+        }
+
+        if (array_key_exists('id_in', $filtros)) {
+            $ids = $filtros['id_in'];
+            if (empty($ids)) {
+                return [];
+            }
+            $condicoes[] = 'a.id in ('.implode(',', array_fill(0, count($ids), '?')).')';
+            foreach ($ids as $id) {
+                $parametros[] = $id;
+            }
         }
 
         $where = implode(' AND ', $condicoes);
 
         $sql = <<<SQL
-            SELECT id, nome_completo, sexo, data_nascimento, informacoes, path_foto, criado_em, alterado_em
-              FROM atleta
+            SELECT a.id                  a_id
+                 , a.nome_completo       a_nome_completo
+                 , a.sexo                a_sexo
+                 , a.data_nascimento     a_data_nascimento
+                 , a.informacoes         a_informacoes
+                 , a.path_foto           a_path_foto
+                 , a.criado_em           a_criado_em
+                 , a.alterado_em         a_alterado_em
+
+                 , t.id                  t_id
+                 , t.nome_completo       t_nome_completo
+                 , t.email               t_email
+                 , t.informacoes         t_informacoes
+                 , t.criado_em           t_criado_em
+                 , t.alterado_em         t_alterado_em
+
+                 , c.id                  c_id
+                 , c.nome                c_nome
+                 , c.criado_em           c_criado_em
+              FROM atleta a
+              JOIN tecnico t ON t.id = a.tecnico_id
+              JOIN clube c   ON c.id = t.clube_id
              WHERE $where
-          ORDER BY nome_completo
+          ORDER BY a.nome_completo
         SQL;
 
         $stmt = $this->pdo->prepare($sql);
@@ -107,14 +143,27 @@ class AtletaRepository implements AtletaRepositoryInterface
         $atletas = [];
         foreach ($rows as $row) {
             $atletas[] = (new Atleta())
-                ->setId($row['id'])
-                ->setNomeCompleto($row['nome_completo'])
-                ->setSexo(Sexo::from($row['sexo']))
-                ->setDataNascimento(Dates::parseDay($row['data_nascimento']))
-                ->setInformacoesAdicionais($row['informacoes'])
-                ->setFoto($row['path_foto'])
-                ->setDataCriacao(Dates::parseMicro($row['criado_em']))
-                ->setDataAlteracao(Dates::parseMicro($row['alterado_em']));
+                ->setId((int) $row['a_id'])
+                ->setNomeCompleto($row['a_nome_completo'])
+                ->setSexo(Sexo::from($row['a_sexo']))
+                ->setDataNascimento(Dates::parseDay($row['a_data_nascimento']))
+                ->setInformacoesAdicionais($row['a_informacoes'])
+                ->setFoto($row['a_path_foto'])
+                ->setDataCriacao(Dates::parseMicro($row['a_criado_em']))
+                ->setDataAlteracao(Dates::parseMicro($row['a_alterado_em']))
+                ->setTecnico(
+                    (new Tecnico)
+                    ->setNomeCompleto($row['t_nome_completo'])
+                    ->setEmail($row['t_email'])
+                    ->setInformacoes($row['t_informacoes'])
+                    ->setId((int) $row['t_id'])
+                    ->setDataCriacao(Dates::parseMicro($row['t_criado_em']))
+                    ->setDataAlteracao(Dates::parseMicro($row['t_alterado_em']))
+                    ->setClube(
+                        (new Clube)
+                        ->setDataCriacao(Dates::parseMicro($row['c_criado_em']))
+                        ->setId((int) $row['c_id'])
+                        ->setNome($row['c_nome'])));
         }
 
         return $atletas;
@@ -168,5 +217,10 @@ class AtletaRepository implements AtletaRepositoryInterface
     {
         $atletas = $this->get(['id' => $idAtleta]);
         return empty($atletas) ? null : $atletas[0];
+    }
+
+    public function getViaIds(array $idAtletas): array
+    {
+        return $this->get(['id_in' => $idAtletas]);
     }
 }
