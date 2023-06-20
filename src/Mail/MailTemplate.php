@@ -24,11 +24,7 @@ abstract class MailTemplate
 
     public function fillTemplate(array $data): void
     {
-        $this->body = str_replace(
-            array_map(fn ($key) => "{{ $key }}", array_keys($data)),
-            array_values($data),
-            $this->body
-        );
+        $this->body = fill_template($this->body, $data);
     }
 
     /**

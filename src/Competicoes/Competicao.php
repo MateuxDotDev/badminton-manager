@@ -4,8 +4,9 @@ namespace App\Competicoes;
 
 use App\Util\Traits\TemDataAlteracao;
 use App\Util\Traits\TemDataCriacao;
-use DateTimeImmutable;
-use DateTimeInterface;
+use App\Util\General\Dates;
+use \DateTimeImmutable;
+use \DateTimeInterface;
 
 class Competicao
 {
@@ -64,6 +65,18 @@ class Competicao
     {
         $data ??= new DateTimeImmutable('now');
         return $data->getTimestamp() >= $this->prazo->getTimestamp();
+    }
+
+    public static function fromRow(array $row): self
+    {
+        return (new Competicao)
+            ->setId((int) $row['id'])
+            ->setNome($row['nome'])
+            ->setDescricao($row['descricao'])
+            ->setPrazo(Dates::parseDay($row['prazo']))
+            ->setDataCriacao(Dates::parseMicro($row['criado_em']))
+            ->setDataAlteracao(Dates::parseMicro($row['alterado_em']))
+            ;
     }
 
     public function toJson(): array

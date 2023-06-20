@@ -94,7 +94,7 @@ class EnviarSolicitacaoTest extends TestCase
             ->willReturnOnConsecutiveCalls([$remetenteGet], [$destinatarioGet]);
 
         $this->solicitacaoPendenteRepository
-            ->method('getEnvolvendo')
+            ->method('getViaIds')
             ->willReturn(null);
 
         $this->solicitacaoPendenteRepository
@@ -387,7 +387,7 @@ class EnviarSolicitacaoTest extends TestCase
         );
 
         $this->solicitacaoPendenteRepository
-            ->method('getEnvolvendo')
+            ->method('getViaIds')
             ->willReturn($solicitacaoPendente);
 
         $enviarSolicitacao = new EnviarSolicitacao(

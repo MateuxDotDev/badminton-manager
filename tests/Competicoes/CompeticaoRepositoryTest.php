@@ -268,4 +268,69 @@ class CompeticaoRepositoryTest extends TestCase
         $this->assertEquals('Descrição da Competição 1', $competicao->descricao());
         $this->assertEquals('2023-01-01', $competicao->prazo()->format('Y-m-d'));
     }
+
+    /**
+     * @throws Exception
+     */
+    public function testGetViaIds()
+    {
+        $pdo = $this->createMock(PDO::class);
+        $stmt = $this->createMock(PDOStatement::class);
+
+        $pdo->method('prepare')
+            ->willReturn($stmt);
+
+        $data = [
+            [
+                'id' => '1',
+                'nome' => 'Competicao 1',
+                'descricao' => 'Descrição da Competição 1',
+                'prazo' => '2023-01-01',
+                'criado_em' => '2022-12-12 01:01:01.123456',
+                'alterado_em' => '2023-12-12 02:02:03.121233'
+            ],
+            [
+                'id' => '2',
+                'nome' => 'Competicao 2',
+                'descricao' => 'Descrição da Competição 2',
+                'prazo' => '2023-02-01',
+                'criado_em' => '2022-12-12 01:01:01.123456',
+                'alterado_em' => '2023-12-12 02:02:03.121233'
+            ],
+        ];
+
+        $stmt->method('fetch')
+            ->willReturnOnConsecutiveCalls($data[0], $data[1]);
+
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->with([1, 2]);
+
+        $repo = new CompeticaoRepository($pdo);
+        $competicoes = $repo->getViaIds([1, 2]);
+
+        $this->assertCount(2, $competicoes);
+
+        $this->assertEquals(1, $competicoes[0]->id());
+        $this->assertEquals('Competicao 1', $competicoes[0]->nome());
+        $this->assertEquals('Descrição da Competição 1', $competicoes[0]->descricao());
+        $this->assertEquals('2023-01-01', $competicoes[0]->prazo()->format('Y-m-d'));
+
+        $this->assertEquals(2, $competicoes[1]->id());
+        $this->assertEquals('Competicao 2', $competicoes[1]->nome());
+        $this->assertEquals('Descrição da Competição 2', $competicoes[1]->descricao());
+        $this->assertEquals('2023-02-01', $competicoes[1]->prazo()->format('Y-m-d'));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testGetViaIdsEmptyArray()
+    {
+        $pdo = $this->createMock(PDO::class);
+        $repo = new CompeticaoRepository($pdo);
+        $competicoes = $repo->getViaIds([]);
+
+        $this->assertCount(0, $competicoes);
+    }
 }
