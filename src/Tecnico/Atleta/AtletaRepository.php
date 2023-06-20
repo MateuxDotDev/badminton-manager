@@ -144,7 +144,7 @@ class AtletaRepository implements AtletaRepositoryInterface
         $atletas = [];
         foreach ($rows as $row) {
             $atletas[] = (new Atleta())
-                ->setId($row['a_id'])
+                ->setId((int) $row['a_id'])
                 ->setNomeCompleto($row['a_nome_completo'])
                 ->setSexo(Sexo::from($row['a_sexo']))
                 ->setDataNascimento(Dates::parseDay($row['a_data_nascimento']))
