@@ -4,7 +4,7 @@ namespace App\Util\Traits;
 
 trait TemUuid
 {
-    private ?String $uuid = null;
+    private ?string $uuid = null;
 
     public function setUuid(string $uuid): self
     {

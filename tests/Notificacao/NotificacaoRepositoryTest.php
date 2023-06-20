@@ -4,6 +4,7 @@ namespace Tests\Notificacao;
 
 use App\Notificacao\Notificacao;
 use App\Notificacao\NotificacaoRepository;
+use App\Notificacao\TipoNotificacao;
 use PDO;
 use PDOStatement;
 use PHPUnit\Framework\MockObject\Exception;
@@ -96,7 +97,10 @@ class NotificacaoRepositoryTest extends TestCase
         $mockPDOStatement = $this->createMock(PDOStatement::class);
         $mockPDOStatement->expects($this->once())
             ->method('execute')
-            ->with(['id_1' => 1])
+            ->with([
+                'id_1' => 1,
+                'tipo' => TipoNotificacao::SOLICITACAO_RECEBIDA->value,
+                ])
             ->willReturn(true);
 
         $mockPDOStatement->expects($this->once())
@@ -111,7 +115,7 @@ class NotificacaoRepositoryTest extends TestCase
 
         $repository = new NotificacaoRepository($mockPDO);
 
-        $result = $repository->getViaId1(1);
+        $result = $repository->getViaId1(1, TipoNotificacao::SOLICITACAO_RECEBIDA);
 
         $this->assertSame($fakeData, $result);
     }

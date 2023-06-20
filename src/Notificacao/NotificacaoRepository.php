@@ -33,7 +33,7 @@ class NotificacaoRepository implements NotificacaoRepositoryInterface
         return $ok ? $pdo->lastInsertId() : null;
     }
 
-    public function getViaId1(int $id1): array
+    public function getViaId1(int $id1, TipoNotificacao $tipo): array
     {
         $sql = <<<SQL
             SELECT n.id,
@@ -45,10 +45,14 @@ class NotificacaoRepository implements NotificacaoRepositoryInterface
                    n.criado_em
               FROM notificacao n
              WHERE n.id_1 = :id_1
+               AND n.tipo = :tipo
         SQL;
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['id_1' => $id1]);
+        $stmt->execute([
+            'id_1' => $id1,
+            'tipo' => $tipo->value
+        ]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }

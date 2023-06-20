@@ -10,6 +10,7 @@ use App\Mail\MailRepositoryInterface;
 use App\Mail\NovaSolicitacaoMail;
 use App\Notificacao\NotificacaoRepository;
 use App\Competicoes\PesquisaAtletaCompeticao;
+use App\Notificacao\TipoNotificacao;
 use App\Tecnico\Atleta\AtletaRepository;
 use App\Tecnico\Atleta\Sexo;
 use App\Tecnico\Solicitacao\EnviarSolicitacao;
@@ -233,11 +234,11 @@ function enviarSolicitacao(array $req): Response
         $tecnicoDest = $tecnicoRepo->getViaAtleta($atletaDest->id());
         $tecnicoRem = $tecnicoRepo->getViaAtleta($atletaRem->id());
         $categoria = $categoriaRepo->getCategoriaById($dto->idCategoria);
-        $notificacoes = $notificacoesRepo->getViaId1($id);
+        $notificacoes = $notificacoesRepo->getViaId1($id, TipoNotificacao::SOLICITACAO_ENVIADA);
         $notificacaoIdRem = 0;
         foreach ($notificacoes as $notificacao) {
-            if ($notificacao['tecnico_id'] == $tecnicoRem->id()) {
-                $notificacaoIdRem = $notificacao->id();
+            if ($notificacao['tecnico_id'] == $tecnicoRem['id']) {
+                $notificacaoIdRem = $notificacao['id'];
                 break;
             }
         }
