@@ -106,14 +106,23 @@ class AtletaRepositoryTest extends TestCase
     {
         $expectedData = [
             [
-                'id' => 1,
-                'nome_completo' => 'Teste Atleta',
-                'sexo' => Sexo::MASCULINO->value,
-                'data_nascimento' => '2000-01-01',
-                'informacoes' => 'Teste Informacoes',
-                'path_foto' => 'Teste Foto',
-                'criado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
-                'alterado_em' => (new DateTime())->format('Y-m-d H:i:s.u')
+                'a_id' => 1,
+                'a_nome_completo' => 'Teste Atleta',
+                'a_sexo' => Sexo::MASCULINO->value,
+                'a_data_nascimento' => '2000-01-01',
+                'a_informacoes' => 'Teste Informacoes',
+                'a_path_foto' => 'Teste Foto',
+                'a_criado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
+                'a_alterado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
+                't_id' => 1,
+                't_nome_completo' => 'Márcio Medeiros',
+                't_email' => 'marcio@mail.com',
+                't_criado_em' => '2023-02-02 12:12:12.012345',
+                't_informacoes' => '',
+                't_alterado_em' => '2023-12-02 12:12:12.012345',
+                'c_id' => 1,
+                'c_nome' => 'Clube X',
+                'c_criado_em' => '2023-02-02 12:12:12.012345'
             ]
         ];
 
@@ -127,14 +136,14 @@ class AtletaRepositoryTest extends TestCase
 
         /** @var Atleta $atleta */
         $atleta = $atletas[0];
-        $this->assertSame($expectedData[0]['id'], $atleta->id());
-        $this->assertSame($expectedData[0]['nome_completo'], $atleta->nomeCompleto());
-        $this->assertSame(Sexo::from($expectedData[0]['sexo']), $atleta->sexo());
-        $this->assertSame($expectedData[0]['data_nascimento'], $atleta->dataNascimento()->format('Y-m-d'));
-        $this->assertSame($expectedData[0]['informacoes'], $atleta->informacoesAdicionais());
-        $this->assertSame($expectedData[0]['path_foto'], $atleta->foto());
-        $this->assertSame($expectedData[0]['criado_em'], $atleta->dataCriacao()->format('Y-m-d H:i:s.u'));
-        $this->assertSame($expectedData[0]['alterado_em'], $atleta->dataAlteracao()->format('Y-m-d H:i:s.u'));
+        $this->assertSame($expectedData[0]['a_id'], $atleta->id());
+        $this->assertSame($expectedData[0]['a_nome_completo'], $atleta->nomeCompleto());
+        $this->assertSame(Sexo::from($expectedData[0]['a_sexo']), $atleta->sexo());
+        $this->assertSame($expectedData[0]['a_data_nascimento'], $atleta->dataNascimento()->format('Y-m-d'));
+        $this->assertSame($expectedData[0]['a_informacoes'], $atleta->informacoesAdicionais());
+        $this->assertSame($expectedData[0]['a_path_foto'], $atleta->foto());
+        $this->assertSame($expectedData[0]['a_criado_em'], $atleta->dataCriacao()->format('Y-m-d H:i:s.u'));
+        $this->assertSame($expectedData[0]['a_alterado_em'], $atleta->dataAlteracao()->format('Y-m-d H:i:s.u'));
     }
 
     public function testGetViaTecnicoThrowsExceptionOnQueryError(): void
@@ -155,14 +164,23 @@ class AtletaRepositoryTest extends TestCase
     public function testGetAtletaViaId(): void
     {
         $expectedData = [
-            'id' => 1,
-            'nome_completo' => 'Teste Atleta',
-            'sexo' => Sexo::MASCULINO->value,
-            'data_nascimento' => '2000-01-01',
-            'informacoes' => 'Teste Informacoes',
-            'path_foto' => 'Teste Foto',
-            'criado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
-            'alterado_em' => (new DateTime())->format('Y-m-d H:i:s.u')
+            'a_id' => 1,
+            'a_nome_completo' => 'Teste Atleta',
+            'a_sexo' => Sexo::MASCULINO->value,
+            'a_data_nascimento' => '2000-01-01',
+            'a_informacoes' => 'Teste Informacoes',
+            'a_path_foto' => 'Teste Foto',
+            'a_criado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
+            'a_alterado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
+            't_id' => 1,
+            't_nome_completo' => 'Márcio Medeiros',
+            't_email' => 'marcio@mail.com',
+            't_informacoes' => '',
+            't_criado_em' => '2023-02-02 12:12:12.012345',
+            't_alterado_em' => '2023-12-02 12:12:12.012345',
+            'c_id' => 1,
+            'c_nome' => 'Clube X',
+            'c_criado_em' => '2023-02-02 12:12:12.012345'
         ];
 
         $this->pdo->method('prepare')->willReturn($this->pdoStatement);
@@ -171,14 +189,14 @@ class AtletaRepositoryTest extends TestCase
 
         $atleta = $this->atletaRepository->getViaId(1);
 
-        $this->assertSame($expectedData['id'], $atleta->id());
-        $this->assertSame($expectedData['nome_completo'], $atleta->nomeCompleto());
-        $this->assertSame(Sexo::from($expectedData['sexo']), $atleta->sexo());
-        $this->assertSame($expectedData['data_nascimento'], $atleta->dataNascimento()->format('Y-m-d'));
-        $this->assertSame($expectedData['informacoes'], $atleta->informacoesAdicionais());
-        $this->assertSame($expectedData['path_foto'], $atleta->foto());
-        $this->assertSame($expectedData['criado_em'], $atleta->dataCriacao()->format('Y-m-d H:i:s.u'));
-        $this->assertSame($expectedData['alterado_em'], $atleta->dataAlteracao()->format('Y-m-d H:i:s.u'));
+        $this->assertSame($expectedData['a_id'], $atleta->id());
+        $this->assertSame($expectedData['a_nome_completo'], $atleta->nomeCompleto());
+        $this->assertSame(Sexo::from($expectedData['a_sexo']), $atleta->sexo());
+        $this->assertSame($expectedData['a_data_nascimento'], $atleta->dataNascimento()->format('Y-m-d'));
+        $this->assertSame($expectedData['a_informacoes'], $atleta->informacoesAdicionais());
+        $this->assertSame($expectedData['a_path_foto'], $atleta->foto());
+        $this->assertSame($expectedData['a_criado_em'], $atleta->dataCriacao()->format('Y-m-d H:i:s.u'));
+        $this->assertSame($expectedData['a_alterado_em'], $atleta->dataAlteracao()->format('Y-m-d H:i:s.u'));
     }
 
     public function testGetAtletaViaIdReturnsNullOnNoResults(): void
@@ -250,5 +268,82 @@ class AtletaRepositoryTest extends TestCase
         $result = $this->atletaRepository->atualizarAtleta($this->atleta);
 
         $this->assertFalse($result);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testGetViaIds(): void
+    {
+        $rows = [
+            [
+                'a_id' => 1,
+                'a_nome_completo' => 'Teste Atleta',
+                'a_sexo' => Sexo::MASCULINO->value,
+                'a_data_nascimento' => '2000-01-01',
+                'a_informacoes' => 'Teste Informacoes',
+                'a_path_foto' => 'Teste Foto',
+                'a_criado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
+                'a_alterado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
+                't_id' => 1,
+                't_nome_completo' => 'Márcio Medeiros',
+                't_email' => 'marcio@mail.com',
+                't_informacoes' => '',
+                't_criado_em' => '2023-02-02 12:12:12.012345',
+                't_alterado_em' => '2023-12-02 12:12:12.012345',
+                'c_id' => 1,
+                'c_nome' => 'Clube X',
+                'c_criado_em' => '2023-02-02 12:12:12.012345'
+            ],
+            [
+                'a_id' => 2,
+                'a_nome_completo' => 'Atleta 2',
+                'a_sexo' => Sexo::FEMININO->value,
+                'a_data_nascimento' => '2001-02-02',
+                'a_informacoes' => 'Informações Atleta 2',
+                'a_path_foto' => 'Foto Atleta 2',
+                'a_criado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
+                'a_alterado_em' => (new DateTime())->format('Y-m-d H:i:s.u'),
+                't_id' => 2,
+                't_nome_completo' => 'Patrícia Silva',
+                't_email' => 'patricia@mail.com',
+                't_informacoes' => 'Informações Treinador 2',
+                't_criado_em' => '2023-02-02 12:12:12.012345',
+                't_alterado_em' => '2023-12-02 12:12:12.012345',
+                'c_id' => 2,
+                'c_nome' => 'Clube Y',
+                'c_criado_em' => '2023-02-02 12:12:12.012345'
+            ]
+        ];
+
+        $this->pdo->method('prepare')->willReturn($this->pdoStatement);
+        $this->pdoStatement->method('execute')->willReturn(true);
+        $this->pdoStatement->method('fetchAll')->willReturn($rows);
+
+        $atletas = $this->atletaRepository->getViaIds([1, 2]);
+
+        for ($i = 0; $i < count($atletas) - 1; $i++) {
+            $atleta = $atletas[$i];
+            $row = $rows[$i];
+
+            $this->assertSame($row['a_id'], $atleta->id());
+            $this->assertSame($row['a_nome_completo'], $atleta->nomeCompleto());
+            $this->assertSame(Sexo::from($row['a_sexo']), $atleta->sexo());
+            $this->assertSame($row['a_data_nascimento'], $atleta->dataNascimento()->format('Y-m-d'));
+            $this->assertSame($row['a_informacoes'], $atleta->informacoesAdicionais());
+            $this->assertSame($row['a_path_foto'], $atleta->foto());
+            $this->assertSame($row['a_criado_em'], $atleta->dataCriacao()->format('Y-m-d H:i:s.u'));
+            $this->assertSame($row['a_alterado_em'], $atleta->dataAlteracao()->format('Y-m-d H:i:s.u'));
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testGetViaIdsEmpty(): void
+    {
+        $atletas = $this->atletaRepository->getViaIds([]);
+
+        $this->assertEmpty($atletas);
     }
 }

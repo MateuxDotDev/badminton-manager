@@ -57,6 +57,13 @@ else Template::navTecnicoNaoLogado();
                     </td>
 
                     <td class="td-botao">
+                        <a href="/tecnico/solicitacoes?competicao=<?= $competicao->id() ?>" class="btn btn-outline-secondary">
+                            <i class="bi bi-send"></i>
+                            Solicitações pendentes
+                        </a>
+                    </td>
+
+                    <td class="td-botao">
                         <a href="/tecnico/competicoes/atletas/?competicao=<?= $competicao->id() ?>" class="btn btn-outline-primary">
                             <i class="bi bi-person"></i>
                             Ver atletas
@@ -78,7 +85,6 @@ else Template::navTecnicoNaoLogado();
 
 <script>
     const competicoes = <?= json_encode(array_map(fn($c) => $c->toJson(), $competicoes)) ?>;
-
 </script>
 
 <script src="/tecnico/competicoes/competicoes.js"></script>
