@@ -102,11 +102,23 @@ function removerAtleta(array $req, ?UserSession $session, ?stdClass $token): Res
         return Response::erro('ID inválido');
     }
 
-    $repo = new AtletaRepository(Connection::getInstance(), new UploadImagemService());
-    $removido = $repo->removerAtleta($id);
-    if ($removido) {
-        return Response::ok('Atleta removido com sucesso');
-    }
+    $pdo = Connection::getInstance();
+    try {
+        $repo = new AtletaRepository($pdo, new UploadImagemService());
 
-    return Response::erro('Erro ao remover atleta');
+        $removido = $repo->removerAtleta($id);
+        if ($removido) {
+            $pdo->commit();
+            return Response::ok('Atleta removido com sucesso');
+        }
+
+        return Response::erro('Erro ao remover atleta');
+    } catch (Exception $e) {
+        if (str_contains($e->getMessage(), 'Foreign key violation')) {
+            return Response::erro('Não é possível remover um atleta que possui participações em campeonatos');
+        }
+
+        $pdo->rollBack();
+        return Response::erroException($e);
+    }
 }
