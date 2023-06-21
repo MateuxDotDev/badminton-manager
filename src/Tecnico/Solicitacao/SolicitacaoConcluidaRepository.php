@@ -66,4 +66,10 @@ readonly class SolicitacaoConcluidaRepository
         $this->transferir($idPendente, TipoConclusao::ACEITA);
         $this->excluirPendente($idPendente);
     }
+
+    public function concluirCanceladaManualmente(int $idPendente): void
+    {
+        $this->transferir($idPendente, TipoConclusao::CANCELADA);
+        $this->excluirPendente($idPendente);
+    }
 }

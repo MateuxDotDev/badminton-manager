@@ -30,6 +30,7 @@ function solicitacaoController(): Response
 
     return match ($acao) {
         'rejeitar' => rejeitarSolicitacao($req),
+        'cancelar' => cancelarSolicitacao($req),
         default => Response::erro("Ação '$acao' desconhecida")
     };
 }
@@ -46,6 +47,17 @@ function validarSolicitacaoId(array $req): int
 }
 
 
+function construirAcaoSolicitacao(PDO $pdo): AcaoSolicitacao
+{
+    $session = UserSession::obj();
+    $dataAgora = new DateTimeImmutable('now');
+    $notificacaoRepo = new NotificacaoRepository($pdo);
+    $concluidaRepo = new SolicitacaoConcluidaRepository($pdo);
+
+    $acao = new AcaoSolicitacao($pdo, $session, $dataAgora, $notificacaoRepo, $concluidaRepo);
+    return $acao;
+}
+
 function rejeitarSolicitacao(array $req): Response
 {
     $pdo = Connection::getInstance();
@@ -54,16 +66,30 @@ function rejeitarSolicitacao(array $req): Response
     try {
         $pdo->beginTransaction();
 
-        $session = UserSession::obj();
-        $dataAgora = new DateTimeImmutable('now');
-        $notificacaoRepo = new NotificacaoRepository($pdo);
-        $concluidaRepo = new SolicitacaoConcluidaRepository($pdo);
-
-        $acao = new AcaoSolicitacao($pdo, $session, $dataAgora, $notificacaoRepo, $concluidaRepo);
+        $acao = construirAcaoSolicitacao($pdo);
         $acao->rejeitar($id);
 
         $pdo->commit();
         return Response::ok('Solicitação rejeitada com sucesso.');
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
+}
+
+function cancelarSolicitacao(array $req): Response
+{
+    $pdo = Connection::getInstance();
+    $id = validarSolicitacaoId($req);
+
+    try {
+        $pdo->beginTransaction();
+
+        $acao = construirAcaoSolicitacao($pdo);
+        $acao->cancelar($id);
+
+        $pdo->commit();
+        return Response::ok('Solicitação cancelada com sucesso.');
     } catch (Exception $e) {
         $pdo->rollBack();
         throw $e;

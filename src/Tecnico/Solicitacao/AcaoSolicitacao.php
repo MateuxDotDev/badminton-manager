@@ -40,18 +40,17 @@ readonly class AcaoSolicitacao
         return empty($rows) ? [] : $rows[0];
     }
 
-    public function rejeitar(int $id): void
+    private function getSolicitacao404(int $id): array
     {
         $solicitacao = $this->getSolicitacao($id);
         if (empty($solicitacao)) {
-            throw new ValidatorException("Solicitação de id $id não encontrada", HttpStatus::NOT_FOUND);
+            throw new ValidatorException("Não encontramos solicitação pendente de id $id", HttpStatus::NOT_FOUND);
         }
+        return $solicitacao;
+    }
 
-        $idTecnicoLogado = $this->session->getTecnico()->id();
-        if ($idTecnicoLogado != $solicitacao['tecnico_destino_id']) {
-            throw new ValidatorException('Você não está autorizado a rejeitar essa solicitação', HttpStatus::FORBIDDEN);
-        }
-
+    private function validarPrazo(array $solicitacao): void
+    {
         $prazo = Dates::parseDay($solicitacao['competicao_prazo']);
         if ($prazo === null) {
             throw new ValidatorException('Erro interno: prazo da competição é inválido');
@@ -61,6 +60,18 @@ readonly class AcaoSolicitacao
         if ($prazoPassou) {
             throw new ValidatorException('O prazo da competição já passou, duplas não podem mais ser formadas');
         }
+    }
+
+    public function rejeitar(int $id): void
+    {
+        $solicitacao = $this->getSolicitacao404($id);
+
+        $idTecnicoLogado = $this->session->getTecnico()->id();
+        if ($idTecnicoLogado != $solicitacao['tecnico_destino_id']) {
+            throw new ValidatorException('Você não está autorizado a rejeitar essa solicitação', HttpStatus::FORBIDDEN);
+        }
+
+        $this->validarPrazo($solicitacao);
 
         $this->concluidaRepo->concluirRejeitada($id);
 
@@ -76,5 +87,21 @@ readonly class AcaoSolicitacao
     public function aceitar(int $id): void
     {
         throw new \Exception('TODO');
+    }
+
+    public function cancelar(int $id): void
+    {
+        $solicitacao = $this->getSolicitacao404($id);
+
+        $idTecnicoLogado = $this->session->getTecnico()->id();
+        if ($solicitacao['tecnico_origem_id'] != $idTecnicoLogado) {
+            throw new ValidatorException('Você não tem autorização para cancelar essa solicitação', HttpStatus::FORBIDDEN);
+        }
+
+        $this->validarPrazo($solicitacao);
+
+        $this->concluidaRepo->concluirCanceladaManualmente($id);
+    
+        // Sem notificações mesmo, pra economizar tempo de desenvolvimento
     }
 }

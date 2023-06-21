@@ -59,7 +59,7 @@ function htmlSolicitacaoRecebida(SolicitacaoPendente $solicitacao)
     global $atletas, $competicoes, $categorias;
 
     // O elemento com .solicitacao-recebida não pode ter d-flex na classe porque o atributo display inline é trocado dinamicamente conforme a competição muda
-    static $template = '
+    static $template = <<<HTML
         <div class="solicitacao-recebida hover-shadow border rounded mt-3 flex-column"
              style="row-gap: 0.8rem; column-gap: 3rem;"
              data-competicao="{{ competicao_id }}"
@@ -97,7 +97,7 @@ function htmlSolicitacaoRecebida(SolicitacaoPendente $solicitacao)
                         <i class="bi bi-people"></i>
                         Aceitar
                     </button>
-                    <button class="btn btn-danger btn-rejeitar" data-id={{ solicitacao_id }}>
+                    <button class="btn btn-danger btn-rejeitar" data-id="{{ solicitacao_id }}">
                         <i class="bi bi-x"></i>
                         Rejeitar
                     </button>
@@ -105,7 +105,7 @@ function htmlSolicitacaoRecebida(SolicitacaoPendente $solicitacao)
             </div>
 
         </div>
-    ';
+    HTML;
 
     $remetente    = $atletas[$solicitacao->idAtletaRemetente];
     $destinatario = $atletas[$solicitacao->idAtletaDestinatario];
@@ -140,7 +140,7 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
     global $atletas, $competicoes, $categorias;
 
     // O elemento com .solicitacao-enviada não pode ter d-flex na classe porque o atributo display inline é trocado dinamicamente conforme a competição muda
-    static $template = '
+    static $template = <<<HTML
         <div class="solicitacao-enviada hover-shadow border rounded mt-3 flex-column"
              style="row-gap: 0.8rem; column-gap: 3rem;"
              data-competicao="{{ competicao_id }}"
@@ -173,7 +173,7 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
                 {{ dupla_categoria }}
                 {{ observacao }}
                 <div class="ms-auto d-flex flex-row gap-2 align-items-center h-100">
-                    <button class="btn btn-danger">
+                    <button class="btn btn-danger btn-cancelar" data-id="{{ solicitacao_id }}">
                         <i class="bi bi-x"></i>
                         Cancelar
                     </button>
@@ -181,7 +181,7 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
             </div>
 
         </div>
-    ';
+    HTML;
 
     $remetente    = $atletas[$solicitacao->idAtletaRemetente];
     $destinatario = $atletas[$solicitacao->idAtletaDestinatario];
@@ -196,6 +196,7 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
     $tecnicoDest = $destinatario->tecnico();
 
     $retorno = fill_template($template, [
+        'solicitacao_id'         => $solicitacao->id,
         'competicao_id'          => $solicitacao->idCompeticao,
         'destinatario_foto'      => Html::imgAtleta($destinatario->foto(), 80),
         'destinatario_descricao' => Html::campoDescricaoAtleta($destinatario),
@@ -279,33 +280,45 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
                 confirmButtonText: 'Rejeitar'
             });
             if (!ok) return;
-
-            const req = {
-                acao: 'rejeitar',
-                id: btn.getAttribute('data-id')
-            };
-            const resp = await fetch('/tecnico/solicitacoes/acao.php', {
-                method: 'POST',
-                body: JSON.stringify(req),
-            });
-            const text = await resp.text();
-
-            try {
-                const json = JSON.parse(text);
-                if (resp.ok) {
-                    agendarAlertaSucesso(json.mensagem);
-                    location.reload();
-                } else {
-                    Toast.fire({
-                        icon: 'error',
-                        text: json.mensagem,
-                    });
-                }
-            } catch (err) {
-                console.error('Erro parse', { err, text });
-            }
-        });
+            const id = btn.getAttribute('data-id');
+            await realizarAcao(id, 'rejeitar');
+        })
     });
+
+    document.querySelectorAll('.btn-cancelar').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const ok = await confirmarExclusao('Essa solicitação para formar dupla será cancelada.', {
+                confirmButtonText: 'Cancelar'
+            });
+            if (!ok) return;
+            const id = btn.getAttribute('data-id');
+            await realizarAcao(id, 'cancelar');
+        })
+    });
+
+    async function realizarAcao(id, acao) {
+        const req = { acao, id };
+        const resp = await fetch('/tecnico/solicitacoes/acao.php', {
+            method: 'POST',
+            body: JSON.stringify(req),
+        });
+        const text = await resp.text();
+
+        try {
+            const json = JSON.parse(text);
+            if (resp.ok) {
+                agendarAlertaSucesso(json.mensagem);
+                location.reload();
+            } else {
+                Toast.fire({
+                    icon: 'error',
+                    text: json.mensagem,
+                });
+            }
+        } catch (err) {
+            console.error('Erro parse', { err, text });
+        }
+    }
 
     function competicaoSelecionadaMudou() {
         const competicaoSelecionada = selectCompeticao.value;
