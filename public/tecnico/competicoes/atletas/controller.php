@@ -237,22 +237,33 @@ function enviarSolicitacao(array $req): Response
         $notificacoes = $notificacoesRepo->getViaId1($id, TipoNotificacao::SOLICITACAO_ENVIADA);
         $notificacaoIdRem = 0;
         foreach ($notificacoes as $notificacao) {
-            if ($notificacao['tecnico_id'] == $tecnicoRem['id']) {
+            if ($notificacao['tecnico_id'] == $tecnicoRem->id()) {
                 $notificacaoIdRem = $notificacao['id'];
                 break;
             }
         }
+        $competicao = $competicoesRepo->getViaId($dto->idCompeticao);
 
         $mail = new NovaSolicitacaoMail(new Mailer());
         $mail->fillTemplate([
-            'nome_tecnico' => $tecnicoDest->nomeCompleto(),
-            'convite_atleta' => $atletaRem->nomeCompleto(),
-            'convite_clube' => $tecnicoRem->clube()->nome(),
-            'convite_tecnico' => $tecnicoRem->nomeCompleto(),
-            'convite_sexo' => $atletaRem->sexo()->toString(),
-            'convite_categoria' => $categoria->descricao(),
-            'convite_modalidade' => 'Simples',
-            'convite_observacoes' => $dto->informacoes ?? 'Nenhuma observação',
+            'dest_tecnico' => $tecnicoDest->nomeCompleto(),
+            'competicao' => $competicao->nome(),
+            'rem_nome' => $atletaRem->nomeCompleto(),
+            'dest_nome' => $atletaDest->nomeCompleto(),
+            'dest_sexo' => $atletaDest->sexo()->toString(),
+            'rem_sexo' => $atletaRem->sexo()->toString(),
+            'dest_idade' => $atletaDest->idade(),
+            'rem_idade' => $atletaRem->idade(),
+            'dest_nascimento' => $atletaDest->dataNascimento()->format('d/m/Y'),
+            'rem_nascimento' => $atletaRem->dataNascimento()->format('d/m/Y'),
+            'dest_info' => $atletaDest->informacoesAdicionais(),
+            'rem_info' => $atletaRem->informacoesAdicionais(),
+            'categoria' => $categoria->descricao(),
+            'observacoes' => $dto->informacoes,
+            'rem_tec_nome' => $tecnicoRem->nomeCompleto(),
+            'rem_tec_clube' => $tecnicoRem->clube()->nome(),
+            'rem_tec_info' => $tecnicoRem->informacoes(),
+            'rem_tec_email' => $tecnicoRem->email(),
             'link_aceite' => 'TODO',
             'link_rejeicao' => 'TODO',
             'ano_atual' => date('Y'),

@@ -49,8 +49,8 @@ class NovaSolicitacaoMailTest extends TestCase
                 $this->equalTo($toName),
                 $this->equalTo($subject),
                 $this->callback(function ($body) {
-                    $this->assertStringContainsString('Olá {{ nome_tecnico }}!', $body);
-                    $this->assertStringContainsString('Você recebeu uma nova solicitação de dupla!', $body);
+                    $this->assertStringContainsString('Olá {{ dest_tecnico }}!', $body);
+                    $this->assertStringContainsString('Você recebeu uma nova solicitação de dupla para a competição {{ competicao }}!', $body);
                     return true;
                 }),
                 $this->equalTo($altBody)
@@ -73,11 +73,27 @@ class NovaSolicitacaoMailTest extends TestCase
         $mail = new NovaSolicitacaoMail($this->mailerMock);
 
         $templateData = [
-            'nome_tecnico' => 'John Doe',
-            'convite_atleta' => 'John Doe',
-            'convite_clube' => 'Clube A',
-            'convite_tecnico' => 'John Doe',
-            'convite_sexo' => 'Masculino',
+            'dest_tecnico' => 'Tecnico A',
+            'competicao' => 'Competição A',
+            'rem_nome' => 'Atleta A',
+            'dest_nome' => 'Atleta B',
+            'dest_sexo' => 'Masculino',
+            'rem_sexo' => 'Feminino',
+            'dest_idade' => '24 anos',
+            'rem_idade' => '23 anos',
+            'dest_nascimento' => '20/01/2000',
+            'rem_nascimento' => '23/01/2000',
+            'dest_info' => 'Info A',
+            'rem_info' => 'Info B',
+            'categoria' => 'Aberta',
+            'observacoes' => 'Observações A',
+            'rem_tec_nome' => 'Tecnico B',
+            'rem_tec_clube' => 'Clube B',
+            'rem_tec_info' => 'Info Tecnico B',
+            'rem_tec_email' => 'tecnicob@test.com',
+            'link_aceite' => 'localhost/aceitar',
+            'link_recusa' => 'localhost/recusar',
+            'ano_atual' => date('Y'),
         ];
 
         foreach ($templateData as $key => $value) {
