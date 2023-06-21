@@ -2,7 +2,7 @@
 
 namespace App\Notificacao;
 
-use DateTimeInterface;
+use \DateTimeInterface;
 
 readonly class Notificacao
 {
@@ -33,6 +33,24 @@ readonly class Notificacao
     {
         return new self(
             TipoNotificacao::SOLICITACAO_RECEBIDA,
+            $idTecnico,
+            $idSolicitacao,
+        );
+    }
+
+    public static function solicitacaoRecebidaRejeitada(int $idTecnico, int $idSolicitacao): self
+    {
+        return new self(
+            TipoNotificacao::SOLICITACAO_RECEBIDA_REJEITADA,
+            $idTecnico,
+            $idSolicitacao,
+        );
+    }
+
+    public static function solicitacaoEnviadaRejeitada(int $idTecnico, int $idSolicitacao): self
+    {
+        return new self(
+            TipoNotificacao::SOLICITACAO_ENVIADA_REJEITADA,
             $idTecnico,
             $idSolicitacao,
         );

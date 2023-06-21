@@ -45,8 +45,8 @@ $categorias  = array_index_by((new CategoriaRepository($pdo))->buscarCategorias(
 $enviadas = [];
 $recebidas = [];
 
-$idTecnicoRemetente = $atletas[$solicitacao->idAtletaRemetente]->tecnico()->id();
 foreach ($solicitacoes as $solicitacao) {
+    $idTecnicoRemetente = $atletas[$solicitacao->idAtletaRemetente]->tecnico()->id();
     if ($idTecnicoRemetente == $tecnicoLogado->id()) {
         $enviadas[] = $solicitacao;
     } else {
@@ -97,7 +97,7 @@ function htmlSolicitacaoRecebida(SolicitacaoPendente $solicitacao)
                         <i class="bi bi-people"></i>
                         Aceitar
                     </button>
-                    <button class="btn btn-danger">
+                    <button class="btn btn-danger btn-rejeitar" data-id={{ solicitacao_id }}>
                         <i class="bi bi-x"></i>
                         Rejeitar
                     </button>
@@ -120,6 +120,7 @@ function htmlSolicitacaoRecebida(SolicitacaoPendente $solicitacao)
     $tecnicoRemetente = $remetente->tecnico();
 
     $retorno = fill_template($template, [
+        'solicitacao_id'         => $solicitacao->id,
         'competicao_id'          => $solicitacao->idCompeticao,
         'remetente_foto'         => Html::imgAtleta($remetente->foto(), 80),
         'remetente_descricao'    => Html::campoDescricaoAtleta($remetente),
@@ -213,7 +214,7 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
 <main class="container">
     <div class="d-flex flex-row align-items-center">
         <h1>Solicitações pendentes</h1>
-        <div class="ms-auto d-flex flex-row gap-3 align-items-center">
+        <div class="ms-auto d-flex flex-row gap-3 align-items-center <?= empty($competicoes) ? 'd-none' : ''?>">
             <span>Competição</span>
             <select class="form-control" id="select-competicao">
                 <?php
@@ -269,6 +270,43 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
 
     const selectCompeticao = qs('#select-competicao');
 
+    selectCompeticao.addEventListener('change', competicaoSelecionadaMudou);
+    competicaoSelecionadaMudou();
+
+    document.querySelectorAll('.btn-rejeitar').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const ok = await confirmarExclusao('Essa solicitação para formar dupla será rejeitada.', {
+                confirmButtonText: 'Rejeitar'
+            });
+            if (!ok) return;
+
+            const req = {
+                acao: 'rejeitar',
+                id: btn.getAttribute('data-id')
+            };
+            const resp = await fetch('/tecnico/solicitacoes/acao.php', {
+                method: 'POST',
+                body: JSON.stringify(req),
+            });
+            const text = await resp.text();
+
+            try {
+                const json = JSON.parse(text);
+                if (resp.ok) {
+                    agendarAlertaSucesso(json.mensagem);
+                    location.reload();
+                } else {
+                    Toast.fire({
+                        icon: 'error',
+                        text: json.mensagem,
+                    });
+                }
+            } catch (err) {
+                console.error('Erro parse', { err, text });
+            }
+        });
+    });
+
     function competicaoSelecionadaMudou() {
         const competicaoSelecionada = selectCompeticao.value;
         
@@ -290,9 +328,6 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
         }
         nenhumaRecebida.style.display = recebidasMostradas == 0 ? 'block' : 'none';
     }
-
-    selectCompeticao.addEventListener('change', competicaoSelecionadaMudou);
-    competicaoSelecionadaMudou();
 </script>
 
 <?php Template::footer() ?>
