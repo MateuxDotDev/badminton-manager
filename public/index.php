@@ -1,10 +1,17 @@
 <?php
 
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use App\Util\General\UserSession;
 use App\Util\Template\Template;
 
-require __DIR__ . '/../vendor/autoload.php';
+if (UserSession::obj()->isTecnico()) {
+    header('Location: /tecnico/');
+    exit();
+}
 
 Template::head('Página Inicial');
+
 ?>
 
 <style>
