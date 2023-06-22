@@ -93,7 +93,7 @@ function htmlSolicitacaoRecebida(SolicitacaoPendente $solicitacao)
                 {{ observacao }}
 
                 <div class="ms-auto d-flex flex-row gap-2 align-items-center h-100">
-                    <button class="btn btn-success">
+                    <button class="btn btn-success btn-aceitar" data-id="{{ solicitacao_id }}" data-remetente="{{ remetente_nome }}" data-destinatario="{{ destinatario_nome }}">
                         <i class="bi bi-people"></i>
                         Aceitar
                     </button>
@@ -121,6 +121,8 @@ function htmlSolicitacaoRecebida(SolicitacaoPendente $solicitacao)
 
     $retorno = fill_template($template, [
         'solicitacao_id'         => $solicitacao->id,
+        'remetente_nome'         => $remetente->nomeCompleto(),
+        'destinatario_nome'      => $destinatario->nomeCompleto(),
         'competicao_id'          => $solicitacao->idCompeticao,
         'remetente_foto'         => Html::imgAtleta($remetente->foto(), 80),
         'remetente_descricao'    => Html::campoDescricaoAtleta($remetente),
@@ -282,6 +284,19 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
             if (!ok) return;
             const id = btn.getAttribute('data-id');
             await realizarAcao(id, 'rejeitar');
+        })
+    });
+
+    document.querySelectorAll('.btn-aceitar').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const remetenteNome    = btn.getAttribute('data-remetente');
+            const destinatarioNome = btn.getAttribute('data-destinatario');
+            const ok = await confirmarSucesso(`Aceitando essa solicitação, você irá formar uma dupla entre ${remetenteNome} e ${destinatarioNome}`, {
+                confirmButtonText: 'Formar dupla',
+            });
+            if (!ok) return;
+            const id = btn.getAttribute('data-id');
+            await realizarAcao(id, 'aceitar');
         })
     });
 

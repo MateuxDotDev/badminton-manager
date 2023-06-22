@@ -55,4 +55,32 @@ readonly class Notificacao
             $idSolicitacao,
         );
     }
+
+    public static function solicitacaoEnviadaCancelada(int $idTecnico, int $idSolicitacao): self
+    {
+        return new self(
+            TipoNotificacao::SOLICITACAO_ENVIADA_CANCELADA,
+            $idTecnico,
+            $idSolicitacao,
+        );
+    }
+
+
+    public static function solicitacaoRecebidaAceita(int $idTecnico, int $idSolicitacao): self
+    {
+        return new self(
+            TipoNotificacao::SOLICITACAO_RECEBIDA_ACEITA,
+            $idTecnico,
+            $idSolicitacao,
+        );
+    }
+
+    public static function solicitacaoEnviadaAceita(int $idTecnico, int $idSolicitacao): self
+    {
+        return new self(
+            TipoNotificacao::SOLICITACAO_ENVIADA_ACEITA,
+            $idTecnico,
+            $idSolicitacao,
+        );
+    }
 }

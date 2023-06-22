@@ -16,11 +16,13 @@ readonly class SolicitacaoConcluidaRepository
             DELETE FROM solicitacao_dupla_pendente
             WHERE id = :id
         SQL;
+
         $stmt = $this->pdo->prepare($sql);
+
         $stmt->execute(['id' => $id]);
     }
 
-    private function transferir(int $idPendente, TipoConclusao $tipo): void
+    private function transferir(int $idPendente, TipoConclusao $tipo, ?int $idSolicitacaoCancelou=null): int
     {
         $colunaData = match ($tipo) {
             TipoConclusao::ACEITA => 'aceita_em',
@@ -37,6 +39,7 @@ readonly class SolicitacaoConcluidaRepository
                 categoria_id,
                 criado_em,
                 alterado_em,
+                solicitacao_cancelamento_id,
                 $colunaData
             )
             SELECT
@@ -47,29 +50,43 @@ readonly class SolicitacaoConcluidaRepository
                 categoria_id,
                 criado_em,
                 alterado_em,
+                :cancelamento_id,
                 NOW() as $colunaData
             FROM solicitacao_dupla_pendente
-           WHERE id = :id
+            WHERE id = :id
+            RETURNING id
         SQL;
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['id' => $idPendente]);
+        $stmt->execute([
+            'id'              => $idPendente,
+            'cancelamento_id' => $idSolicitacaoCancelou
+        ]);
+
+        $rows = $stmt->fetchAll();
+        if (empty($rows)) {
+            throw new \Exception('Sem resultados');
+        }
+        return $rows[0]['id'];
     }
 
-    public function concluirRejeitada(int $idPendente): void
+    public function concluirRejeitada(int $idPendente): int
     {
-        $this->transferir($idPendente, TipoConclusao::REJEITADA);
+        $idConcluida = $this->transferir($idPendente, TipoConclusao::REJEITADA);
         $this->excluirPendente($idPendente);
+        return $idConcluida;
     }
 
-    public function concluirAceita(int $idPendente): void
+    public function concluirAceita(int $idPendente): int
     {
-        $this->transferir($idPendente, TipoConclusao::ACEITA);
+        $idConcluida = $this->transferir($idPendente, TipoConclusao::ACEITA);
         $this->excluirPendente($idPendente);
+        return $idConcluida;
     }
 
-    public function concluirCanceladaManualmente(int $idPendente): void
+    public function concluirCancelada(int $idPendente, ?int $idSolicitacaoCancelou=null): int
     {
-        $this->transferir($idPendente, TipoConclusao::CANCELADA);
+        $idConcluida = $this->transferir($idPendente, TipoConclusao::CANCELADA, $idSolicitacaoCancelou);
         $this->excluirPendente($idPendente);
+        return $idConcluida;
     }
 }

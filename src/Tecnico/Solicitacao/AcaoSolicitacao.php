@@ -4,6 +4,7 @@ namespace App\Tecnico\Solicitacao;
 
 use App\Notificacao\Notificacao;
 use App\Notificacao\NotificacaoRepository;
+use App\Tecnico\Dupla\DuplaRepository;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use App\Util\General\UserSession;
@@ -19,14 +20,22 @@ readonly class AcaoSolicitacao
         private DateTimeInterface $dataAgora,
         private NotificacaoRepository $notificacaoRepo,
         private SolicitacaoConcluidaRepository $concluidaRepo,
+        private DuplaRepository $duplaRepo,
     ) {}
 
     private function getSolicitacao(int $id): array
     {
         $sql = <<<SQL
-            SELECT ori.tecnico_id  as tecnico_origem_id
+            SELECT s.id            as id
+                 , ori.id          as atleta_origem_id
+                 , ori.sexo        as atleta_origem_sexo
+                 , dest.id         as atleta_destino_id
+                 , dest.sexo       as atleta_destino_sexo
+                 , ori.tecnico_id  as tecnico_origem_id
                  , dest.tecnico_id as tecnico_destino_id
-                 , comp.prazo as competicao_prazo
+                 , s.categoria_id  as categoria_id
+                 , comp.id         as competicao_id
+                 , comp.prazo      as competicao_prazo
               FROM solicitacao_dupla_pendente s
               JOIN atleta ori  ON ori.id  = s.atleta_origem_id
               JOIN atleta dest ON dest.id = s.atleta_destino_id
@@ -62,9 +71,9 @@ readonly class AcaoSolicitacao
         }
     }
 
-    public function rejeitar(int $id): void
+    public function rejeitar(int $idPendente): void
     {
-        $solicitacao = $this->getSolicitacao404($id);
+        $solicitacao = $this->getSolicitacao404($idPendente);
 
         $idTecnicoLogado = $this->session->getTecnico()->id();
         if ($idTecnicoLogado != $solicitacao['tecnico_destino_id']) {
@@ -73,20 +82,15 @@ readonly class AcaoSolicitacao
 
         $this->validarPrazo($solicitacao);
 
-        $this->concluidaRepo->concluirRejeitada($id);
+        $idConcluida = $this->concluidaRepo->concluirRejeitada($idPendente);
 
         $notificacoes = [
-            Notificacao::solicitacaoRecebidaRejeitada($solicitacao['tecnico_destino_id'], $id),
-            Notificacao::solicitacaoEnviadaRejeitada($solicitacao['tecnico_origem_id'], $id),
+            Notificacao::solicitacaoRecebidaRejeitada($solicitacao['tecnico_destino_id'], $idConcluida),
+            Notificacao::solicitacaoEnviadaRejeitada($solicitacao['tecnico_origem_id'], $idConcluida),
         ];
         foreach ($notificacoes as $notificacao) {
             $this->notificacaoRepo->criar($notificacao);
         }
-    }
-
-    public function aceitar(int $id): void
-    {
-        throw new \Exception('TODO');
     }
 
     public function cancelar(int $id): void
@@ -100,8 +104,93 @@ readonly class AcaoSolicitacao
 
         $this->validarPrazo($solicitacao);
 
-        $this->concluidaRepo->concluirCanceladaManualmente($id);
+        $this->concluidaRepo->concluirCancelada($id);
     
         // Sem notificações mesmo, pra economizar tempo de desenvolvimento
     }
+
+
+    private function getSolicitacoesParaCancelar(array $aceita): array
+    {
+
+        // TODO não funcionando...
+        // ou talvez é a parte de cancelar e enviar que não está funcionando
+
+        $sql = <<<SQL
+            SELECT s.id
+                 , ori.id          as atleta_origem_id
+                 , dest.id         as atleta_destino_id
+                 , ori.tecnico_id  as tecnico_origem_id
+                 , dest.tecnico_id as tecnico_destino_id
+              FROM solicitacao_dupla_pendente s
+              JOIN atleta ori
+                ON ori.id = s.atleta_origem_id
+              JOIN atleta dest
+                ON dest.id = s.atleta_destino_id
+             WHERE s.id               != :aceita_id
+               AND s.competicao_id     = :competicao_id
+               AND s.categoria_id      = :categoria_id
+               AND (s.atleta_destino_id IN (:ori_id, :dest_id) OR
+                    s.atleta_origem_id  IN (:ori_id, :dest_id))
+               AND ((ori.sexo = :ori_sexo  AND dest.sexo = :dest_sexo) OR
+                    (ori.sexo = :dest_sexo AND dest.sexo = :ori_sexo))
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'aceita_id'     => $aceita['id'],
+            'competicao_id' => $aceita['competicao_id'],
+            'categoria_id'  => $aceita['categoria_id'],
+            'ori_id'        => $aceita['atleta_origem_id'],
+            'ori_sexo'      => $aceita['atleta_origem_sexo'],
+            'dest_id'       => $aceita['atleta_destino_id'],
+            'dest_sexo'     => $aceita['atleta_destino_sexo'],
+        ]);
+
+        return $stmt->fetchAll();
+    }
+
+    public function aceitar(int $idPendente): void
+    {
+        $pendente = $this->getSolicitacao404($idPendente);
+
+        $idTecnicoLogado = $this->session->getTecnico()->id();
+        if ($idTecnicoLogado != $pendente['tecnico_destino_id']) {
+            throw new ValidatorException('Você não tem autorização para aceitar essa solicitação', HttpStatus::FORBIDDEN);
+        }
+
+        $this->validarPrazo($pendente);
+
+        $idConcluidaAceita = $this->concluidaRepo->concluirAceita($pendente['id']);
+
+        $this->duplaRepo->criarDupla(
+            $pendente['competicao_id'],
+            $pendente['atleta_origem_id'],
+            $pendente['atleta_destino_id'],
+            $pendente['categoria_id'],
+            $idConcluidaAceita
+        );
+
+        $pendentesParaCancelar = $this->getSolicitacoesParaCancelar($pendente);
+
+        $notificacoes = [];
+
+        foreach ($pendentesParaCancelar as $pendenteCancelar) {
+            $idConcluidaCancelada = $this->concluidaRepo->concluirCancelada($pendenteCancelar['id'], $idConcluidaAceita);
+
+            $cancelouEnvioDeOutroTecnico = $pendenteCancelar['tecnico_origem_id'] != $pendente['tecnico_origem_id']
+                                        && $pendenteCancelar['tecnico_origem_id'] != $pendente['tecnico_destino_id'];
+            if ($cancelouEnvioDeOutroTecnico) {
+                $notificacoes[] = Notificacao::solicitacaoEnviadaCancelada($pendenteCancelar['tecnico_origem_id'], $idConcluidaCancelada);
+            }
+        }
+
+        $notificacoes[] = Notificacao::solicitacaoEnviadaAceita($pendente['tecnico_origem_id'], $idConcluidaAceita);
+        $notificacoes[] = Notificacao::solicitacaoRecebidaAceita($pendente['tecnico_destino_id'], $idConcluidaAceita);
+
+        foreach ($notificacoes as $notificacao) {
+            $this->notificacaoRepo->criar($notificacao);
+        }
+    }
+
 }

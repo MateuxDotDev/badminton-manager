@@ -46,3 +46,17 @@ async function confirmarExclusao(message, params=null) {
     })
     return result.isConfirmed;
 }
+
+async function confirmarSucesso(message, params=null) {
+    const result = await Swal.fire({
+        title: params?.title ?? 'Tem certeza?',
+        text: message,
+        icon: 'success',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: 'var(--bs-green)',
+        showCancelButton: true,
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: params?.confirmButtonText ?? 'Sim',
+    })
+    return result.isConfirmed;
+}
