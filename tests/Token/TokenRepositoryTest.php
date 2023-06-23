@@ -2,15 +2,15 @@
 
 namespace Tests\Token;
 
-use App\Util\Http\Response;
-use PHPUnit\Framework\MockObject\Exception;
-use PHPUnit\Framework\TestCase;
 use App\Token\TokenRepository;
-use App\Util\Services\TokenService\TokenServiceInterface;
-use App\Util\Exceptions\ValidatorException;
 use App\Util\Exceptions\ResponseException;
+use App\Util\Exceptions\ValidatorException;
+use App\Util\Http\Response;
+use App\Util\Services\TokenService\TokenServiceInterface;
 use PDO;
 use PDOStatement;
+use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\TestCase;
 use stdClass;
 
 class TokenRepositoryTest extends TestCase
