@@ -2,10 +2,12 @@
 
 namespace App\Tecnico\Dupla;
 
-readonly class DuplaRepository
+use PDO;
+
+class DuplaRepository
 {
     public function __construct(
-        private \PDO $pdo,
+        private readonly PDO $pdo,
     ) {}
 
     public function criarDupla(

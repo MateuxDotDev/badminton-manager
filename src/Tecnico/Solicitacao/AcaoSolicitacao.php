@@ -9,8 +9,8 @@ use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use App\Util\General\UserSession;
 use App\Util\Http\HttpStatus;
-use \PDO;
-use \DateTimeInterface;
+use PDO;
+use DateTimeInterface;
 
 readonly class AcaoSolicitacao
 {
@@ -49,6 +49,9 @@ readonly class AcaoSolicitacao
         return empty($rows) ? [] : $rows[0];
     }
 
+    /**
+     * @throws ValidatorException
+     */
     private function getSolicitacao404(int $id): array
     {
         $solicitacao = $this->getSolicitacao($id);
@@ -58,6 +61,9 @@ readonly class AcaoSolicitacao
         return $solicitacao;
     }
 
+    /**
+     * @throws ValidatorException
+     */
     private function validarPrazo(array $solicitacao): void
     {
         $prazo = Dates::parseDay($solicitacao['competicao_prazo']);
@@ -71,6 +77,9 @@ readonly class AcaoSolicitacao
         }
     }
 
+    /**
+     * @throws ValidatorException
+     */
     public function rejeitar(int $idPendente): void
     {
         $solicitacao = $this->getSolicitacao404($idPendente);
@@ -93,13 +102,19 @@ readonly class AcaoSolicitacao
         }
     }
 
+    /**
+     * @throws ValidatorException
+     */
     public function cancelar(int $id): void
     {
         $solicitacao = $this->getSolicitacao404($id);
 
         $idTecnicoLogado = $this->session->getTecnico()->id();
         if ($solicitacao['tecnico_origem_id'] != $idTecnicoLogado) {
-            throw new ValidatorException('Você não tem autorização para cancelar essa solicitação', HttpStatus::FORBIDDEN);
+            throw new ValidatorException(
+                'Você não tem autorização para cancelar essa solicitação',
+                HttpStatus::FORBIDDEN
+            );
         }
 
         $this->validarPrazo($solicitacao);
@@ -150,13 +165,19 @@ readonly class AcaoSolicitacao
         return $stmt->fetchAll();
     }
 
+    /**
+     * @throws ValidatorException
+     */
     public function aceitar(int $idPendente): void
     {
         $pendente = $this->getSolicitacao404($idPendente);
 
         $idTecnicoLogado = $this->session->getTecnico()->id();
         if ($idTecnicoLogado != $pendente['tecnico_destino_id']) {
-            throw new ValidatorException('Você não tem autorização para aceitar essa solicitação', HttpStatus::FORBIDDEN);
+            throw new ValidatorException(
+                'Você não tem autorização para aceitar essa solicitação',
+                HttpStatus::FORBIDDEN
+            );
         }
 
         $this->validarPrazo($pendente);
@@ -176,12 +197,18 @@ readonly class AcaoSolicitacao
         $notificacoes = [];
 
         foreach ($pendentesParaCancelar as $pendenteCancelar) {
-            $idConcluidaCancelada = $this->concluidaRepo->concluirCancelada($pendenteCancelar['id'], $idConcluidaAceita);
+            $idConcluidaCancelada = $this->concluidaRepo->concluirCancelada(
+                $pendenteCancelar['id'],
+                $idConcluidaAceita
+            );
 
             $cancelouEnvioDeOutroTecnico = $pendenteCancelar['tecnico_origem_id'] != $pendente['tecnico_origem_id']
                                         && $pendenteCancelar['tecnico_origem_id'] != $pendente['tecnico_destino_id'];
             if ($cancelouEnvioDeOutroTecnico) {
-                $notificacoes[] = Notificacao::solicitacaoEnviadaCancelada($pendenteCancelar['tecnico_origem_id'], $idConcluidaCancelada);
+                $notificacoes[] = Notificacao::solicitacaoEnviadaCancelada(
+                    $pendenteCancelar['tecnico_origem_id'],
+                    $idConcluidaCancelada
+                );
             }
         }
 
@@ -192,5 +219,4 @@ readonly class AcaoSolicitacao
             $this->notificacaoRepo->criar($notificacao);
         }
     }
-
 }

@@ -2,12 +2,14 @@
 
 namespace App\Tecnico\Solicitacao;
 
-use \PDO;
+use App\Util\Exceptions\ValidatorException;
+use App\Util\Http\HttpStatus;
+use PDO;
 
-readonly class SolicitacaoConcluidaRepository
+class SolicitacaoConcluidaRepository
 {
     public function __construct(
-        private PDO $pdo,
+        private readonly PDO $pdo,
     ) {}
 
     public function excluirPendente(int $id): void
@@ -22,6 +24,9 @@ readonly class SolicitacaoConcluidaRepository
         $stmt->execute(['id' => $id]);
     }
 
+    /**
+     * @throws ValidatorException
+     */
     private function transferir(int $idPendente, TipoConclusao $tipo, ?int $idSolicitacaoCancelou=null): int
     {
         $colunaData = match ($tipo) {
@@ -64,11 +69,14 @@ readonly class SolicitacaoConcluidaRepository
 
         $rows = $stmt->fetchAll();
         if (empty($rows)) {
-            throw new \Exception('Sem resultados');
+            throw new ValidatorException('Sem resultados', HttpStatus::NOT_FOUND);
         }
         return $rows[0]['id'];
     }
 
+    /**
+     * @throws ValidatorException
+     */
     public function concluirRejeitada(int $idPendente): int
     {
         $idConcluida = $this->transferir($idPendente, TipoConclusao::REJEITADA);
@@ -76,6 +84,9 @@ readonly class SolicitacaoConcluidaRepository
         return $idConcluida;
     }
 
+    /**
+     * @throws ValidatorException
+     */
     public function concluirAceita(int $idPendente): int
     {
         $idConcluida = $this->transferir($idPendente, TipoConclusao::ACEITA);
@@ -83,6 +94,9 @@ readonly class SolicitacaoConcluidaRepository
         return $idConcluida;
     }
 
+    /**
+     * @throws ValidatorException
+     */
     public function concluirCancelada(int $idPendente, ?int $idSolicitacaoCancelou=null): int
     {
         $idConcluida = $this->transferir($idPendente, TipoConclusao::CANCELADA, $idSolicitacaoCancelou);
