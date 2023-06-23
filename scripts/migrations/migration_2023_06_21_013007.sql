@@ -1,0 +1,1 @@
+ALTER TYPE tipo_notificacao ADD VALUE 'solicitacao_enviada_cancelada'
