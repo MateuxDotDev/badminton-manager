@@ -13,6 +13,7 @@ use App\Competicoes\PesquisaAtletaCompeticao;
 use App\Notificacao\TipoNotificacao;
 use App\Tecnico\Atleta\AtletaRepository;
 use App\Tecnico\Atleta\Sexo;
+use App\Tecnico\Dupla\DuplaRepository;
 use App\Tecnico\Solicitacao\EnviarSolicitacao;
 use App\Tecnico\Solicitacao\EnviarSolicitacaoDTO;
 use App\Tecnico\Solicitacao\SolicitacaoPendenteRepository;
@@ -216,6 +217,7 @@ function enviarSolicitacao(array $req): Response
     $competicoesRepo  = new CompeticaoRepository($pdo);
     $solicitacoesRepo = new SolicitacaoPendenteRepository($pdo);
     $notificacoesRepo = new NotificacaoRepository($pdo);
+    $duplaRepo = new DuplaRepository($pdo);
     $mailRepo = new MailRepository($pdo);
     $tecnicoRepo = new TecnicoRepository($pdo);
     $atletaRepo = new AtletaRepository($pdo);
@@ -224,7 +226,7 @@ function enviarSolicitacao(array $req): Response
     try {
         $pdo->beginTransaction();
 
-        $enviar = new EnviarSolicitacao($pdo, $session, $competicoesRepo, $solicitacoesRepo, $notificacoesRepo);
+        $enviar = new EnviarSolicitacao($pdo, $session, $competicoesRepo, $solicitacoesRepo, $notificacoesRepo, $duplaRepo);
         $id = $enviar($dto);
 
         $atletaDest = $atletaRepo->getViaId($dto->idAtletaDestinatario);

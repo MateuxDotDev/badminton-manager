@@ -4,13 +4,15 @@ namespace App\Tecnico\Solicitacao;
 
 use App\Notificacao\Notificacao;
 use App\Notificacao\NotificacaoRepository;
+use App\Tecnico\Atleta\Sexo;
+use App\Tecnico\Atleta\TipoDupla;
 use App\Tecnico\Dupla\DuplaRepository;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use App\Util\General\UserSession;
 use App\Util\Http\HttpStatus;
-use PDO;
-use DateTimeInterface;
+use \PDO;
+use \DateTimeInterface;
 
 readonly class AcaoSolicitacao
 {
@@ -34,12 +36,14 @@ readonly class AcaoSolicitacao
                  , ori.tecnico_id  as tecnico_origem_id
                  , dest.tecnico_id as tecnico_destino_id
                  , s.categoria_id  as categoria_id
+                 , cat.descricao   as categoria_descricao
                  , comp.id         as competicao_id
                  , comp.prazo      as competicao_prazo
               FROM solicitacao_dupla_pendente s
               JOIN atleta ori  ON ori.id  = s.atleta_origem_id
               JOIN atleta dest ON dest.id = s.atleta_destino_id
               JOIN competicao comp ON comp.id = s.competicao_id
+              JOIN categoria cat ON cat.id = s.categoria_id
              WHERE s.id = :id
         SQL;
 
@@ -131,9 +135,6 @@ readonly class AcaoSolicitacao
     private function getSolicitacoesParaCancelar(array $aceita): array
     {
 
-        // TODO não funcionando...
-        // ou talvez é a parte de cancelar e enviar que não está funcionando
-
         $sql = <<<SQL
             SELECT s.id
                  , ori.id          as atleta_origem_id
@@ -184,6 +185,38 @@ readonly class AcaoSolicitacao
         }
 
         $this->validarPrazo($pendente);
+
+
+        // A princípio não deveria acontecer de um deles estar indisponível
+        // porque quando uma solicitação é aceita e a dupla é formada, as outras solicitações no mesmo
+        // "esquema" (tipo e categoria) são canceladas. Mesmo assim fazemos a validação para garantir.
+
+        $tipoDupla = TipoDupla::criar(
+            Sexo::from($pendente['atleta_origem_sexo']),
+            Sexo::from($pendente['atleta_destino_sexo'])
+        )->toString();
+        $descricaoDupla = $tipoDupla.' '.$pendente['categoria_descricao'];
+
+        $destinatarioIndisponivel = $this->duplaRepo->temDupla(
+            $pendente['competicao_id'],
+            $pendente['atleta_destino_id'],
+            $pendente['categoria_id'],
+            Sexo::from($pendente['atleta_origem_sexo'])
+        );
+        if ($destinatarioIndisponivel) {
+            throw new ValidatorException('O seu atleta '.$pendente['atleta_destino_nome'].' já formou uma dupla '.$descricaoDupla);
+        }
+
+        $remetenteIndisponivel = $this->duplaRepo->temDupla(
+            $pendente['competicao_id'],
+            $pendente['atleta_origem_id'],
+            $pendente['categoria_id'],
+            Sexo::from($pendente['atleta_destino_sexo']),
+        );
+        if ($remetenteIndisponivel) {
+            throw new ValidatorException('O atleta '.$pendente['atleta_origem_nome'].' já formou uma dupla '.$descricaoDupla);
+        }
+
 
         $idConcluidaAceita = $this->concluidaRepo->concluirAceita($pendente['id']);
 

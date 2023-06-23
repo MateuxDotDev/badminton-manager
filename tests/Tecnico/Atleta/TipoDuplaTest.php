@@ -10,9 +10,9 @@ class TipoDuplaTest extends TestCase
 {
     public function testToString(): void
     {
-        $this->assertSame('Masculina', TipoDupla::MASCULINA->toString());
-        $this->assertSame('Feminina', TipoDupla::FEMININA->toString());
-        $this->assertSame('Mista', TipoDupla::MISTA->toString());
+        $this->assertSame('masculina', TipoDupla::MASCULINA->toString());
+        $this->assertSame('feminina', TipoDupla::FEMININA->toString());
+        $this->assertSame('mista', TipoDupla::MISTA->toString());
     }
 
     public function testCriar(): void

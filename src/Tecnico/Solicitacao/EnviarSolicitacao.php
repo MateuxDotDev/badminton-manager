@@ -7,6 +7,7 @@ use App\Notificacao\Notificacao;
 use App\Notificacao\NotificacaoRepositoryInterface;
 use App\Tecnico\Atleta\Sexo;
 use App\Tecnico\Atleta\TipoDupla;
+use App\Tecnico\Dupla\DuplaRepository;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
 use App\Util\Http\HttpStatus;
@@ -21,12 +22,14 @@ readonly class EnviarSolicitacao
         private CompeticaoRepositoryInterface $competicoes,
         private SolicitacaoPendenteRepositoryInterface $solicitacoes,
         private NotificacaoRepositoryInterface $notificacoes,
+        private DuplaRepository $duplas,
     ) {}
 
     private function getAtleta(int $idCompeticao, int $idAtleta): ?array
     {
         $sql = <<<SQL
                   SELECT a.sexo
+                       , a.nome_completo
                        , a.tecnico_id
                        , jsonb_agg(acc.categoria_id) as categorias
                        , jsonb_agg(acs.sexo_dupla) as sexo_dupla
@@ -55,6 +58,7 @@ readonly class EnviarSolicitacao
 
         return [
             'sexo'       => Sexo::from($row['sexo']),
+            'nome'       => $row['nome_completo'],
             'idTecnico'  => (int) $row['tecnico_id'],
             'categorias' => json_decode($row['categorias'], true),
             'sexoDupla'  => array_map(fn($s) => Sexo::from($s), json_decode($row['sexo_dupla'], true)),
@@ -87,6 +91,16 @@ readonly class EnviarSolicitacao
         if ($erro != null) {
             throw new ValidatorException("Atletas não são compatíveis: $erro");
         }
+    }
+
+    private function descricaoCategoria(int $id): string|false
+    {
+        $sql = <<<SQL
+            SELECT descricao FROM categoria WHERE id = :id
+        SQL;
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetchColumn(0);
     }
 
     /**
@@ -131,10 +145,32 @@ readonly class EnviarSolicitacao
             throw new ValidatorException('Essa solicitação já foi enviada');
         }
 
-        // TODO (em task futura): Validar se esses atletas realmente ainda precisam de dupla
-        // (se um deles é homem e o outro já tem dupla masculina, então não dá pra formar dupla)
-        // (porém se um deles já tem uma dupla de um sexo mas não do outro, e precisa de dupla
-        // do outro sexo, e o outro atleta é esse outro sexo, então ok)
+        $descricaoCategoria = $this->descricaoCategoria($idCategoria);
+        if (!$descricaoCategoria) {
+            throw new ValidatorException('Categoria inválida');
+        }
+        $tipoDupla = TipoDupla::criar($remetente['sexo'], $destinatario['sexo'])->toString();
+        $descricaoDupla = $tipoDupla.' '.$descricaoCategoria;
+
+        $destinatarioIndisponivel = $this->duplas->temDupla(
+            $competicao->id(), 
+            $idDestinatario,
+            $idCategoria,
+            $remetente['sexo'],
+        );
+        if ($destinatarioIndisponivel) {
+            throw new ValidatorException('O atleta '.$destinatario['nome'].' já formou tem uma dupla '.$descricaoDupla);
+        }
+
+        $remetenteIndisponivel = $this->duplas->temDupla(
+            $competicao->id(),
+            $idRemetente,
+            $idCategoria,
+            $destinatario['sexo'],
+        );
+        if ($remetenteIndisponivel) {
+            throw new ValidatorException('O seu atleta '.$remetente['nome'].' já tem uma dupla '.$descricaoDupla);
+        }
 
         $idSolicitacao = $this->solicitacoes->enviar($dto);
 

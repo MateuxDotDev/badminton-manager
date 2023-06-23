@@ -5,6 +5,7 @@ namespace Tests\Tecnico\Solicitacao;
 use App\Competicoes\Competicao;
 use App\Competicoes\CompeticaoRepository;
 use App\Notificacao\NotificacaoRepository;
+use App\Tecnico\Dupla\DuplaRepository;
 use App\Tecnico\Solicitacao\EnviarSolicitacao;
 use App\Tecnico\Solicitacao\EnviarSolicitacaoDTO;
 use App\Tecnico\Solicitacao\SolicitacaoPendente;
@@ -26,6 +27,7 @@ class EnviarSolicitacaoTest extends TestCase
     private CompeticaoRepository $competicaoRepository;
     private SolicitacaoPendenteRepository $solicitacaoPendenteRepository;
     private NotificacaoRepository $notificacaoRepository;
+    private DuplaRepository $duplaRepository;
 
     /**
      * @throws Exception
@@ -38,6 +40,7 @@ class EnviarSolicitacaoTest extends TestCase
         $this->competicaoRepository = $this->createMock(CompeticaoRepository::class);
         $this->solicitacaoPendenteRepository = $this->createMock(SolicitacaoPendenteRepository::class);
         $this->notificacaoRepository = $this->createMock(NotificacaoRepository::class);
+        $this->duplaRepository = $this->createMock(DuplaRepository::class);
     }
 
     /**
@@ -93,6 +96,10 @@ class EnviarSolicitacaoTest extends TestCase
             ->method('fetchAll')
             ->willReturnOnConsecutiveCalls([$remetenteGet], [$destinatarioGet]);
 
+        $this->stmt
+            ->method('fetchColumn')
+            ->willReturn('categoria para o teste funcionar');
+
         $this->solicitacaoPendenteRepository
             ->method('getViaIds')
             ->willReturn(null);
@@ -106,7 +113,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $result = $enviarSolicitacao($dto);
@@ -133,7 +141,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
@@ -165,7 +174,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
@@ -205,7 +215,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
@@ -259,7 +270,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
@@ -313,7 +325,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
@@ -395,7 +408,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
@@ -455,7 +469,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
@@ -516,11 +531,12 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
-        $this->expectExceptionMessage('Atletas não são compatíveis: Um dos atletas não precisa formar dupla Mista');
+        $this->expectExceptionMessage('Atletas não são compatíveis: Um dos atletas não precisa formar dupla mista');
 
         $enviarSolicitacao($dto);
     }
@@ -577,7 +593,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
