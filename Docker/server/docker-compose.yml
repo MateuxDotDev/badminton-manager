@@ -32,7 +32,7 @@ services:
 
   database:
     container_name: matchpoint-database
-    image: postgres:15
+    image: postgres:15.3-alpine
     restart: unless-stopped
     volumes:
       - ./data:/var/lib/postgresql/data

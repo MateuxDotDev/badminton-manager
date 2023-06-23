@@ -371,7 +371,7 @@ function criarElementoAtleta(atleta) {
   {
     const formarDupla = eqs(elem, '.atleta-link-formar-dupla');
 
-    const url = new URL(baseUrl + '/tecnico/competicoes/atletas/formar_dupla.php');
+    const url = new URL(baseUrl + '/tecnico/competicoes/atletas/duplas/formar/');
     url.searchParams.append('destino', atleta.id);
     url.searchParams.append('competicao', idCompeticao);
     if (idAtletaRemetente != null) {

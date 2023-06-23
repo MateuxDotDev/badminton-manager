@@ -70,7 +70,7 @@ else Template::navTecnicoNaoLogado();
                         </a>
                     </td>
                     <td class="td-botao">
-                        <a href="/atletacompeticao/index.php?competicao=<?= $competicao->id() ?>" class="btn btn-outline-success">
+                        <a href="/tecnico/atletas/competicao/?competicao=<?= $competicao->id() ?>" class="btn btn-outline-success">
                             <i class="bi bi-person-plus"></i>
                             Cadastrar atleta
                         </a>
