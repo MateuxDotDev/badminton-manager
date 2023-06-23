@@ -166,4 +166,72 @@ class AtletaCompeticaoRepositoryTest extends TestCase
 
         $this->assertNull($atletaCompeticao);
     }
+
+    public function testViaId(): void
+    {
+        $atleta = (new Atleta())->setId(1);
+        $competicao = (new Competicao())->setId(1);
+
+        $row = [
+            'sexo' => 'M',
+            'sexo_duplas' => json_encode(['M', 'F']),
+            'categorias' => json_encode([1, 2]),
+        ];
+
+        $this->pdo
+            ->expects($this->once())
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+        $this->stmt
+            ->expects($this->once())
+            ->method('execute')
+            ->with([
+                'atleta_id' => $atleta->id(),
+                'competicao_id' => $competicao->id()
+            ])
+            ->willReturn(true);
+
+        $this->stmt
+            ->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([$row]);
+
+        $atleta = $this->repository->getViaId($atleta->id(), $competicao->id());
+
+        $this->assertIsArray($atleta);
+        $this->assertSame(Sexo::MASCULINO, $atleta['sexo']);
+        $this->assertSame([Sexo::MASCULINO, Sexo::FEMININO], $atleta['sexoDuplas']);
+        $this->assertSame([1, 2], $atleta['categorias']);
+    }
+
+
+    public function testViaIdNull(): void
+    {
+        $atleta = (new Atleta())->setId(1);
+        $competicao = (new Competicao())->setId(1);
+
+        $this->pdo
+            ->expects($this->once())
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+        $this->stmt
+            ->expects($this->once())
+            ->method('execute')
+            ->with([
+                'atleta_id' => $atleta->id(),
+                'competicao_id' => $competicao->id()
+            ])
+            ->willReturn(true);
+
+        $this->stmt
+            ->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([]);
+
+        $atleta = $this->repository->getViaId($atleta->id(), $competicao->id());
+
+        $this->assertNull($atleta);
+    }
 }

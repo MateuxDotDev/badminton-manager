@@ -127,9 +127,7 @@ function pesquisarAtletas($req): Response
     $pesquisarIn('a.sexo', array_map(fn(Sexo $s): string => $s->value, $dados->sexoAtleta));
     $pesquisarIn('acs_filtrar.sexo_dupla', array_map(fn(Sexo $s): string => $s->value, $dados->sexoDupla));
 
-
     $where = implode(' AND ', $condicoes);
-
 
     $sql = <<<SQL
           select a.id,

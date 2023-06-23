@@ -1,6 +1,5 @@
 <?php
 
-
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
 use App\Tecnico\Atleta\AtletaRepository;
@@ -28,7 +27,8 @@ try {
     } else {
         $tokenService = new TokenService();
         $decodedToken = $tokenService->decodeToken($urlToken);
-        $idTecnico = $decodedToken->tecnico->id;
+        $tecnicoObj = unserialize(json_decode($decodedToken->tecnico));
+        $idTecnico = $tecnicoObj->id();
 
         if ($idTecnico === null) {
             Response::erroNaoAutorizado()->enviar();
@@ -73,7 +73,7 @@ Template::nav($session);
         <input class="form-control" type="search" id="pesquisa" placeholder="Digite aqui informações do atleta que deseja buscar..." />
     </section>
 
-    <?php if (empty($atletas)) : ?>
+    <?php if (empty($atletas)): ?>
         <section id="sem-atletas" class="d-none alert alert-info">
             <p class="mb-0">
                 <i class="bi bi-info-circle"></i> Nenhum atleta cadastrado. <a href="/tecnico/atletas/cadastrar">Clique aqui</a> para cadastrar um novo atleta.
