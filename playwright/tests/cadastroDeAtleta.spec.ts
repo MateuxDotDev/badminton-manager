@@ -26,4 +26,6 @@ test('Cadastro de atleta', async ({ page }) => {
     await expect(page).toHaveURL(`${url}/tecnico/atletas/`);
     const html = await page.innerHTML('body');
     expect(html).toContain('Atleta Teste 02');
+    const browser = await page.context().browser();
+    await page.screenshot({ path: `./tests/screenshots/cadastroDeAtleta-${browser.browserType().name()}.png` });
 });
