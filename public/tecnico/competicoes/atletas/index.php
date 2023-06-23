@@ -358,15 +358,13 @@ if ($atletaCompeticao !== null) {
 
     {
       const formarDupla = eqs(elem, '.atleta-link-formar-dupla');
-
       const url = new URL(baseUrl + '/tecnico/competicoes/atletas/formar_dupla.php');
+      formarDupla.setAttribute('href', url.toString());
       url.searchParams.append('destino', atleta.id);
       url.searchParams.append('competicao', idCompeticao);
       if (idAtletaRemetente != null) {
         url.searchParams.append('remetente', idAtletaRemetente);
       }
-
-      formarDupla.setAttribute('href', url.toString());
     }
 
     return elem;

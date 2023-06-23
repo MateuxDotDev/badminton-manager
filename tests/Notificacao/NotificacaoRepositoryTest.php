@@ -4,6 +4,7 @@ namespace Tests\Notificacao;
 
 use App\Notificacao\Notificacao;
 use App\Notificacao\NotificacaoRepository;
+use App\Notificacao\TipoNotificacao;
 use PDO;
 use PDOStatement;
 use PHPUnit\Framework\MockObject\Exception;
@@ -64,5 +65,58 @@ class NotificacaoRepositoryTest extends TestCase
         $repository = new NotificacaoRepository($mockPDO);
 
         $this->assertNull($repository->criar($notificacao));
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testGetViaId1(): void
+    {
+        // Dados simulados que o método fetchAll deve retornar
+        $fakeData = [
+            [
+                'id' => 1,
+                'tipo' => 'tipo1',
+                'tecnico_id' => 1,
+                'id_1' => 1,
+                'id_2' => 2,
+                'id_3' => 3,
+                'criado_em' => '2023-06-20 10:30:00',
+            ],
+            [
+                'id' => 2,
+                'tipo' => 'tipo2',
+                'tecnico_id' => 2,
+                'id_1' => 1,
+                'id_2' => 4,
+                'id_3' => 5,
+                'criado_em' => '2023-06-20 10:35:00',
+            ],
+        ];
+
+        $mockPDOStatement = $this->createMock(PDOStatement::class);
+        $mockPDOStatement->expects($this->once())
+            ->method('execute')
+            ->with([
+                'id_1' => 1,
+                'tipo' => TipoNotificacao::SOLICITACAO_RECEBIDA->value,
+                ])
+            ->willReturn(true);
+
+        $mockPDOStatement->expects($this->once())
+            ->method('fetchAll')
+            ->with(PDO::FETCH_ASSOC)
+            ->willReturn($fakeData);
+
+        $mockPDO = $this->createMock(PDO::class);
+        $mockPDO->expects($this->once())
+            ->method('prepare')
+            ->willReturn($mockPDOStatement);
+
+        $repository = new NotificacaoRepository($mockPDO);
+
+        $result = $repository->getViaId1(1, TipoNotificacao::SOLICITACAO_RECEBIDA);
+
+        $this->assertSame($fakeData, $result);
     }
 }
