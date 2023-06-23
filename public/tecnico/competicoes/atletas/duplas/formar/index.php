@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../../../../vendor/autoload.php';
+require_once __DIR__ . '/../../../../../../vendor/autoload.php';
 
 use App\Categorias\CategoriaRepository;
 use App\Competicoes\CompeticaoRepository;
@@ -235,3 +235,4 @@ async function enviarSolicitacao(idRemetente, idDestinatario, idCompeticao, idCa
 </script>
 
 <?php Template::footer() ?>
+

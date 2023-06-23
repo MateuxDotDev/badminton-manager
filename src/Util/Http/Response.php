@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpClassCanBeReadonlyInspection */
 
 namespace App\Util\Http;
 
