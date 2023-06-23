@@ -44,9 +44,18 @@ class AcaoSolicitacaoTest extends TestCase
     public function testSolicitacaoNaoEncontrada(): void
     {
         $stmt = $this->createMock(PDOStatement::class);
-        $this->pdo->method('prepare')->willReturn($stmt);
-        $stmt->method('execute')->willReturn(true);
-        $stmt->method('fetchAll')->willReturn([]);
+        $this->pdo->expects($this->once())
+            ->method('prepare')
+            ->willReturn($stmt);
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->willReturn(true);
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([]);
+
+        $this->session->expects($this->never())
+            ->method('getTecnico');
 
         $acaoSolicitacao = new AcaoSolicitacao(
             $this->pdo,
@@ -61,8 +70,6 @@ class AcaoSolicitacaoTest extends TestCase
         $this->expectExceptionMessage('Não encontramos solicitação pendente de id 1');
         $this->expectExceptionCode(HttpStatus::NOT_FOUND->value);
         $acaoSolicitacao->rejeitar(1);
-
-        $this->expectNotToPerformAssertions();
     }
 
     /**
@@ -85,15 +92,24 @@ class AcaoSolicitacaoTest extends TestCase
         ];
 
         $stmt = $this->createMock(PDOStatement::class);
-        $this->pdo->method('prepare')->willReturn($stmt);
-        $stmt->method('execute')->willReturn(true);
-        $stmt->method('fetchAll')->willReturn([$solicitacao]);
+        $this->pdo->expects($this->once())
+            ->method('prepare')->willReturn($stmt);
+        $stmt->expects($this->once())
+            ->method('execute')->willReturn(true);
+        $stmt->expects($this->once())
+            ->method('fetchAll')->willReturn([$solicitacao]);
 
-        $this->session->method('getTecnico')->willReturn((new Tecnico())->setId(2));
+        $this->session->expects($this->once())
+            ->method('getTecnico')
+            ->willReturn((new Tecnico())->setId(2));
 
-        $this->concluidaRepo->method('concluirRejeitada')->willReturn(1);
+        $this->concluidaRepo->expects($this->once())
+            ->method('concluirRejeitada')
+            ->willReturn(1);
 
-        $this->notificacaoRepo->method('criar')->willReturn(1);
+        $this->notificacaoRepo->expects($this->exactly(2))
+            ->method('criar')
+            ->willReturn(1);
 
         $acaoSolicitacao = new AcaoSolicitacao(
             $this->pdo,
@@ -105,8 +121,6 @@ class AcaoSolicitacaoTest extends TestCase
         );
 
         $acaoSolicitacao->rejeitar(1);
-
-        $this->expectNotToPerformAssertions();
     }
 
     /**
@@ -129,11 +143,23 @@ class AcaoSolicitacaoTest extends TestCase
         ];
 
         $stmt = $this->createMock(PDOStatement::class);
-        $this->pdo->method('prepare')->willReturn($stmt);
-        $stmt->method('execute')->willReturn(true);
-        $stmt->method('fetchAll')->willReturn([$solicitacao]);
+        $this->pdo
+            ->expects($this->once())
+            ->method('prepare')
+            ->willReturn($stmt);
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->willReturn(true);
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([$solicitacao]);
 
-        $this->session->method('getTecnico')->willReturn((new Tecnico())->setId(1));
+        $this->session->expects($this->once())
+            ->method('getTecnico')
+            ->willReturn((new Tecnico())->setId(1));
+
+        $this->concluidaRepo->expects($this->never())
+            ->method('concluirRejeitada');
 
         $acaoSolicitacao = new AcaoSolicitacao(
             $this->pdo,
@@ -171,11 +197,22 @@ class AcaoSolicitacaoTest extends TestCase
         ];
 
         $stmt = $this->createMock(PDOStatement::class);
-        $this->pdo->method('prepare')->willReturn($stmt);
-        $stmt->method('execute')->willReturn(true);
-        $stmt->method('fetchAll')->willReturn([$solicitacao]);
+        $this->pdo->expects($this->once())
+            ->method('prepare')
+            ->willReturn($stmt);
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->willReturn(true);
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([$solicitacao]);
 
-        $this->session->method('getTecnico')->willReturn((new Tecnico())->setId(2));
+        $this->session->expects($this->once())
+            ->method('getTecnico')
+            ->willReturn((new Tecnico())->setId(2));
+
+        $this->concluidaRepo->expects($this->never())
+            ->method('concluirRejeitada');
 
         $acaoSolicitacao = new AcaoSolicitacao(
             $this->pdo,
@@ -213,11 +250,22 @@ class AcaoSolicitacaoTest extends TestCase
         ];
 
         $stmt = $this->createMock(PDOStatement::class);
-        $this->pdo->method('prepare')->willReturn($stmt);
-        $stmt->method('execute')->willReturn(true);
-        $stmt->method('fetchAll')->willReturn([$solicitacao]);
+        $this->pdo->expects($this->once())
+            ->method('prepare')
+            ->willReturn($stmt);
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->willReturn(true);
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([$solicitacao]);
 
-        $this->session->method('getTecnico')->willReturn((new Tecnico())->setId(2));
+        $this->session->expects($this->once())
+            ->method('getTecnico')
+            ->willReturn((new Tecnico())->setId(2));
+
+        $this->concluidaRepo->expects($this->never())
+            ->method('concluirRejeitada');
 
         $acaoSolicitacao = new AcaoSolicitacao(
             $this->pdo,
@@ -255,13 +303,23 @@ class AcaoSolicitacaoTest extends TestCase
         ];
 
         $stmt = $this->createMock(PDOStatement::class);
-        $this->pdo->method('prepare')->willReturn($stmt);
-        $stmt->method('execute')->willReturn(true);
-        $stmt->method('fetchAll')->willReturn([$solicitacao]);
+        $this->pdo->expects($this->once())
+            ->method('prepare')
+            ->willReturn($stmt);
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->willReturn(true);
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([$solicitacao]);
 
-        $this->session->method('getTecnico')->willReturn((new Tecnico())->setId(1));
+        $this->session->expects($this->once())
+            ->method('getTecnico')
+            ->willReturn((new Tecnico())->setId(1));
 
-        $this->concluidaRepo->method('concluirCancelada')->willReturn(1);
+        $this->concluidaRepo->expects($this->once())
+            ->method('concluirCancelada')
+            ->willReturn(1);
 
         $acaoSolicitacao = new AcaoSolicitacao(
             $this->pdo,
@@ -273,8 +331,6 @@ class AcaoSolicitacaoTest extends TestCase
         );
 
         $acaoSolicitacao->cancelar(1);
-
-        $this->expectNotToPerformAssertions();
     }
 
     /**
@@ -297,13 +353,22 @@ class AcaoSolicitacaoTest extends TestCase
         ];
 
         $stmt = $this->createMock(PDOStatement::class);
-        $this->pdo->method('prepare')->willReturn($stmt);
-        $stmt->method('execute')->willReturn(true);
-        $stmt->method('fetchAll')->willReturn([$solicitacao]);
+        $this->pdo->expects($this->once())
+            ->method('prepare')
+            ->willReturn($stmt);
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->willReturn(true);
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([$solicitacao]);
 
-        $this->session->method('getTecnico')->willReturn((new Tecnico())->setId(2));
+        $this->session->expects($this->once())
+            ->method('getTecnico')
+            ->willReturn((new Tecnico())->setId(2));
 
-        $this->concluidaRepo->method('concluirCancelada')->willReturn(1);
+        $this->concluidaRepo->expects($this->never())
+            ->method('concluirCancelada');
 
         $acaoSolicitacao = new AcaoSolicitacao(
             $this->pdo,
@@ -319,8 +384,6 @@ class AcaoSolicitacaoTest extends TestCase
         $this->expectExceptionMessage('Você não tem autorização para cancelar essa solicitação');
 
         $acaoSolicitacao->cancelar(1);
-
-        $this->expectNotToPerformAssertions();
     }
 
     /**
@@ -400,6 +463,57 @@ class AcaoSolicitacaoTest extends TestCase
             $this->concluidaRepo,
             $this->duplaRepo,
         );
+
+        $acaoSolicitacao->aceitar(1);
+    }
+
+    /**
+     * @throws ValidatorException
+     * @throws Exception
+     */
+    public function testAceitarNaoAutorizado(): void
+    {
+        $solicitacao = [
+            'id' => 1,
+            'atleta_origem_id' => 1,
+            'atleta_origem_sexo' => 'M',
+            'atleta_destino_id' => 2,
+            'atleta_destino_sexo' => 'F',
+            'tecnico_origem_id' => 1,
+            'tecnico_destino_id' => 2,
+            'categoria_id' => 1,
+            'competicao_id' => 1,
+            'competicao_prazo' => (new DateTime())->modify('+1 day')->format('Y-m-d'),
+        ];
+
+        $stmt = $this->createMock(PDOStatement::class);
+        $this->pdo->expects($this->once())
+            ->method('prepare')->willReturn($stmt);
+        $stmt->expects($this->once())
+            ->method('execute')->willReturn(true);
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([$solicitacao]);
+
+        $this->session->expects($this->once())
+            ->method('getTecnico')
+            ->willReturn((new Tecnico())->setId(1));
+
+        $this->concluidaRepo->expects($this->never())
+            ->method('concluirAceita');
+
+        $acaoSolicitacao = new AcaoSolicitacao(
+            $this->pdo,
+            $this->session,
+            new DateTime(),
+            $this->notificacaoRepo,
+            $this->concluidaRepo,
+            $this->duplaRepo,
+        );
+
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionCode(HttpStatus::FORBIDDEN->value);
+        $this->expectExceptionMessage('Você não tem autorização para aceitar essa solicitação');
 
         $acaoSolicitacao->aceitar(1);
     }
