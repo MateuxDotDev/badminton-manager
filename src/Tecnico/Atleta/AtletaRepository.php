@@ -174,12 +174,6 @@ class AtletaRepository implements AtletaRepositoryInterface
         $queries = [];
 
         $queries[] = <<<SQL
-            DELETE FROM solicitacao_dupla_concluida
-                  WHERE atleta_destino_id = :id
-                     OR atleta_origem_id = :id
-        SQL;
-
-        $queries[] = <<<SQL
             DELETE FROM solicitacao_dupla_pendente
                   WHERE atleta_destino_id = :id
                      OR atleta_origem_id = :id
