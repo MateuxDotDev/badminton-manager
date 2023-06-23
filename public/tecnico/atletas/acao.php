@@ -104,6 +104,7 @@ function removerAtleta(array $req, ?UserSession $session, ?stdClass $token): Res
 
     $pdo = Connection::getInstance();
     try {
+        $pdo->beginTransaction();
         $repo = new AtletaRepository($pdo, new UploadImagemService());
 
         $removido = $repo->removerAtleta($id);
@@ -114,10 +115,6 @@ function removerAtleta(array $req, ?UserSession $session, ?stdClass $token): Res
 
         return Response::erro('Erro ao remover atleta');
     } catch (Exception $e) {
-        if (str_contains($e->getMessage(), 'Foreign key violation')) {
-            return Response::erro('Não é possível remover um atleta que possui participações em campeonatos');
-        }
-
         $pdo->rollBack();
         return Response::erroException($e);
     }

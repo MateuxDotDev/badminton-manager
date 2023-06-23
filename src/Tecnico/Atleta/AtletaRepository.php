@@ -171,13 +171,50 @@ class AtletaRepository implements AtletaRepositoryInterface
 
     public function removerAtleta(int $atletaId): bool
     {
-        $sql = <<<SQL
+        $queries = [];
+
+        $queries[] = <<<SQL
+            DELETE FROM solicitacao_dupla_concluida
+                  WHERE atleta_destino_id = :id
+                     OR atleta_origem_id = :id
+        SQL;
+
+        $queries[] = <<<SQL
+            DELETE FROM solicitacao_dupla_pendente
+                  WHERE atleta_destino_id = :id
+                     OR atleta_origem_id = :id
+        SQL;
+
+        $queries[] = <<<SQL
+            DELETE FROM atleta_competicao_categoria
+                  WHERE atleta_id = :id
+        SQL;
+
+        $queries[] = <<<SQL
+            DELETE FROM atleta_competicao_sexo_dupla
+                  WHERE atleta_id = :id
+        SQL;
+
+        $queries[] = <<<SQL
+            DELETE FROM atleta_competicao
+                  WHERE atleta_id = :id
+        SQL;
+
+        $queries[] = <<<SQL
+            DELETE FROM dupla
+                  WHERE atleta1_id = :id
+                     OR atleta2_id = :id
+        SQL;
+
+        $queries[] = <<<SQL
             DELETE FROM atleta
                   WHERE id = :id
         SQL;
 
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['id' => $atletaId]);
+        foreach ($queries as $query) {
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute(['id' => $atletaId]);
+        }
 
         return $stmt->rowCount() === 1;
     }
