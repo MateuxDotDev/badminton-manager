@@ -68,7 +68,10 @@ readonly class AcaoSolicitacao
     {
         $prazo = Dates::parseDay($solicitacao['competicao_prazo']);
         if ($prazo === null) {
-            throw new ValidatorException('Erro interno: prazo da competição é inválido');
+            throw new ValidatorException(
+                'Erro interno: prazo da competição é inválido',
+                HttpStatus::INTERNAL_SERVER_ERROR
+            );
         }
 
         $prazoPassou = $this->dataAgora->getTimestamp() >= $prazo->getTimestamp();
