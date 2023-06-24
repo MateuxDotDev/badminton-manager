@@ -92,7 +92,7 @@ class NovaSolicitacaoMailTest extends TestCase
             'rem_tec_info' => 'Info Tecnico B',
             'rem_tec_email' => 'tecnicob@test.com',
             'link_aceite' => 'localhost/aceitar',
-            'link_recusa' => 'localhost/recusar',
+            'link_rejeicao' => 'localhost/recusar',
             'ano_atual' => date('Y'),
         ];
 
