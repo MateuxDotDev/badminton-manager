@@ -153,7 +153,7 @@ readonly class EnviarSolicitacao
         $descricaoDupla = $tipoDupla.' '.$descricaoCategoria;
 
         $destinatarioIndisponivel = $this->duplas->temDupla(
-            $competicao->id(), 
+            $competicao->id(),
             $idDestinatario,
             $idCategoria,
             $remetente['sexo'],

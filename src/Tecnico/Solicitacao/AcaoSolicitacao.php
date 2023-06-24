@@ -28,17 +28,19 @@ readonly class AcaoSolicitacao
     private function getSolicitacao(int $id): array
     {
         $sql = <<<SQL
-            SELECT s.id            as id
-                 , ori.id          as atleta_origem_id
-                 , ori.sexo        as atleta_origem_sexo
-                 , dest.id         as atleta_destino_id
-                 , dest.sexo       as atleta_destino_sexo
-                 , ori.tecnico_id  as tecnico_origem_id
-                 , dest.tecnico_id as tecnico_destino_id
-                 , s.categoria_id  as categoria_id
-                 , cat.descricao   as categoria_descricao
-                 , comp.id         as competicao_id
-                 , comp.prazo      as competicao_prazo
+            SELECT s.id               AS id
+                 , ori.id             AS atleta_origem_id
+                 , ori.sexo           AS atleta_origem_sexo
+                 , ori.nome_completo  AS atleta_origem_nome
+                 , dest.id            AS atleta_destino_id
+                 , dest.sexo          AS atleta_destino_sexo
+                 , dest.nome_completo AS atleta_destino_nome
+                 , ori.tecnico_id     AS tecnico_origem_id
+                 , dest.tecnico_id    AS tecnico_destino_id
+                 , s.categoria_id     AS categoria_id
+                 , cat.descricao      AS categoria_descricao
+                 , comp.id            AS competicao_id
+                 , comp.prazo         AS competicao_prazo
               FROM solicitacao_dupla_pendente s
               JOIN atleta ori  ON ori.id  = s.atleta_origem_id
               JOIN atleta dest ON dest.id = s.atleta_destino_id
@@ -204,7 +206,9 @@ readonly class AcaoSolicitacao
             Sexo::from($pendente['atleta_origem_sexo'])
         );
         if ($destinatarioIndisponivel) {
-            throw new ValidatorException('O seu atleta '.$pendente['atleta_destino_nome'].' já formou uma dupla '.$descricaoDupla);
+            throw new ValidatorException(
+                'O seu atleta '.$pendente['atleta_destino_nome'].' já formou uma dupla '.$descricaoDupla
+            );
         }
 
         $remetenteIndisponivel = $this->duplaRepo->temDupla(
@@ -214,7 +218,9 @@ readonly class AcaoSolicitacao
             Sexo::from($pendente['atleta_destino_sexo']),
         );
         if ($remetenteIndisponivel) {
-            throw new ValidatorException('O atleta '.$pendente['atleta_origem_nome'].' já formou uma dupla '.$descricaoDupla);
+            throw new ValidatorException(
+                'O atleta '.$pendente['atleta_origem_nome'].' já formou uma dupla '.$descricaoDupla
+            );
         }
 
 
