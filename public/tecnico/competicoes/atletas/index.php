@@ -79,11 +79,14 @@ if ($competicao == null) {
 </style>
 
 <div class="container">
+
     <article class="d-flex mb-4 justify-content-between align-items-center">
         <h1 class="mb-0">Atletas na competição</h1>
-        <a href="./meus/?competicao=<?= $competicao->id() ?>" class="btn btn-outline-success h-100">
-            <i class="bi bi-people"></i> Meus atletas
-        </a>
+        <? if ($session->isTecnico()): ?>
+          <a href="./meus/?competicao=<?= $competicao->id() ?>" class="btn btn-outline-success h-100">
+              <i class="bi bi-people"></i> Meus atletas
+          </a>
+        <? endif; ?>
     </article>
 
 
