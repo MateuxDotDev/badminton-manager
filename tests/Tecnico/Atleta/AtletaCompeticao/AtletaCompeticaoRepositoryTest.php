@@ -234,4 +234,50 @@ class AtletaCompeticaoRepositoryTest extends TestCase
 
         $this->assertNull($atleta);
     }
+
+    public function testGetViaTecnico(): void
+    {
+        $tecnico = (new Tecnico())->setId(1);
+        $competicao = (new Competicao())->setId(1);
+
+        $atleta = [
+            'nome_completo' => 'Nome Completo',
+            'sexo' => 'M',
+            'data_nascimento' => '2023-01-01',
+            'path_foto' => 'foto.jpg',
+            'informacoes_adicionais' => 'Informações Adicionais',
+            'id' => 1,
+            'criado_em' => '2023-01-01 00:00:00.000000',
+            'alterado_em' => '2023-01-01 00:00:00.000000',
+            'informacoes_atleta_competicao' => 'Informações Atleta Competição',
+            'categorias' => json_encode(["sub 11", "sub 13", "sub 15", "sub 17", "sub 19", "sub 21", "aberta"]),
+            'sexo_duplas' => json_encode(["M", "F"])
+        ];
+
+        $this->pdo
+            ->expects($this->once())
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+        $this->stmt
+            ->expects($this->once())
+            ->method('execute')
+            ->with([
+                'tecnico_id' => $competicao->id(),
+                'competicao_id' => $competicao->id()
+            ])
+            ->willReturn(true);
+
+        $this->stmt
+            ->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([$atleta]);
+
+        $atletas = $this->repository->getViaTecnico($tecnico->id(), $competicao->id());
+
+        $this->assertIsArray($atletas);
+        $this->assertCount(1, $atletas);
+        $this->assertIsArray($atletas[0]['sexo_duplas']);
+        $this->assertIsArray($atletas[0]['categorias']);
+    }
 }

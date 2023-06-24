@@ -1,0 +1,44 @@
+<template id="atleta-card-template">
+    <div class="atleta-card card card-body bg-light border-0">
+        <div class="row gy-4">
+            <div class="col-12 col-xl-2 d-flex justify-content-center">
+                <div class="ratio ratio-1x1" style="max-width: 128px;">
+                    <img class="img-fluid rounded-circle profile-pic" alt="Foto de perfil">
+                </div>
+            </div>
+            <div class="col-12 col-md-8 col-xl-2 d-flex justify-content-center align-items-center">
+                <h5 class="mb-0 nome_completo"></h5>
+            </div>
+            <div class="col-6 col-md-2 col-xl-1 d-flex justify-content-center align-items-center">
+                <article class="d-flex flex-column">
+                    <h6 class="mb-0 idade"></h6>
+                    <small class="data_nascimento"></small>
+                </article>
+            </div>
+            <div class="col-6 col-md-2 col-xl-1 d-flex justify-content-center align-items-center">
+                <article class="d-flex flex-column">
+                    <h6 class="mb-0">Sexo</h6>
+                    <small class="sexo"></small>
+                </article>
+            </div>
+            <div class="col-12 col-xl-3 d-flex justify-content-center align-items-center">
+                <article class="d-flex flex-column">
+                    <h6 class="mb-0 info-adicional-titulo">Informações adicionais</h6>
+                    <small class="max-3-lines informacoes_adicionais"></small>
+                </article>
+            </div>
+            <div class="col-12 col-md-9 col-xl-2 d-flex justify-content-center align-items-center">
+                <article class="d-flex flex-column">
+                    <h6 class="mb-0 info-adicional-titulo">Joga nas categorias</h6>
+                    <small class="max-3-lines categorias"></small>
+                </article>
+            </div>
+            <div class="col-12 col-md-3 col-xl-1 d-flex justify-content-center align-items-center">
+                <article class="d-flex flex-column">
+                    <h6 class="mb-0 info-adicional-titulo">Busca dupla</h6>
+                    <small class="max-3-lines sexo_duplas fs-2"></small>
+                </article>
+            </div>
+        </div>
+    </div>
+</template>
