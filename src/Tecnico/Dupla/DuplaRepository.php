@@ -3,6 +3,8 @@
 namespace App\Tecnico\Dupla;
 
 use App\Tecnico\Atleta\Sexo;
+use App\Tecnico\Atleta\TipoDupla;
+use App\Util\General\Dates;
 use PDO;
 
 class DuplaRepository
@@ -63,5 +65,61 @@ class DuplaRepository
         ]);
 
         return $stmt->rowCount() > 0;
+    }
+
+    public function formadas(int $idCompeticao): array
+    {
+        $sql = <<<SQL
+            SELECT d.id,
+                   d.solicitacao_id AS idSolicitacao,
+                   c.descricao AS categoria,
+                   jsonb_agg(
+                       jsonb_build_object(
+                           'id', a.id,
+                           'nome', a.nome_completo,
+                           'sexo', a.sexo,
+                           'dataNascimento', a.data_nascimento,
+                           'foto', a.path_foto,
+                           'tecnico', json_build_object(
+                               'id', t.id,
+                               'nome', t.nome_completo,
+                               'clube', cl.nome
+                           )
+                       )
+                   ) AS "atletas"
+              FROM dupla d
+              JOIN atleta a
+                ON a.id IN (d.atleta1_id, d.atleta2_id)
+              JOIN tecnico t
+                ON t.id = a.tecnico_id
+              JOIN categoria c
+                ON c.id = d.categoria_id
+              JOIN clube cl
+                ON cl.id = t.clube_id
+             WHERE d.competicao_id = :competicao_id
+          GROUP BY d.id, d.solicitacao_id, c.descricao
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['competicao_id' => $idCompeticao]);
+        $rows = $stmt->fetchAll();
+        $duplas = [];
+
+        foreach ($rows as $row) {
+            $atletas = json_decode($row['atletas'], true);
+            foreach ($atletas as &$atleta) {
+                $dataNascimento = Dates::parseDay($atleta['dataNascimento']);
+                $atleta['idade'] = Dates::age($dataNascimento);
+                $atleta['dataNascimento'] = Dates::formatDayBr($dataNascimento);
+            }
+            unset($atleta);
+
+            $duplas[] = [
+                ...$row,
+                'atletas' => $atletas,
+            ];
+        }
+
+        return $duplas;
     }
 }
