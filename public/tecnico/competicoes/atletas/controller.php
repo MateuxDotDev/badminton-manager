@@ -19,6 +19,7 @@ use App\Tecnico\Solicitacao\EnviarSolicitacaoDTO;
 use App\Tecnico\Solicitacao\SolicitacaoPendenteRepository;
 use App\Tecnico\TecnicoRepository;
 use App\Util\Database\Connection;
+use App\Util\Environment\Environment;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
 use App\Util\Http\Request;
@@ -243,6 +244,7 @@ function enviarSolicitacao(array $req): Response
             }
         }
         $competicao = $competicoesRepo->getViaId($dto->idCompeticao);
+        $baseUrl = Environment::getBaseUrl() . '/tecnico/solicitacoes/?solicitacao=' . $id;
 
         $mail = new NovaSolicitacaoMail(new Mailer());
         $mail->fillTemplate([
@@ -264,8 +266,8 @@ function enviarSolicitacao(array $req): Response
             'rem_tec_clube' => $tecnicoRem->clube()->nome(),
             'rem_tec_info' => $tecnicoRem->informacoes(),
             'rem_tec_email' => $tecnicoRem->email(),
-            'link_aceite' => 'TODO',
-            'link_rejeicao' => 'TODO',
+            'link_aceite' => $baseUrl . '&acao=aceitar',
+            'link_rejeicao' => $baseUrl . '&acao=rejeitar',
             'ano_atual' => date('Y'),
         ]);
 
