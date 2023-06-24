@@ -41,7 +41,7 @@ try {
     $hasError = true;
 }
 
-Template::head('Atletas');
+Template::head('Meus Atletas');
 Template::nav($session);
 
 ?>
