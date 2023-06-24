@@ -5,6 +5,7 @@ namespace Tests\Tecnico\Solicitacao;
 use App\Competicoes\Competicao;
 use App\Competicoes\CompeticaoRepository;
 use App\Notificacao\NotificacaoRepository;
+use App\Tecnico\Dupla\DuplaRepository;
 use App\Tecnico\Solicitacao\EnviarSolicitacao;
 use App\Tecnico\Solicitacao\EnviarSolicitacaoDTO;
 use App\Tecnico\Solicitacao\SolicitacaoPendente;
@@ -26,6 +27,7 @@ class EnviarSolicitacaoTest extends TestCase
     private CompeticaoRepository $competicaoRepository;
     private SolicitacaoPendenteRepository $solicitacaoPendenteRepository;
     private NotificacaoRepository $notificacaoRepository;
+    private DuplaRepository $duplaRepository;
 
     /**
      * @throws Exception
@@ -38,6 +40,7 @@ class EnviarSolicitacaoTest extends TestCase
         $this->competicaoRepository = $this->createMock(CompeticaoRepository::class);
         $this->solicitacaoPendenteRepository = $this->createMock(SolicitacaoPendenteRepository::class);
         $this->notificacaoRepository = $this->createMock(NotificacaoRepository::class);
+        $this->duplaRepository = $this->createMock(DuplaRepository::class);
     }
 
     /**
@@ -77,6 +80,7 @@ class EnviarSolicitacaoTest extends TestCase
 
         $remetenteGet = [
             'sexo' => 'M',
+            'nome_completo' => 'Atleta 1',
             'tecnico_id' => 1,
             'categorias' => '[1, 2]',
             'sexo_dupla' => '["M", "F"]',
@@ -84,6 +88,7 @@ class EnviarSolicitacaoTest extends TestCase
 
         $destinatarioGet = [
             'sexo' => 'F',
+            'nome_completo' => 'Atleta 2',
             'tecnico_id' => 2,
             'categorias' => '[1, 2]',
             'sexo_dupla' => '["M", "F"]',
@@ -92,6 +97,10 @@ class EnviarSolicitacaoTest extends TestCase
         $this->stmt
             ->method('fetchAll')
             ->willReturnOnConsecutiveCalls([$remetenteGet], [$destinatarioGet]);
+
+        $this->stmt
+            ->method('fetchColumn')
+            ->willReturn('categoria para o teste funcionar');
 
         $this->solicitacaoPendenteRepository
             ->method('getViaIds')
@@ -106,7 +115,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $result = $enviarSolicitacao($dto);
@@ -133,7 +143,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
@@ -165,7 +176,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
@@ -205,7 +217,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
@@ -238,6 +251,7 @@ class EnviarSolicitacaoTest extends TestCase
 
         $remetenteGet = [
             'sexo' => 'M',
+            'nome_completo' => 'Atleta 1',
             'tecnico_id' => 1,
             'categorias' => '[1, 2]',
             'sexo_dupla' => '["M", "F"]',
@@ -259,7 +273,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
@@ -292,6 +307,7 @@ class EnviarSolicitacaoTest extends TestCase
 
         $remetenteGet = [
             'sexo' => 'M',
+            'nome_completo' => 'Atleta 1',
             'tecnico_id' => 1,
             'categorias' => '[1, 2]',
             'sexo_dupla' => '["M", "F"]',
@@ -313,7 +329,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
@@ -359,6 +376,7 @@ class EnviarSolicitacaoTest extends TestCase
 
         $remetenteGet = [
             'sexo' => 'M',
+            'nome_completo' => 'Atleta 1',
             'tecnico_id' => 1,
             'categorias' => '[1, 2]',
             'sexo_dupla' => '["M", "F"]',
@@ -366,6 +384,7 @@ class EnviarSolicitacaoTest extends TestCase
 
         $destinatarioGet = [
             'sexo' => 'F',
+            'nome_completo' => 'Atleta 2',
             'tecnico_id' => 2,
             'categorias' => '[1, 2]',
             'sexo_dupla' => '["M", "F"]',
@@ -395,7 +414,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
@@ -427,6 +447,7 @@ class EnviarSolicitacaoTest extends TestCase
 
         $remetenteGet = [
             'sexo' => 'M',
+            'nome_completo' => 'Atleta 1',
             'tecnico_id' => 1,
             'categorias' => '[1, 2]',
             'sexo_dupla' => '["M", "F"]',
@@ -434,6 +455,7 @@ class EnviarSolicitacaoTest extends TestCase
 
         $destinatarioGet = [
             'sexo' => 'F',
+            'nome_completo' => 'Atleta 2',
             'tecnico_id' => 2,
             'categorias' => '[1, 2]',
             'sexo_dupla' => '["M", "F"]',
@@ -455,7 +477,8 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
@@ -488,6 +511,7 @@ class EnviarSolicitacaoTest extends TestCase
 
         $remetenteGet = [
             'sexo' => 'M',
+            'nome_completo' => 'Atleta 1',
             'tecnico_id' => 1,
             'categorias' => '[1, 2]',
             'sexo_dupla' => '["M", "M"]',
@@ -495,6 +519,7 @@ class EnviarSolicitacaoTest extends TestCase
 
         $destinatarioGet = [
             'sexo' => 'F',
+            'nome_completo' => 'Atleta 2',
             'tecnico_id' => 2,
             'categorias' => '[1, 2]',
             'sexo_dupla' => '["M", "F"]',
@@ -516,11 +541,12 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
-        $this->expectExceptionMessage('Atletas não são compatíveis: Um dos atletas não precisa formar dupla Mista');
+        $this->expectExceptionMessage('Atletas não são compatíveis: Um dos atletas não precisa formar dupla mista');
 
         $enviarSolicitacao($dto);
     }
@@ -550,12 +576,14 @@ class EnviarSolicitacaoTest extends TestCase
         $remetenteGet = [
             'sexo' => 'M',
             'tecnico_id' => 1,
+            'nome_completo' => 'Atleta 1',
             'categorias' => '[1, 2]',
             'sexo_dupla' => '["M", "F"]',
         ];
 
         $destinatarioGet = [
             'sexo' => 'F',
+            'nome_completo' => 'Atleta 2',
             'tecnico_id' => 1,
             'categorias' => '[1, 2]',
             'sexo_dupla' => '["M", "F"]',
@@ -577,11 +605,244 @@ class EnviarSolicitacaoTest extends TestCase
             $this->session,
             $this->competicaoRepository,
             $this->solicitacaoPendenteRepository,
-            $this->notificacaoRepository
+            $this->notificacaoRepository,
+            $this->duplaRepository,
         );
 
         $this->expectException(ValidatorException::class);
         $this->expectExceptionMessage('Atletas não são compatíveis: Ambos têm o mesmo técnico');
+
+        $enviarSolicitacao($dto);
+    }
+
+    /**
+     * @throws ValidatorException
+     */
+    public function testCategoriaInvalida(): void
+    {
+        $competicao = (new Competicao())
+            ->setId(1)
+            ->setPrazo((new DateTime())->modify('+1 day'));
+
+        $dto = EnviarSolicitacaoDTO::parse([
+            'competicao' => $competicao->id(),
+            'atletaRemetente' => 1,
+            'atletaDestinatario' => 2,
+            'categoria' => 1,
+        ]);
+
+        $this->competicaoRepository
+            ->method('getViaId')
+            ->willReturn($competicao);
+
+        $tecnico = (new Tecnico())
+            ->setId(1);
+
+        $this->session
+            ->method('getTecnico')
+            ->willReturn($tecnico);
+
+        $this->pdo
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+        $this->stmt
+            ->method('execute')
+            ->willReturn(true);
+
+        $remetenteGet = [
+            'sexo' => 'M',
+            'nome_completo' => 'Atleta 1',
+            'tecnico_id' => 1,
+            'categorias' => '[1, 2]',
+            'sexo_dupla' => '["M", "F"]',
+        ];
+
+        $destinatarioGet = [
+            'sexo' => 'F',
+            'nome_completo' => 'Atleta 2',
+            'tecnico_id' => 2,
+            'categorias' => '[1, 2]',
+            'sexo_dupla' => '["M", "F"]',
+        ];
+
+        $this->stmt
+            ->method('fetchAll')
+            ->willReturnOnConsecutiveCalls([$remetenteGet], [$destinatarioGet]);
+
+        $this->stmt
+            ->method('fetchColumn')
+            ->willReturn(false);
+
+        $enviarSolicitacao = new EnviarSolicitacao(
+            $this->pdo,
+            $this->session,
+            $this->competicaoRepository,
+            $this->solicitacaoPendenteRepository,
+            $this->notificacaoRepository,
+            $this->duplaRepository,
+        );
+
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionMessage('Categoria inválida');
+
+        $enviarSolicitacao($dto);
+    }
+
+    /**
+     * @throws ValidatorException
+     */
+    public function testAtletaDestJaFormouDupla(): void
+    {
+        $competicao = (new Competicao())
+            ->setId(1)
+            ->setPrazo((new DateTime())->modify('+1 day'));
+
+        $dto = EnviarSolicitacaoDTO::parse([
+            'competicao' => $competicao->id(),
+            'atletaRemetente' => 1,
+            'atletaDestinatario' => 2,
+            'categoria' => 1,
+        ]);
+
+        $this->competicaoRepository
+            ->method('getViaId')
+            ->willReturn($competicao);
+
+        $tecnico = (new Tecnico())
+            ->setId(1);
+
+        $this->session
+            ->method('getTecnico')
+            ->willReturn($tecnico);
+
+        $this->pdo
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+        $this->stmt
+            ->method('execute')
+            ->willReturn(true);
+
+        $remetenteGet = [
+            'sexo' => 'M',
+            'nome_completo' => 'Atleta 1',
+            'tecnico_id' => 1,
+            'categorias' => '[1, 2]',
+            'sexo_dupla' => '["M", "F"]',
+        ];
+
+        $destinatarioGet = [
+            'sexo' => 'F',
+            'nome_completo' => 'Atleta 2',
+            'tecnico_id' => 2,
+            'categorias' => '[1, 2]',
+            'sexo_dupla' => '["M", "F"]',
+        ];
+
+        $this->stmt
+            ->method('fetchAll')
+            ->willReturnOnConsecutiveCalls([$remetenteGet], [$destinatarioGet]);
+
+        $this->stmt
+            ->method('fetchColumn')
+            ->willReturn('1');
+
+        $this->duplaRepository
+            ->expects($this->once())
+            ->method('temDupla')
+            ->willReturn(true);
+
+        $enviarSolicitacao = new EnviarSolicitacao(
+            $this->pdo,
+            $this->session,
+            $this->competicaoRepository,
+            $this->solicitacaoPendenteRepository,
+            $this->notificacaoRepository,
+            $this->duplaRepository,
+        );
+
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionMessage('O atleta Atleta 2 já formou tem uma dupla mista 1');
+
+        $enviarSolicitacao($dto);
+    }
+
+    /**
+     * @throws ValidatorException
+     */
+    public function testAtletaRemJaFormouDupla(): void
+    {
+        $competicao = (new Competicao())
+            ->setId(1)
+            ->setPrazo((new DateTime())->modify('+1 day'));
+
+        $dto = EnviarSolicitacaoDTO::parse([
+            'competicao' => $competicao->id(),
+            'atletaRemetente' => 1,
+            'atletaDestinatario' => 2,
+            'categoria' => 1,
+        ]);
+
+        $this->competicaoRepository
+            ->method('getViaId')
+            ->willReturn($competicao);
+
+        $tecnico = (new Tecnico())
+            ->setId(1);
+
+        $this->session
+            ->method('getTecnico')
+            ->willReturn($tecnico);
+
+        $this->pdo
+            ->method('prepare')
+            ->willReturn($this->stmt);
+
+        $this->stmt
+            ->method('execute')
+            ->willReturn(true);
+
+        $remetenteGet = [
+            'sexo' => 'M',
+            'nome_completo' => 'Atleta 1',
+            'tecnico_id' => 1,
+            'categorias' => '[1, 2]',
+            'sexo_dupla' => '["M", "F"]',
+        ];
+
+        $destinatarioGet = [
+            'sexo' => 'F',
+            'nome_completo' => 'Atleta 2',
+            'tecnico_id' => 2,
+            'categorias' => '[1, 2]',
+            'sexo_dupla' => '["M", "F"]',
+        ];
+
+        $this->stmt
+            ->method('fetchAll')
+            ->willReturnOnConsecutiveCalls([$remetenteGet], [$destinatarioGet]);
+
+        $this->stmt
+            ->method('fetchColumn')
+            ->willReturn('1');
+
+        $this->duplaRepository
+            ->expects($this->exactly(2))
+            ->method('temDupla')
+            ->willReturnOnConsecutiveCalls(false, true);
+
+        $enviarSolicitacao = new EnviarSolicitacao(
+            $this->pdo,
+            $this->session,
+            $this->competicaoRepository,
+            $this->solicitacaoPendenteRepository,
+            $this->notificacaoRepository,
+            $this->duplaRepository,
+        );
+
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionMessage('O seu atleta Atleta 1 já tem uma dupla mista 1');
 
         $enviarSolicitacao($dto);
     }

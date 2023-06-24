@@ -23,6 +23,7 @@ class AcaoSolicitacaoTest extends TestCase
     private NotificacaoRepository $notificacaoRepo;
     private SolicitacaoConcluidaRepository $concluidaRepo;
     private DuplaRepository $duplaRepo;
+    private array $solicitacao;
 
     /**
      * @throws Exception
@@ -34,6 +35,21 @@ class AcaoSolicitacaoTest extends TestCase
         $this->notificacaoRepo = $this->createMock(NotificacaoRepository::class);
         $this->concluidaRepo = $this->createMock(SolicitacaoConcluidaRepository::class);
         $this->duplaRepo = $this->createMock(DuplaRepository::class);
+        $this->solicitacao = [
+            'id' => 1,
+            'atleta_origem_id' => 1,
+            'atleta_origem_nome' => 'Atleta 1',
+            'atleta_origem_sexo' => 'M',
+            'atleta_destino_id' => 2,
+            'atleta_destino_nome' => 'Atleta 2',
+            'atleta_destino_sexo' => 'F',
+            'tecnico_origem_id' => 1,
+            'tecnico_destino_id' => 2,
+            'categoria_id' => 1,
+            'categoria_descricao' => 'Categoria 1',
+            'competicao_id' => 1,
+            'competicao_prazo' => (new DateTime())->modify('+1 day')->format('Y-m-d'),
+        ];
     }
 
 
@@ -78,18 +94,6 @@ class AcaoSolicitacaoTest extends TestCase
      */
     public function testRejeitar(): void
     {
-        $solicitacao = [
-            'id' => 1,
-            'atleta_origem_id' => 1,
-            'atleta_origem_sexo' => 'M',
-            'atleta_destino_id' => 2,
-            'atleta_destino_sexo' => 'F',
-            'tecnico_origem_id' => 1,
-            'tecnico_destino_id' => 2,
-            'categoria_id' => 1,
-            'competicao_id' => 1,
-            'competicao_prazo' => (new DateTime())->modify('+1 day')->format('Y-m-d'),
-        ];
 
         $stmt = $this->createMock(PDOStatement::class);
         $this->pdo->expects($this->once())
@@ -97,7 +101,7 @@ class AcaoSolicitacaoTest extends TestCase
         $stmt->expects($this->once())
             ->method('execute')->willReturn(true);
         $stmt->expects($this->once())
-            ->method('fetchAll')->willReturn([$solicitacao]);
+            ->method('fetchAll')->willReturn([$this->solicitacao]);
 
         $this->session->expects($this->once())
             ->method('getTecnico')
@@ -129,19 +133,6 @@ class AcaoSolicitacaoTest extends TestCase
      */
     public function testRejeitarNaoAutorizado(): void
     {
-        $solicitacao = [
-            'id' => 1,
-            'atleta_origem_id' => 1,
-            'atleta_origem_sexo' => 'M',
-            'atleta_destino_id' => 2,
-            'atleta_destino_sexo' => 'F',
-            'tecnico_origem_id' => 1,
-            'tecnico_destino_id' => 2,
-            'categoria_id' => 1,
-            'competicao_id' => 1,
-            'competicao_prazo' => (new DateTime())->modify('+1 day')->format('Y-m-d'),
-        ];
-
         $stmt = $this->createMock(PDOStatement::class);
         $this->pdo
             ->expects($this->once())
@@ -152,7 +143,7 @@ class AcaoSolicitacaoTest extends TestCase
             ->willReturn(true);
         $stmt->expects($this->once())
             ->method('fetchAll')
-            ->willReturn([$solicitacao]);
+            ->willReturn([$this->solicitacao]);
 
         $this->session->expects($this->once())
             ->method('getTecnico')
@@ -184,15 +175,7 @@ class AcaoSolicitacaoTest extends TestCase
     public function testRejeitarPrazoPassou(): void
     {
         $solicitacao = [
-            'id' => 1,
-            'atleta_origem_id' => 1,
-            'atleta_origem_sexo' => 'M',
-            'atleta_destino_id' => 2,
-            'atleta_destino_sexo' => 'F',
-            'tecnico_origem_id' => 1,
-            'tecnico_destino_id' => 2,
-            'categoria_id' => 1,
-            'competicao_id' => 1,
+            ...$this->solicitacao,
             'competicao_prazo' => (new DateTime())->modify('-1 day')->format('Y-m-d'),
         ];
 
@@ -237,15 +220,7 @@ class AcaoSolicitacaoTest extends TestCase
     public function testRejeitarPrazoInvalido(): void
     {
         $solicitacao = [
-            'id' => 1,
-            'atleta_origem_id' => 1,
-            'atleta_origem_sexo' => 'M',
-            'atleta_destino_id' => 2,
-            'atleta_destino_sexo' => 'F',
-            'tecnico_origem_id' => 1,
-            'tecnico_destino_id' => 2,
-            'categoria_id' => 1,
-            'competicao_id' => 1,
+            ...$this->solicitacao,
             'competicao_prazo' => null,
         ];
 
@@ -289,19 +264,6 @@ class AcaoSolicitacaoTest extends TestCase
      */
     public function testCancelar(): void
     {
-        $solicitacao = [
-            'id' => 1,
-            'atleta_origem_id' => 1,
-            'atleta_origem_sexo' => 'M',
-            'atleta_destino_id' => 2,
-            'atleta_destino_sexo' => 'F',
-            'tecnico_origem_id' => 1,
-            'tecnico_destino_id' => 2,
-            'categoria_id' => 1,
-            'competicao_id' => 1,
-            'competicao_prazo' => (new DateTime())->modify('+1 day')->format('Y-m-d'),
-        ];
-
         $stmt = $this->createMock(PDOStatement::class);
         $this->pdo->expects($this->once())
             ->method('prepare')
@@ -311,7 +273,7 @@ class AcaoSolicitacaoTest extends TestCase
             ->willReturn(true);
         $stmt->expects($this->once())
             ->method('fetchAll')
-            ->willReturn([$solicitacao]);
+            ->willReturn([$this->solicitacao]);
 
         $this->session->expects($this->once())
             ->method('getTecnico')
@@ -339,19 +301,6 @@ class AcaoSolicitacaoTest extends TestCase
      */
     public function testCancelarNaoAutorizado(): void
     {
-        $solicitacao = [
-            'id' => 1,
-            'atleta_origem_id' => 1,
-            'atleta_origem_sexo' => 'M',
-            'atleta_destino_id' => 2,
-            'atleta_destino_sexo' => 'F',
-            'tecnico_origem_id' => 1,
-            'tecnico_destino_id' => 2,
-            'categoria_id' => 1,
-            'competicao_id' => 1,
-            'competicao_prazo' => (new DateTime())->modify('+1 day')->format('Y-m-d'),
-        ];
-
         $stmt = $this->createMock(PDOStatement::class);
         $this->pdo->expects($this->once())
             ->method('prepare')
@@ -361,7 +310,7 @@ class AcaoSolicitacaoTest extends TestCase
             ->willReturn(true);
         $stmt->expects($this->once())
             ->method('fetchAll')
-            ->willReturn([$solicitacao]);
+            ->willReturn([$this->solicitacao]);
 
         $this->session->expects($this->once())
             ->method('getTecnico')
@@ -392,19 +341,6 @@ class AcaoSolicitacaoTest extends TestCase
      */
     public function testAceitar(): void
     {
-        $solicitacao = [
-            'id' => 1,
-            'atleta_origem_id' => 1,
-            'atleta_origem_sexo' => 'M',
-            'atleta_destino_id' => 2,
-            'atleta_destino_sexo' => 'F',
-            'tecnico_origem_id' => 1,
-            'tecnico_destino_id' => 2,
-            'categoria_id' => 1,
-            'competicao_id' => 1,
-            'competicao_prazo' => (new DateTime())->modify('+1 day')->format('Y-m-d'),
-        ];
-
         $solicitacoesParaCancelar = [
             [
                 'id' => 1,
@@ -429,11 +365,15 @@ class AcaoSolicitacaoTest extends TestCase
             ->method('execute')->willReturn(true);
         $stmt->expects($this->exactly(2))
             ->method('fetchAll')
-            ->willReturnOnConsecutiveCalls([$solicitacao], $solicitacoesParaCancelar);
+            ->willReturnOnConsecutiveCalls([$this->solicitacao], $solicitacoesParaCancelar);
 
         $this->session->expects($this->once())
             ->method('getTecnico')
             ->willReturn((new Tecnico())->setId(2));
+
+        $this->duplaRepo->expects($this->exactly(2))
+            ->method('temDupla')
+            ->willReturnOnConsecutiveCalls(false, false);
 
         $idConcluidaAceita = 1;
 
@@ -448,7 +388,8 @@ class AcaoSolicitacaoTest extends TestCase
 
         $this->concluidaRepo
             ->expects($this->exactly(2))
-            ->method('concluirCancelada')->willReturn(1);
+            ->method('concluirCancelada')
+            ->willReturn(1);
 
         $this->notificacaoRepo
             ->expects($this->exactly(3))
@@ -473,19 +414,6 @@ class AcaoSolicitacaoTest extends TestCase
      */
     public function testAceitarNaoAutorizado(): void
     {
-        $solicitacao = [
-            'id' => 1,
-            'atleta_origem_id' => 1,
-            'atleta_origem_sexo' => 'M',
-            'atleta_destino_id' => 2,
-            'atleta_destino_sexo' => 'F',
-            'tecnico_origem_id' => 1,
-            'tecnico_destino_id' => 2,
-            'categoria_id' => 1,
-            'competicao_id' => 1,
-            'competicao_prazo' => (new DateTime())->modify('+1 day')->format('Y-m-d'),
-        ];
-
         $stmt = $this->createMock(PDOStatement::class);
         $this->pdo->expects($this->once())
             ->method('prepare')->willReturn($stmt);
@@ -493,7 +421,7 @@ class AcaoSolicitacaoTest extends TestCase
             ->method('execute')->willReturn(true);
         $stmt->expects($this->once())
             ->method('fetchAll')
-            ->willReturn([$solicitacao]);
+            ->willReturn([$this->solicitacao]);
 
         $this->session->expects($this->once())
             ->method('getTecnico')
@@ -514,6 +442,150 @@ class AcaoSolicitacaoTest extends TestCase
         $this->expectException(ValidatorException::class);
         $this->expectExceptionCode(HttpStatus::FORBIDDEN->value);
         $this->expectExceptionMessage('Você não tem autorização para aceitar essa solicitação');
+
+        $acaoSolicitacao->aceitar(1);
+    }
+
+    /**
+     * @throws ValidatorException
+     * @throws Exception
+     */
+    public function testAceitarDestinoJaFormouDupla(): void
+    {
+        $solicitacoesParaCancelar = [
+            [
+                'id' => 1,
+                'atleta_origem_id' => 1,
+                'atleta_destino_id' => 3,
+                'tecnico_origem_id' => 4,
+                'tecnico_destino_id' => 3,
+            ],
+            [
+                'id' => 2,
+                'atleta_origem_id' => 2,
+                'atleta_destino_id' => 2,
+                'tecnico_origem_id' => 2,
+                'tecnico_destino_id' => 2,
+            ]
+        ];
+
+        $stmt = $this->createMock(PDOStatement::class);
+        $this->pdo->expects($this->once())
+            ->method('prepare')->willReturn($stmt);
+        $stmt->expects($this->once())
+            ->method('execute')->willReturn(true);
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturnOnConsecutiveCalls([$this->solicitacao], $solicitacoesParaCancelar);
+
+        $this->session->expects($this->once())
+            ->method('getTecnico')
+            ->willReturn((new Tecnico())->setId(2));
+
+        $this->duplaRepo->expects($this->once())
+            ->method('temDupla')
+            ->willReturn(true);
+
+        $this->concluidaRepo
+            ->expects($this->never())
+            ->method('concluirAceita');
+
+        $this->duplaRepo
+            ->expects($this->never())
+            ->method('criarDupla');
+
+        $this->concluidaRepo
+            ->expects($this->never())
+            ->method('concluirCancelada');
+
+        $this->notificacaoRepo
+            ->expects($this->never())
+            ->method('criar');
+
+        $acaoSolicitacao = new AcaoSolicitacao(
+            $this->pdo,
+            $this->session,
+            new DateTime(),
+            $this->notificacaoRepo,
+            $this->concluidaRepo,
+            $this->duplaRepo,
+        );
+
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionCode(HttpStatus::BAD_REQUEST->value);
+        $this->expectExceptionMessage('O seu atleta Atleta 2 já formou uma dupla mista Categoria 1');
+
+        $acaoSolicitacao->aceitar(1);
+    }
+
+    /**
+     * @throws ValidatorException
+     * @throws Exception
+     */
+    public function testAceitarRemetenteJaFormouDupla(): void
+    {
+        $solicitacoesParaCancelar = [
+            [
+                'id' => 1,
+                'atleta_origem_id' => 1,
+                'atleta_destino_id' => 3,
+                'tecnico_origem_id' => 4,
+                'tecnico_destino_id' => 3,
+            ],
+            [
+                'id' => 2,
+                'atleta_origem_id' => 2,
+                'atleta_destino_id' => 2,
+                'tecnico_origem_id' => 2,
+                'tecnico_destino_id' => 2,
+            ]
+        ];
+
+        $stmt = $this->createMock(PDOStatement::class);
+        $this->pdo->expects($this->once())
+            ->method('prepare')->willReturn($stmt);
+        $stmt->expects($this->once())
+            ->method('execute')->willReturn(true);
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturnOnConsecutiveCalls([$this->solicitacao], $solicitacoesParaCancelar);
+
+        $this->session->expects($this->once())
+            ->method('getTecnico')
+            ->willReturn((new Tecnico())->setId(2));
+
+        $this->duplaRepo->expects($this->exactly(2))
+            ->method('temDupla')
+            ->willReturnOnConsecutiveCalls(false, true);
+
+        $this->concluidaRepo
+            ->expects($this->never())
+            ->method('concluirAceita');
+
+        $this->duplaRepo
+            ->expects($this->never())
+            ->method('criarDupla');
+
+        $this->concluidaRepo
+            ->expects($this->never())
+            ->method('concluirCancelada');
+
+        $this->notificacaoRepo
+            ->expects($this->never())
+            ->method('criar');
+
+        $acaoSolicitacao = new AcaoSolicitacao(
+            $this->pdo,
+            $this->session,
+            new DateTime(),
+            $this->notificacaoRepo,
+            $this->concluidaRepo,
+            $this->duplaRepo,
+        );
+
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionCode(HttpStatus::BAD_REQUEST->value);
+        $this->expectExceptionMessage('O atleta Atleta 1 já formou uma dupla mista Categoria 1');
 
         $acaoSolicitacao->aceitar(1);
     }

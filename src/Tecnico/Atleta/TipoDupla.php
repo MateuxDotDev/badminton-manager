@@ -11,9 +11,9 @@ enum TipoDupla
     public function toString(): string
     {
         return match ($this) {
-            self::MASCULINA => 'Masculina',
-            self::FEMININA => 'Feminina',
-            self::MISTA => 'Mista',
+            self::MASCULINA => 'masculina',
+            self::FEMININA => 'feminina',
+            self::MISTA => 'mista',
         };
     }
 
