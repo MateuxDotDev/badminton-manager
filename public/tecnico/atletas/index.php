@@ -40,7 +40,6 @@ try {
 } catch (ResponseException | ValidatorException $e) {
     Response::erroException($e)->enviar();
 } catch (Exception $e) {
-    var_dump($e);
     $hasError = true;
 }
 
@@ -73,13 +72,11 @@ Template::nav($session);
         <input class="form-control" type="search" id="pesquisa" placeholder="Digite aqui informações do atleta que deseja buscar..." />
     </section>
 
-    <?php if (empty($atletas)): ?>
-        <section id="sem-atletas" class="d-none alert alert-info">
-            <p class="mb-0">
-                <i class="bi bi-info-circle"></i> Nenhum atleta cadastrado. <a href="/tecnico/atletas/cadastrar">Clique aqui</a> para cadastrar um novo atleta.
-            </p>
-        </section>
-    <?php endif ?>
+    <section id="sem-atletas" class="d-none alert alert-info">
+        <p class="mb-0">
+            <i class="bi bi-info-circle"></i> Nenhum atleta cadastrado. <a href="/tecnico/atletas/cadastrar">Clique aqui</a> para cadastrar um novo atleta.
+        </p>
+    </section>
 
     <?php if ($hasError) : ?>
         <section class="alert alert-danger">
@@ -156,6 +153,7 @@ Template::nav($session);
     const componentesAtletas = [];
     const template = document.querySelector('#atleta-card-template');
     let token;
+    const semAtletas = document.querySelector('#sem-atletas');
 
     const createAtletaCard = (atleta) => {
         let card = template.content.cloneNode(true);
@@ -188,6 +186,11 @@ Template::nav($session);
     }
 
     window.addEventListener('load', () => {
+        if (atletas.length === 0) {
+            semAtletas.classList.remove('d-none');
+            return;
+        }
+
         atletas.forEach(atleta => {
             const card = createAtletaCard(atleta);
             conteudo.appendChild(card);

@@ -35,7 +35,15 @@ class AtletaCompeticaoRepository
         $query = $this->pdo->query($sql);
         $atletas = [];
         foreach ($query as $linha) {
-            $atletas[] = $this->linhaParaAtleta($linha);
+            $atletas[] = (new Atleta())
+            ->setNomeCompleto($linha['nome_completo'])
+            ->setSexo(Sexo::from($linha['sexo']))
+            ->setDataNascimento(Dates::parseDay($linha['data_nascimento']))
+            ->setInformacoesAdicionais($linha['informacoes'])
+            ->setFoto($linha['path_foto'])
+            ->setId($linha['id'])
+            ->setDataCriacao(Dates::parseMicro($linha['criado_em']))
+            ->setDataAlteracao(Dates::parseMicro($linha['alterado_em']));
         }
         return $atletas;
     }
@@ -249,17 +257,59 @@ class AtletaCompeticaoRepository
         ];
     }
 
-    private function linhaParaAtleta(array $linha): Atleta
+    public function getViaTecnico(int $idTecnico, int $idCompeticao): array
     {
-        return (new Atleta())
-            ->setNomeCompleto($linha['nome_completo'])
-            ->setSexo(Sexo::from($linha['sexo']))
-            ->setDataNascimento(Dates::parseDay($linha['data_nascimento']))
-            ->setInformacoesAdicionais($linha['informacoes'])
-            ->setFoto($linha['path_foto'])
-            ->setId($linha['id'])
-            ->setDataCriacao(Dates::parseMicro($linha['criado_em']))
-            ->setDataAlteracao(Dates::parseMicro($linha['alterado_em']))
-            ;
+        $sql = <<<SQL
+            SELECT a.nome_completo,
+                   a.sexo,
+                   a.data_nascimento,
+                   a.path_foto,
+                   a.informacoes,
+                   a.id,
+                   a.criado_em,
+                   a.alterado_em,
+                   ac.informacoes AS informacoes_atleta_competicao,
+                   jsonb_agg(DISTINCT cat.descricao) AS categorias,
+                   jsonb_agg(DISTINCT acsd.sexo_dupla) AS sexo_duplas
+              FROM atleta a
+              JOIN atleta_competicao ac
+                ON ac.atleta_id = a.id
+               AND ac.competicao_id = :competicao_id
+              JOIN tecnico t
+                ON a.tecnico_id = t.id
+               AND t.id = :tecnico_id
+              JOIN atleta_competicao_categoria acc
+                ON a.id = acc.atleta_id
+               AND acc.competicao_id = ac.competicao_id
+              JOIN categoria cat
+                ON cat.id = acc.categoria_id
+              JOIN atleta_competicao_sexo_dupla acsd
+                ON a.id = acsd.atleta_id
+               AND acsd.competicao_id = ac.competicao_id
+          GROUP BY a.id, ac.informacoes
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'tecnico_id'    => $idTecnico,
+            'competicao_id' => $idCompeticao,
+        ]);
+        $rows = $stmt->fetchAll();
+
+        $atletas = [];
+        foreach ($rows as $row) {
+            $atletas[] = [
+                ...$row,
+                'sexo' => Sexo::from($row['sexo'])->toString(),
+                'sexo_duplas' => array_map(fn($s) => Sexo::from($s)->value, json_decode($row['sexo_duplas'])),
+                'categorias'  => json_decode($row['categorias']),
+                'idade' => Dates::age(Dates::parseDay($row['data_nascimento'])),
+                'data_nascimento' => Dates::parseDay($row['data_nascimento'])->format('d/m/Y'),
+                'criado_em' => Dates::parseMicro($row['criado_em'])->format('d/m/Y H:i:s'),
+                'alterado_em' => Dates::parseMicro($row['alterado_em'])->format('d/m/Y H:i:s'),
+            ];
+        }
+
+        return $atletas;
     }
 }
