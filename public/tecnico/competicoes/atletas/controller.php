@@ -84,12 +84,14 @@ function pesquisarAtletas($req): Response
 
 
     $session = UserSession::obj();
-    $tecnico = $session->getTecnico();
 
-    // Não mostrar os atletas do próprio técnico
-    $condicoes[]  = 'a.tecnico_id != ?';
-    $parametros[] = $tecnico->id();
-
+    if ($session->isTecnico()) {
+        $tecnico = $session->getTecnico();
+    
+        // Não mostrar os atletas do próprio técnico
+        $condicoes[]  = 'a.tecnico_id != ?';
+        $parametros[] = $tecnico->id();
+    }
 
     $pesquisarTermos = function (string $coluna, string $texto) use (&$condicoes, &$parametros): void {
         $termos = preg_split('/\s+/', $texto);

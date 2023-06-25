@@ -157,28 +157,21 @@ class TecnicoRepository implements TecnicoRepositoryInterface
     {
         $pdo = $this->pdo;
 
-        $pdo->beginTransaction();
-        try {
-            $tecnico->setClube($this->buscarOuCriarClube($nomeClube));
+        $tecnico->setClube($this->buscarOuCriarClube($nomeClube));
 
-            $sql = <<<SQL
-                INSERT INTO tecnico (email, nome_completo, informacoes, clube_id, hash_senha, salt_senha)
-                VALUES (:email, :nomeCompleto, :informacoes, :idClube, :hashSenha, :saltSenha)
-            SQL;
-            $pdo->prepare($sql)->execute([
-                'email' => $tecnico->email(),
-                'nomeCompleto' => $tecnico->nomeCompleto(),
-                'informacoes' => $tecnico->informacoes(),
-                'idClube' => $tecnico->clube()->id(),
-                'hashSenha' => $tecnico->senhaCriptografada()?->hash(),
-                'saltSenha' => $tecnico->senhaCriptografada()?->salt(),
-            ]);
+        $sql = <<<SQL
+            INSERT INTO tecnico (email, nome_completo, informacoes, clube_id, hash_senha, salt_senha)
+            VALUES (:email, :nomeCompleto, :informacoes, :idClube, :hashSenha, :saltSenha)
+        SQL;
+        $pdo->prepare($sql)->execute([
+            'email' => $tecnico->email(),
+            'nomeCompleto' => $tecnico->nomeCompleto(),
+            'informacoes' => $tecnico->informacoes(),
+            'idClube' => $tecnico->clube()->id(),
+            'hashSenha' => $tecnico->senhaCriptografada()?->hash(),
+            'saltSenha' => $tecnico->senhaCriptografada()?->salt(),
+        ]);
 
-            $tecnico->setId($pdo->lastInsertId());
-            $pdo->commit();
-        } catch (Exception $e) {
-            $pdo->rollback();
-            throw $e;
-        }
+        $tecnico->setId($pdo->lastInsertId());
     }
 }

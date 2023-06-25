@@ -151,12 +151,6 @@ class TecnicoRepositoryTest extends TestCase
 
         $nomeClube = 'Clube A';
 
-        $this->pdoMock->expects($this->once())
-            ->method('beginTransaction');
-
-        $this->pdoMock->expects($this->once())
-            ->method('commit');
-
         $stmtSelectClube = $this->createMock(PDOStatement::class);
         $stmtSelectClube->method('execute')->willReturn(true); 
         $stmtSelectClube->method('fetchAll')->willReturn([
@@ -202,12 +196,6 @@ class TecnicoRepositoryTest extends TestCase
             ->setInformacoes('Informações sobre a técnica');
 
         $nomeClube = 'Clube B';
-
-        $this->pdoMock->expects($this->once())
-            ->method('beginTransaction');
-
-        $this->pdoMock->expects($this->once())
-            ->method('commit');
 
         $stmtSelectClube = $this->createMock(PDOStatement::class);
         $stmtSelectClube->method('execute')->willReturn(true);
@@ -268,15 +256,6 @@ class TecnicoRepositoryTest extends TestCase
             ->setInformacoes('Informações sobre o técnico');
 
         $nomeClube = 'Clube A';
-
-        $this->pdoMock->expects($this->once())
-            ->method('beginTransaction');
-
-        $this->pdoMock->expects($this->never())
-            ->method('commit');
-
-        $this->pdoMock->expects($this->once())
-            ->method('rollback');
 
         $this->pdoMock->expects($this->once())
             ->method('prepare')
