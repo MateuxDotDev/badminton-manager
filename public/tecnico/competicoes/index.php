@@ -54,19 +54,19 @@ else Template::navTecnicoNaoLogado();
                 </div>
                 <p class="my-3"></p>
                 <div class="row gy-2">
-                    <div class="col-12 col-xxl-4">
+                    <div class="col-12 col-xxl-6">
                         <a class="btn btn-outline-secondary btn-solicitacoes w-100" title="Solicitações pendentes">
                             <i class="bi bi-send"></i>
                             <span>Solicitações pendentes</span>
                         </a>
                     </div>
-                    <div class="col-12  col-xxl-4">
+                    <div class="col-12 col-xxl-6">
                         <a class="btn btn-outline-success btn-cadastrar w-100" title="Cadastrar atleta">
                             <i class="bi bi-person-plus"></i>
                             <span>Cadastrar atleta</span>
                         </a>
                     </div>
-                    <div class="col-12 col-xxl-4">
+                    <div class="col-12 col-xxl-6 offset-xxl-3">
                         <a class="btn btn-outline-primary btn-atletas  w-100" title="Ver atletas">
                             <i class="bi bi-person"></i>
                             <span>Ver atletas</span>
