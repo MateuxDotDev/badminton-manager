@@ -57,7 +57,7 @@ function criarCompeticao(array $req): Response
             ->setDescricao($descricao);
 
         if ($competicao->prazoPassou()) {
-            throw new ValidatorException("Prazo deve ser no futuro", 400, ['prazo' => $prazo]);
+            throw new ValidatorException("Prazo deve ser no futuro", HttpStatus::BAD_REQUEST, ['prazo' => $prazo]);
         }
 
         $repo = new CompeticaoRepository(Connection::getInstance());

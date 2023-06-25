@@ -21,7 +21,7 @@ class CompeticaoRepository implements CompeticaoRepositoryInterface
                    criado_em,
                    alterado_em
               FROM competicao
-          ORDER BY prazo DESC
+          ORDER BY prazo ASC
         SQL;
 
         $query = $this->pdo->query($sql);
@@ -33,8 +33,7 @@ class CompeticaoRepository implements CompeticaoRepositoryInterface
                 ->setDescricao($linha['descricao'])
                 ->setPrazo(Dates::parseDay($linha['prazo']))
                 ->setDataAlteracao(Dates::parseMicro($linha['alterado_em']))
-                ->setDataCriacao(Dates::parseMicro($linha['criado_em']))
-                ;
+                ->setDataCriacao(Dates::parseMicro($linha['criado_em']));
         }
         return $competicoes;
     }
@@ -48,7 +47,7 @@ class CompeticaoRepository implements CompeticaoRepositoryInterface
                    descricao
               FROM competicao
              WHERE prazo >= NOW()
-          ORDER BY prazo DESC
+          ORDER BY prazo ASC
         SQL);
         $competicoes = [];
         foreach ($qry as $linha) {
@@ -56,8 +55,7 @@ class CompeticaoRepository implements CompeticaoRepositoryInterface
                 ->setId((int) $linha['id'])
                 ->setNome($linha['nome'])
                 ->setPrazo(Dates::parseDay($linha['prazo']))
-                ->setDescricao($linha['descricao'])
-                ;
+                ->setDescricao($linha['descricao']);
         }
         return $competicoes;
     }

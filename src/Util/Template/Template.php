@@ -24,7 +24,6 @@ class Template
     {
         $scriptsFile = __DIR__. "/common/scripts.html";
         $scripts = file_get_contents($scriptsFile);
-        $scripts = self::put("file_time", filemtime($scriptsFile), $scripts);
         echo $scripts;
     }
 
