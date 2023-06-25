@@ -94,7 +94,6 @@ class DuplaRepositoryTest extends TestCase
         $this->assertFalse($result);
     }
 
-
     /**
      * @throws Exception
      */
@@ -130,5 +129,70 @@ class DuplaRepositoryTest extends TestCase
         );
 
         $this->assertTrue($result);
+    }
+
+    public function testFormadas(): void
+    {
+        $idCompeticao = 1;
+
+        $row = [
+            'id' => 1,
+            'idSolicitacao' => 1,
+            'categoria' => 'Sub 11',
+            'atletas' => json_encode([
+                [
+                    'id' => 1,
+                    'nome' => 'Atleta 1',
+                    'sexo' => 'M',
+                    'dataNascimento' => '2000-01-01',
+                    'foto' => 'foto.jpg',
+                    'tecnico' => [
+                        'id' => 1,
+                        'nome' => 'Tecnico 1',
+                        'clube' => 'Clube 1',
+                    ]
+                ],
+                [
+                    'id' => 2,
+                    'nome' => 'Atleta 2',
+                    'sexo' => 'F',
+                    'dataNascimento' => '1999-01-01',
+                    'foto' => 'foto.jpg',
+                    'tecnico' => [
+                        'id' => 2,
+                        'nome' => 'Tecnico 2',
+                        'clube' => 'Clube 2',
+                    ]
+                ],
+            ]),
+        ];
+
+        $stmt = $this->createMock(PDOStatement::class);
+
+        $this->pdo->expects($this->once())
+            ->method('prepare')
+            ->willReturn($stmt);
+
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->with(['competicao_id' => $idCompeticao]);
+
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([$row]);
+
+        $result = $this->repository->formadas($idCompeticao);
+
+        $this->assertIsArray($result);
+        $this->assertCount(1, $result);
+        $atletas = $result[0]['atletas'];
+        $this->assertIsArray($atletas);
+        $this->assertCount(2, $atletas);
+        $tecnicos = array_map(fn($atleta) => $atleta['tecnico'], $atletas);
+        $this->assertIsArray($tecnicos);
+        $this->assertCount(2, $tecnicos);
+        $idades = array_map(fn($atleta) => $atleta['idade'], $atletas);
+        $this->assertIsArray($idades);
+        $this->assertCount(2, $idades);
     }
 }
