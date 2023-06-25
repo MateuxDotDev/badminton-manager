@@ -283,6 +283,10 @@ class AcaoSolicitacaoTest extends TestCase
             ->method('concluirCancelada')
             ->willReturn(1);
 
+        $this->notificacaoRepo->expects($this->once())
+            ->method('criar')
+            ->willReturn(1);
+
         $acaoSolicitacao = new AcaoSolicitacao(
             $this->pdo,
             $this->session,
@@ -292,7 +296,9 @@ class AcaoSolicitacaoTest extends TestCase
             $this->duplaRepo,
         );
 
-        $acaoSolicitacao->cancelar(1);
+        $result = $acaoSolicitacao->cancelar(1);
+
+        $this->assertEquals(1, $result);
     }
 
     /**

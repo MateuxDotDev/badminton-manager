@@ -114,7 +114,7 @@ readonly class AcaoSolicitacao
     /**
      * @throws ValidatorException
      */
-    public function cancelar(int $id): void
+    public function cancelar(int $id): int
     {
         $solicitacao = $this->getSolicitacao404($id);
 
@@ -129,8 +129,10 @@ readonly class AcaoSolicitacao
         $this->validarPrazo($solicitacao);
 
         $this->concluidaRepo->concluirCancelada($id);
-    
-        // Sem notificações mesmo, pra economizar tempo de desenvolvimento
+
+        return $this->notificacaoRepo->criar(
+            Notificacao::solicitacaoEnviadaCancelada($solicitacao['tecnico_destino_id'], $id)
+        );
     }
 
 
