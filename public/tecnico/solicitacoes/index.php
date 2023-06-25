@@ -103,7 +103,6 @@ function htmlSolicitacaoRecebida(SolicitacaoPendente $solicitacao)
                     </button>
                 </div>
             </div>
-
         </div>
     HTML;
 
@@ -145,8 +144,7 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
     static $template = <<<HTML
         <div class="solicitacao-enviada hover-shadow border rounded mt-3 flex-column"
              style="row-gap: 0.8rem; column-gap: 3rem;"
-             data-competicao="{{ competicao_id }}"
-             >
+         >
 
             <div class="d-flex flex-row flex-wrap gap-5 p-3 align-items-center">
                 <div class="d-flex flex-column gap-2">
