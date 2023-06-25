@@ -83,7 +83,7 @@ if ($competicao == null) {
         <h1 class="mb-0">Atletas na competição</h1>
         <div class="d-flex">
             <a href="./duplas/?competicao=<?= $competicao->id() ?>" class="btn btn-outline-secondary h-100 me-2">
-                <i class="bi bi-person-lock"></i> Duplas
+                <i class="bi bi-person-lock"></i> Duplas formadas
             </a>
             <a href="./meus/?competicao=<?= $competicao->id() ?>" class="btn btn-outline-success h-100">
                 <i class="bi bi-person-lines-fill"></i> Meus atletas
