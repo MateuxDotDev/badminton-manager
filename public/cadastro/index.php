@@ -39,6 +39,7 @@ Template::head('Cadastre-se');
     qs('#container-form').append(form.elemento);
 
     qs('#btn-criar-conta').addEventListener('click', async () => {
+        if (!form.validar()) return;
         const {email, senha, nome, informacoes, clube} = form.valores;
         await criarContaTecnico(email, senha, nome, informacoes, clube);
     });

@@ -93,6 +93,14 @@ if ($session->isTecnico()) {
                         value="<?= $competicao->nome() ?>"/>
                 </div>
 
+                <div class="card shadow mb-4 <?= $tecnico ? 'd-none' : ''?>">
+                    <div class="card-body">
+                        <span class="fs-5">Cadastro do Técnico</span>
+                        <div id="container-form-tecnico" class="mt-3">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card shadow mb-4">
                     <div class="card-body pt-2">
                         <ul class="nav mb-3 nav-tabs">
@@ -261,22 +269,41 @@ if ($session->isTecnico()) {
     const btnCloseModal = document.getElementById("btn-close-modal");
     const inpPesquisaModal = document.getElementById("pesquisa-atleta-modal");
     const btnRemoverAtletaSelecionado = document.getElementById("btn-remover-selecionado");
-    const idTecnico = <?= $tecnico?->id() ?? 'null' ?>;
     const idCompeticao = <?= $competicao->id() ?>;
     const atletas = Object.values(<?= json_encode($atletas) ?>);
     var atletaSelecionado;
 
+    const tecnicoLogado = <?= $tecnico ? 'true' : 'false' ?>;
+
+    let formTecnico = null;
+    if (!tecnicoLogado) {
+        formTecnico = new FormCadastroTecnico();
+        qs('#container-form-tecnico').append(formTecnico.elemento);
+    }
+
     form.addEventListener('submit', (event)=>{
         event.preventDefault();
         let formData = new FormData(form);
+
+        if (!formTecnico?.validar()) {
+            return;
+        }
+
         if(validaFormulario(formData)){
             let userChoice = $("#btn-selecionar-atleta").hasClass("active") ? 1 : 2;
             formData.append('acao', 'cadastrar');
 
-            if (idTecnico) formData.append('tecnico', idTecnico);
+            if (!tecnicoLogado) {
+                const tecnico = formTecnico.valores;
+                formData.append('novo_tecnico_email', tecnico.email);
+                formData.append('novo_tecnico_senha', tecnico.senha);
+                formData.append('novo_tecnico_nome', tecnico.nome);
+                formData.append('novo_tecnico_informacoes', tecnico.informacoes);
+                formData.append('novo_tecnico_clube', tecnico.clube);
+            }
 
             formData.append('competicao', idCompeticao);
-            if(atletaSelecionado){
+            if (atletaSelecionado) {
                 formData.append('atleta', atletaSelecionado.id);
             }
             formData.append('userChoice', userChoice);

@@ -16,8 +16,7 @@ $displayTabela = empty($competicoes) ? 'none' : 'table';
 
 Template::head('Competições abertas');
 
-if ($session->isTecnico()) Template::navTecnicoLogado();
-else Template::navTecnicoNaoLogado();
+Template::nav($session);
 
 ?>
 

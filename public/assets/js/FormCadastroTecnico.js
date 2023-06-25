@@ -148,6 +148,10 @@ class FormCadastroTecnico {
         return vals;
     }
 
+    validar() {
+        return this.#form.reportValidity();
+    }
+
 
     static #template = Object.assign(document.createElement('template'), {
         innerHTML: `
