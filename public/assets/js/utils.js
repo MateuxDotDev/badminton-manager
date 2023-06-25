@@ -159,8 +159,20 @@ function dataBr(date) {
  * @returns {string}
  */
 function brDateToYmd(date) {
-    let partesData = date.split("/");
+    const partesData = date.split("/");
     return `${partesData[2]}-${partesData[1]}-${partesData[0]}`;
+}
+
+
+/**
+ * Retorna a quantidade de dias faltando para a data informada
+ *
+ * @param {Date} dataFutura
+ * @returns {number}
+ */
+function diasFaltando(dataFutura) {
+    const diferencaEmMs = dataFutura.getTime() - new Date().getTime();
+    return Math.ceil(diferencaEmMs / (1000 * 60 * 60 * 24));
 }
 
 /**
