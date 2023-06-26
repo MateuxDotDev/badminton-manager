@@ -275,28 +275,33 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
     competicaoSelecionadaMudou();
 
     document.querySelectorAll('.btn-rejeitar').forEach(btn => {
+        const id = btn.getAttribute('data-id');
+        btn.id = `btn-rejeitar-${id}`;
+
         btn.addEventListener('click', async () => {
             const ok = await confirmarExclusao('Essa solicitação para formar dupla será rejeitada.', {
                 confirmButtonText: 'Rejeitar'
             });
             if (!ok) return;
-            const id = btn.getAttribute('data-id');
             await realizarAcao(id, 'rejeitar');
         })
     });
 
     document.querySelectorAll('.btn-aceitar').forEach(btn => {
+        const id = btn.getAttribute('data-id');
+        btn.id = `btn-aceitar-${id}`;
+        const remetenteNome    = btn.getAttribute('data-remetente');
+        const destinatarioNome = btn.getAttribute('data-destinatario');
+
         btn.addEventListener('click', async () => {
-            const remetenteNome    = btn.getAttribute('data-remetente');
-            const destinatarioNome = btn.getAttribute('data-destinatario');
             const ok = await confirmarSucesso(`Aceitando essa solicitação, você irá formar uma dupla entre ${remetenteNome} e ${destinatarioNome}`, {
                 confirmButtonText: 'Formar dupla',
             });
             if (!ok) return;
-            const id = btn.getAttribute('data-id');
             await realizarAcao(id, 'aceitar');
-        })
+        });
     });
+
 
     document.querySelectorAll('.btn-cancelar').forEach(btn => {
         btn.addEventListener('click', async () => {
@@ -321,7 +326,7 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
             const json = JSON.parse(text);
             if (resp.ok) {
                 agendarAlertaSucesso(json.mensagem);
-                location.reload();
+                location.assign('/tecnico/solicitacoes/');
             } else {
                 Toast.fire({
                     icon: 'error',
@@ -354,6 +359,21 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
         }
         nenhumaRecebida.style.display = recebidasMostradas == 0 ? 'block' : 'none';
     }
+
+    window.addEventListener('load', () => {
+        const getParams = new URLSearchParams(window.location.search);
+        const idSolicitacao = getParams.get('solicitacao');
+        const acao = getParams.get('acao');
+
+        if (idSolicitacao && acao) {
+            const btn = qs(`#btn-${acao}-${idSolicitacao}`);
+            if (btn && btn.click) {
+                btn.click();
+            } else {
+                alertaErro('Solicitação não encontrada');
+            }
+        }
+    });
 </script>
 
 <?php Template::footer() ?>

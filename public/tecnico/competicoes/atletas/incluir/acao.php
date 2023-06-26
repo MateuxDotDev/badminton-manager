@@ -1,12 +1,16 @@
 <?php
+
+require_once(__DIR__ . '/../../../../../vendor/autoload.php');
+
+use App\Mail\EmailDTO;
+use App\Mail\MailRepository;
+use App\Notificacao\Notificacao;
+use App\Notificacao\NotificacaoRepository;
 use App\Tecnico\Conta\Cadastrar;
 use App\Tecnico\Conta\CadastroDTO;
 use App\Tecnico\Conta\LoginDTO;
 use App\Tecnico\Conta\RealizarLogin;
 use App\Util\General\UserSession;
-
-require_once(__DIR__ . '/../../../../../vendor/autoload.php');
-
 use App\Mail\InclusaoCompeticaoMail;
 use App\Tecnico\TecnicoRepository;
 use App\Token\TokenRepository;
@@ -58,7 +62,6 @@ function realizarCadastro($pdo) : Response
     try {
         $pdo->beginTransaction();
 
-
         $session = UserSession::obj();
         if (!$session->isTecnico()) {
             $tecnicoRepo = new TecnicoRepository($pdo);
@@ -95,7 +98,6 @@ function realizarCadastro($pdo) : Response
                 throw new ValidatorException($excecaoCadastro->getMessage().'; '.$excecaoLogin->getMessage());
             }
         }
-
 
         $response = null;
         if ($_POST['userChoice']) {
@@ -231,7 +233,21 @@ function enviarEmailInclusao(PDO $pdo, AtletaCompeticao $dados): bool
         'ano_atual' => date('Y')
     ]);
 
-    return $mail->send();
+    $mailRepo = new MailRepository($pdo);
+
+    $notificacaoRepo = new NotificacaoRepository($pdo);
+    $notificacaoId = $notificacaoRepo->criar(Notificacao::inclusaoCompeticao($tecnico->id(), $competicao->id()));
+
+    $emailDto = new EmailDTO(
+        $tecnico->nomeCompleto(),
+        $tecnico->email(),
+        $mail->getSubject(),
+        $mail->getBody(),
+        $mail->getAltBody(),
+        $notificacaoId
+    );
+
+    return $mailRepo->criar($emailDto) > 0;
 }
 
 /**

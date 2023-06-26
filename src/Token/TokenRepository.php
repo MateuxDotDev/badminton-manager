@@ -4,6 +4,7 @@ namespace App\Token;
 
 use App\Util\Exceptions\ResponseException;
 use App\Util\Exceptions\ValidatorException;
+use App\Util\Services\TokenService\TokenService;
 use App\Util\Services\TokenService\TokenServiceInterface;
 use PDO;
 use stdClass;
@@ -14,7 +15,7 @@ class TokenRepository implements TokenRepositoryInterface
 
     public function __construct(
         private readonly PDO $pdo,
-        private readonly TokenServiceInterface $tokenService
+        private readonly TokenServiceInterface $tokenService = new TokenService()
     ) {}
 
     /**

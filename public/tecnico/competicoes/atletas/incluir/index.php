@@ -83,7 +83,7 @@ if ($session->isTecnico()) {
 ?>
 
 <main class="container">
-    <h2>Incluir atleta na competição</h2>
+    <h2 class="mb-4">Incluir atleta na competição</h2>
     <div class="card mb-5">
         <form name="form-atletacompeticao">
             <div class="card-body">
@@ -120,7 +120,7 @@ if ($session->isTecnico()) {
                         </ul>
 
                         <div class="tab-content">
-                            <div id="selecionar_atleta" class="tab-pane <?php $tecnico ? 'show active' : '' ?>">
+                            <div id="selecionar_atleta" class="tab-pane <?= $tecnico ? 'show active' : '' ?>">
                                 <div class="input-group elementos-sem-atleta">
                                     <button id="btn-pesquisar" class="btn btn-outline-primary" type="button">
                                         <i class="bi bi-search"></i>
@@ -281,19 +281,20 @@ if ($session->isTecnico()) {
         qs('#container-form-tecnico').append(formTecnico.elemento);
     }
 
-    form.addEventListener('submit', (event)=>{
+    form.addEventListener('submit', (event) => {
+        console.log('submit', formTecnico);
         event.preventDefault();
         let formData = new FormData(form);
 
-        if (!formTecnico?.validar()) {
+        if (formTecnico && !formTecnico.validar()) {
             return;
         }
 
-        if(validaFormulario(formData)){
+        if(validaFormulario(formData)) {
             let userChoice = $("#btn-selecionar-atleta").hasClass("active") ? 1 : 2;
             formData.append('acao', 'cadastrar');
 
-            if (!tecnicoLogado) {
+            if (!tecnicoLogado && formTecnico) {
                 const tecnico = formTecnico.valores;
                 formData.append('novo_tecnico_email', tecnico.email);
                 formData.append('novo_tecnico_senha', tecnico.senha);
@@ -404,6 +405,7 @@ if ($session->isTecnico()) {
     }
 
     async function submitAtletaCompeticao(dados){
+        console.log('dados', dados)
         try{
             const response = await fetch('/tecnico/competicoes/atletas/incluir/acao.php', {
                 method: 'POST',
