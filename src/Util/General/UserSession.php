@@ -3,6 +3,8 @@
 namespace App\Util\General;
 
 use App\Tecnico\Tecnico;
+use App\Util\Services\TokenService\TokenService;
+use Exception;
 
 class UserSession
 {
@@ -16,9 +18,28 @@ class UserSession
         return new self($_SESSION);
     }
 
+    public function initFromToken(): void
+    {
+        $token = $_GET['token'] ?? $_POST['token'] ?? null;
+        if ($token === null) {
+            return;
+        }
+
+        try {
+            $decodedToken = (new TokenService())->decodeToken($token);
+            if ($decodedToken->tecnico != null) {
+                $this->data['tipo'] = 'tecnico';
+                $this->data['tecnico'] = json_decode($decodedToken->tecnico);
+            }
+        } catch (Exception $ignored) {
+            // Ignored
+        }
+    }
+
     public function __construct(array &$data)
     {
         $this->data = &$data;
+        $this->initFromToken();
     }
 
     private function setTipo(string $tipo): void

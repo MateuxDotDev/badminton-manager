@@ -13,14 +13,12 @@ use App\Categorias\CategoriaRepository;
 $session = UserSession::obj();
 
 Template::head('Cadastrar atleta competição');
+Template::nav($session);
 
+$tecnico = null;
 if ($session->isTecnico()) {
-    Template::navTecnicoLogado();
-} else {
-    Template::naoAutorizado();
+    $tecnico = $session->getTecnico();
 }
-
-$tecnico = $session->getTecnico();
 
 ?>
 
@@ -56,8 +54,11 @@ $tecnico = $session->getTecnico();
 
         $repoAtleta = new AtletaCompeticaoRepository(Connection::getInstance());
         $atletas = [];
-        foreach ($repoAtleta->getAtletasForaCompeticao($tecnico->id(), $codigoCompeticao) as $atleta) {
-            $atletas[] = $atleta->toJson();
+
+        if ($tecnico !== null) {
+            foreach ($repoAtleta->getAtletasForaCompeticao($tecnico->id(), $codigoCompeticao) as $atleta) {
+                $atletas[] = $atleta->toJson();
+            }
         }
 
         $repoCategoria = new CategoriaRepository(Connection::getInstance());
@@ -82,7 +83,7 @@ $tecnico = $session->getTecnico();
 ?>
 
 <main class="container">
-    <h2>Incluir atleta na competição</h2>
+    <h2 class="mb-4">Incluir atleta na competição</h2>
     <div class="card mb-5">
         <form name="form-atletacompeticao">
             <div class="card-body">
@@ -92,17 +93,26 @@ $tecnico = $session->getTecnico();
                         value="<?= $competicao->nome() ?>"/>
                 </div>
 
+                <div class="card shadow mb-4 <?= $tecnico ? 'd-none' : ''?>">
+                    <div class="card-body">
+                        <span class="fs-5">Cadastro do Técnico</span>
+                        <div id="container-form-tecnico" class="mt-3">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card shadow mb-4">
                     <div class="card-body pt-2">
                         <ul class="nav mb-3 nav-tabs">
-                            <li class="nav-item">
-                                <button id="btn-selecionar-atleta" class="nav-link active" type="button"
+
+                            <li class="nav-item <?= $tecnico ? '' : 'd-none' ?>">
+                                <button id="btn-selecionar-atleta" class="nav-link <?= $tecnico ? 'active' : '' ?>" type="button"
                                         data-bs-toggle="tab" data-bs-target="#selecionar_atleta">
                                     Selecionar atleta cadastrado
                                 </button>
                             </li>
                             <li class="nav-item">
-                                <button id="btn-cadastrar-atleta" class="nav-link" type="button"
+                                <button id="btn-cadastrar-atleta" class="nav-link <?= $tecnico ? '' : 'active' ?>" type="button"
                                         data-bs-toggle="tab" data-bs-target="#cadastrar_atleta">
                                     Cadastrar novo atleta
                                 </button>
@@ -110,7 +120,7 @@ $tecnico = $session->getTecnico();
                         </ul>
 
                         <div class="tab-content">
-                            <div id="selecionar_atleta" class="tab-pane show active">
+                            <div id="selecionar_atleta" class="tab-pane <?= $tecnico ? 'show active' : '' ?>">
                                 <div class="input-group elementos-sem-atleta">
                                     <button id="btn-pesquisar" class="btn btn-outline-primary" type="button">
                                         <i class="bi bi-search"></i>
@@ -137,7 +147,7 @@ $tecnico = $session->getTecnico();
                                 </div>
                             </div>
 
-                            <div id="cadastrar_atleta" class="tab-pane">
+                            <div id="cadastrar_atleta" class="tab-pane <?= $tecnico ? '' : 'show active' ?>">
                                 <div class="mb-3">
                                     <label class="form-label" for="cadastrar_nomeCompleto">Nome completo</label>
                                     <input id="cadastrar_nomeCompleto" name="cadastrar_nomeCompleto"
@@ -259,20 +269,42 @@ $tecnico = $session->getTecnico();
     const btnCloseModal = document.getElementById("btn-close-modal");
     const inpPesquisaModal = document.getElementById("pesquisa-atleta-modal");
     const btnRemoverAtletaSelecionado = document.getElementById("btn-remover-selecionado");
-    const idTecnico = <?= $tecnico->id() ?>;
     const idCompeticao = <?= $competicao->id() ?>;
     const atletas = Object.values(<?= json_encode($atletas) ?>);
     var atletaSelecionado;
 
-    form.addEventListener('submit', (event)=>{
+    const tecnicoLogado = <?= $tecnico ? 'true' : 'false' ?>;
+
+    let formTecnico = null;
+    if (!tecnicoLogado) {
+        formTecnico = new FormCadastroTecnico();
+        qs('#container-form-tecnico').append(formTecnico.elemento);
+    }
+
+    form.addEventListener('submit', (event) => {
+        console.log('submit', formTecnico);
         event.preventDefault();
         let formData = new FormData(form);
-        if(validaFormulario(formData)){
+
+        if (formTecnico && !formTecnico.validar()) {
+            return;
+        }
+
+        if(validaFormulario(formData)) {
             let userChoice = $("#btn-selecionar-atleta").hasClass("active") ? 1 : 2;
             formData.append('acao', 'cadastrar');
-            formData.append('tecnico', idTecnico);
+
+            if (!tecnicoLogado && formTecnico) {
+                const tecnico = formTecnico.valores;
+                formData.append('novo_tecnico_email', tecnico.email);
+                formData.append('novo_tecnico_senha', tecnico.senha);
+                formData.append('novo_tecnico_nome', tecnico.nome);
+                formData.append('novo_tecnico_informacoes', tecnico.informacoes);
+                formData.append('novo_tecnico_clube', tecnico.clube);
+            }
+
             formData.append('competicao', idCompeticao);
-            if(atletaSelecionado){
+            if (atletaSelecionado) {
                 formData.append('atleta', atletaSelecionado.id);
             }
             formData.append('userChoice', userChoice);
@@ -373,6 +405,7 @@ $tecnico = $session->getTecnico();
     }
 
     async function submitAtletaCompeticao(dados){
+        console.log('dados', dados)
         try{
             const response = await fetch('/tecnico/competicoes/atletas/incluir/acao.php', {
                 method: 'POST',

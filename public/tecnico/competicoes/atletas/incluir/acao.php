@@ -2,6 +2,15 @@
 
 require_once(__DIR__ . '/../../../../../vendor/autoload.php');
 
+use App\Mail\EmailDTO;
+use App\Mail\MailRepository;
+use App\Notificacao\Notificacao;
+use App\Notificacao\NotificacaoRepository;
+use App\Tecnico\Conta\Cadastrar;
+use App\Tecnico\Conta\CadastroDTO;
+use App\Tecnico\Conta\LoginDTO;
+use App\Tecnico\Conta\RealizarLogin;
+use App\Util\General\UserSession;
 use App\Mail\InclusaoCompeticaoMail;
 use App\Tecnico\TecnicoRepository;
 use App\Token\TokenRepository;
@@ -50,16 +59,64 @@ function atletaCompeticaoController(): Response
  */
 function realizarCadastro($pdo) : Response
 {
-    if ($_POST['userChoice']) {
-        return $_POST['userChoice'] == 1
-             ? realizarCadastroAtletaSelecionado($pdo)
-             : realizarCadastroComNovoAtleta($pdo);
-    }
+    try {
+        $pdo->beginTransaction();
 
-    return Response::erro(
-        'Não foi possível identificar a opção de cadastro selecionada. ' .
-        'Por favor escolha entre "Selecionar atleta cadastrado" ou "Cadastrar novo atleta".'
-    );
+        $session = UserSession::obj();
+        if (!$session->isTecnico()) {
+            $tecnicoRepo = new TecnicoRepository($pdo);
+
+            $excecaoCadastro = null;
+            try {
+                $cadastrar = new Cadastrar($tecnicoRepo);
+                $cadastrar(new CadastroDTO(
+                    $_POST['novo_tecnico_email'],
+                    $_POST['novo_tecnico_nome'],
+                    $_POST['novo_tecnico_senha'],
+                    $_POST['novo_tecnico_clube'],
+                    $_POST['novo_tecnico_informacoes'],
+                ));
+            } catch (Exception $excecaoCadastro) {}
+
+            $excecaoLogin = null;
+            try {
+                $realizarLogin = new RealizarLogin($tecnicoRepo, $session);
+                $realizarLogin(new LoginDTO(
+                    $_POST['novo_tecnico_email'],
+                    $_POST['novo_tecnico_senha'],
+                ));
+            } catch (Exception $excecaoLogin) {}
+
+            // O ideal na verdade seria:
+            // Quando cadastro falha porque já existe usuário com esse e-mail, tentar fazer login;
+            // Quando cadastro falha por outro motivo (e.g. e-mail inválido), já retornar esse motivo.
+            // Como não temos uma forma muito boa de detectar o motivo da falha no cadastro
+            // (teria que ver se o getMesasge() contém uma substring tipo "já existe", gambiarra),
+            // vai ficar assim mesmo.
+
+            if ($excecaoCadastro || $excecaoLogin) {
+                throw new ValidatorException($excecaoCadastro->getMessage().'; '.$excecaoLogin->getMessage());
+            }
+        }
+
+        $response = null;
+        if ($_POST['userChoice']) {
+            $response = $_POST['userChoice'] == 1
+                ? realizarCadastroAtletaSelecionado($pdo)
+                : realizarCadastroComNovoAtleta($pdo);
+        } else {
+            $response = Response::erro(
+                'Não foi possível identificar a opção de cadastro selecionada. ' .
+                'Por favor escolha entre "Selecionar atleta cadastrado" ou "Cadastrar novo atleta".'
+            );
+        }
+
+        $pdo->commit();
+        return $response;
+    } catch (Exception $e) {
+        $pdo->rollback();
+        return Response::erroException($e);
+    }
 }
 
 /**
@@ -78,20 +135,8 @@ function realizarCadastroAtletaSelecionado($pdo): Response
         ->addSexoDupla(...getSexoDuplaValidado())
         ;
 
-    try {
-        $pdo->beginTransaction();
-        $response = cadastrarAtletaCompeticao($pdo, $atletaCompeticao);
-
-        if ($response->statusCode() == HttpStatus::OK) {
-            $pdo->commit();
-        } else {
-            $pdo->rollback();
-        }
-        return $response;
-    } catch (Exception $e) {
-        $pdo->rollback();
-        return Response::erroException($e);
-    }
+    $response = cadastrarAtletaCompeticao($pdo, $atletaCompeticao);
+    return $response;
 }
 
 /**
@@ -109,20 +154,8 @@ function realizarCadastroComNovoAtleta($pdo): Response
         ->addSexoDupla(...getSexoDuplaValidado())
         ;
 
-    try {
-        $pdo->beginTransaction();
-        $response = cadastrarNovoAtleta($pdo, $atleta);
-        if ($response->statusCode() == HttpStatus::OK) {
-            $response = cadastrarAtletaCompeticao($pdo, $atletaCompeticao);
-            $pdo->commit();
-        } else {
-            $pdo->rollback();
-        }
-        return $response;
-    } catch (Exception $e) {
-        $pdo->rollback();
-        return Response::erroException($e);
-    }
+    $response = cadastrarNovoAtleta($pdo, $atleta);
+    return $response;
 }
 
 /**
@@ -200,7 +233,21 @@ function enviarEmailInclusao(PDO $pdo, AtletaCompeticao $dados): bool
         'ano_atual' => date('Y')
     ]);
 
-    return $mail->send();
+    $mailRepo = new MailRepository($pdo);
+
+    $notificacaoRepo = new NotificacaoRepository($pdo);
+    $notificacaoId = $notificacaoRepo->criar(Notificacao::inclusaoCompeticao($tecnico->id(), $competicao->id()));
+
+    $emailDto = new EmailDTO(
+        $tecnico->nomeCompleto(),
+        $tecnico->email(),
+        $mail->getSubject(),
+        $mail->getBody(),
+        $mail->getAltBody(),
+        $notificacaoId
+    );
+
+    return $mailRepo->criar($emailDto) > 0;
 }
 
 /**
@@ -329,8 +376,7 @@ function validaAtleta(): Atleta
         throw new ValidatorException('Data de nascimento não pode estar no futuro');
     }
 
-    $tecnico = new Tecnico();
-    $tecnico->setId($_POST["tecnico"]);
+    $tecnico = UserSession::obj()->getTecnico();
 
     return (new Atleta())
         ->setNomeCompleto($req['cadastrar_nomeCompleto'])

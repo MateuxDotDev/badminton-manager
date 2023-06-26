@@ -17,13 +17,19 @@ use App\Tecnico\Dupla\DuplaRepository;
 use App\Tecnico\Solicitacao\EnviarSolicitacao;
 use App\Tecnico\Solicitacao\EnviarSolicitacaoDTO;
 use App\Tecnico\Solicitacao\SolicitacaoPendenteRepository;
+use App\Tecnico\Tecnico;
 use App\Tecnico\TecnicoRepository;
+use App\Token\TokenRepository;
 use App\Util\Database\Connection;
+use App\Util\Environment\Environment;
+use App\Util\Exceptions\ResponseException;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
 use App\Util\Http\Request;
 use App\Util\Http\Response;
 use App\Util\Mail\Mailer;
+use App\Util\Services\TokenService\AcoesToken;
+use App\Util\Services\TokenService\TokenService;
 
 try {
     atletaCompeticaoController()->enviar();
@@ -83,12 +89,14 @@ function pesquisarAtletas($req): Response
 
 
     $session = UserSession::obj();
-    $tecnico = $session->getTecnico();
 
-    // Não mostrar os atletas do próprio técnico
-    $condicoes[]  = 'a.tecnico_id != ?';
-    $parametros[] = $tecnico->id();
-
+    if ($session->isTecnico()) {
+        $tecnico = $session->getTecnico();
+    
+        // Não mostrar os atletas do próprio técnico
+        $condicoes[]  = 'a.tecnico_id != ?';
+        $parametros[] = $tecnico->id();
+    }
 
     $pesquisarTermos = function (string $coluna, string $texto) use (&$condicoes, &$parametros): void {
         $termos = preg_split('/\s+/', $texto);
@@ -205,6 +213,7 @@ function pesquisarAtletas($req): Response
 
 /**
  * @throws ValidatorException
+ * @throws \App\Util\Exceptions\ResponseException
  */
 function enviarSolicitacao(array $req): Response
 {
@@ -244,6 +253,11 @@ function enviarSolicitacao(array $req): Response
         }
         $competicao = $competicoesRepo->getViaId($dto->idCompeticao);
 
+        $tokenAceitar = gerarToken($pdo, $tecnicoDest, AcoesToken::ACEITAR_SOLICITACAO);
+        $tokenRejeitar = gerarToken($pdo, $tecnicoDest, AcoesToken::REJEITAR_SOLICITACAO);
+
+        $baseUrl = Environment::getBaseUrl() . '/tecnico/solicitacoes/?solicitacao=' . $id;
+
         $mail = new NovaSolicitacaoMail(new Mailer());
         $mail->fillTemplate([
             'dest_tecnico' => $tecnicoDest->nomeCompleto(),
@@ -264,8 +278,8 @@ function enviarSolicitacao(array $req): Response
             'rem_tec_clube' => $tecnicoRem->clube()->nome(),
             'rem_tec_info' => $tecnicoRem->informacoes(),
             'rem_tec_email' => $tecnicoRem->email(),
-            'link_aceite' => 'TODO',
-            'link_rejeicao' => 'TODO',
+            'link_aceite' => $baseUrl . '&acao=aceitar&token=' . $tokenAceitar,
+            'link_rejeicao' => $baseUrl . '&acao=rejeitar&token=' . $tokenRejeitar,
             'ano_atual' => date('Y'),
         ]);
 
@@ -285,4 +299,19 @@ function enviarSolicitacao(array $req): Response
         $pdo->rollBack();
         throw $e;
     }
+}
+
+/**
+ * @throws ValidatorException
+ * @throws ResponseException
+ */
+function gerarToken(PDO $pdo, Tecnico $tecnico, AcoesToken $acao): string
+{
+    $tokenRepo = new TokenRepository($pdo, new TokenService());
+
+    return $tokenRepo->createToken(
+        7,
+        10,
+        ['acao' => $acao->value, 'tecnico' => json_encode(serialize($tecnico))]
+    )['token'];
 }

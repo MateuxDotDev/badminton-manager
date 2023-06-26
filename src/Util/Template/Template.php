@@ -2,6 +2,7 @@
 
 namespace App\Util\Template;
 
+use App\Util\Environment\Environment;
 use App\Util\General\UserSession;
 
 class Template
@@ -31,6 +32,7 @@ class Template
     {
         $footer = file_get_contents(__DIR__. "/common/footer.html");
         $footer = self::put('ano', date('Y'), $footer);
+        $footer = self::put('base_url', Environment::getBaseUrl(), $footer);
         echo $footer;
     }
 
@@ -57,7 +59,9 @@ class Template
 
     public static function navTecnicoLogado(): void
     {
-        echo file_get_contents(__DIR__. "/common/tecnicoNavLogado.html");
+        $nav = file_get_contents(__DIR__. "/common/tecnicoNavLogado.html");
+        $nav = self::put('nome', UserSession::obj()->getTecnico()->nomeCompleto(), $nav);
+        echo $nav;
     }
 
     public static function navTecnicoNaoLogado(): void

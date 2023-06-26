@@ -36,10 +36,20 @@ function cadastroController(): Response
  */
 function realizarCadastro(array $req): Response
 {
-    $dto = CadastroDTO::parse($req);
-    $cadastrar = new Cadastrar(new TecnicoRepository(Connection::getInstance()));
-    $ids = $cadastrar($dto);
-    return Response::ok('Técnico cadastrado com sucesso', $ids);
+    $pdo = Connection::getInstance();
+    try {
+        $pdo->beginTransaction();
+
+        $dto = CadastroDTO::parse($req);
+        $cadastrar = new Cadastrar(new TecnicoRepository(Connection::getInstance()));
+        $ids = $cadastrar($dto);
+
+        $pdo->commit();
+        return Response::ok('Técnico cadastrado com sucesso', $ids);
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        throw $e;
+    }
 }
 
 
