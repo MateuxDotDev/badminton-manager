@@ -59,4 +59,9 @@ class Dates
         $diff = $now->diff($d);
         return $diff->y;
     }
+
+    public static function currentYear(): int
+    {
+        return (int) date('Y');
+    }
 }

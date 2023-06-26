@@ -114,4 +114,47 @@ class SolicitacaoPendenteRepository implements SolicitacaoPendenteRepositoryInte
         }
         return $retorno;
     }
+
+
+    /**
+     * @throws Exception
+     */
+    public function getViaId(int $id): ?SolicitacaoPendente
+    {
+        $pdo = $this->pdo;
+
+        $sql = <<<SQL
+            select id
+                 , competicao_id
+                 , atleta_origem_id
+                 , atleta_destino_id
+                 , categoria_id
+                 , criado_em
+                 , alterado_em
+                 , informacoes
+              from solicitacao_dupla_pendente
+             where id = :id
+        SQL;
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            'id' => $id,
+        ]);
+
+        $rows = $stmt->fetchAll();
+
+        if (count($rows) > 1) {
+            throw new ValidatorException(
+                'Mais de uma solicitação envolvendo os mesmos atleta e a mesma categoria dentro da mesma competição.'
+            );
+        }
+
+        if (empty($rows)) {
+            return null;
+        }
+
+        $row = $rows[0];
+
+        return SolicitacaoPendente::fromRow($row);
+    }
 }

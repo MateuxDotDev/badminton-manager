@@ -89,7 +89,7 @@ readonly class AcaoSolicitacao
     /**
      * @throws ValidatorException
      */
-    public function rejeitar(int $idPendente): void
+    public function rejeitar(int $idPendente): array
     {
         $solicitacao = $this->getSolicitacao404($idPendente);
 
@@ -106,15 +106,23 @@ readonly class AcaoSolicitacao
             Notificacao::solicitacaoRecebidaRejeitada($solicitacao['tecnico_destino_id'], $idConcluida),
             Notificacao::solicitacaoEnviadaRejeitada($solicitacao['tecnico_origem_id'], $idConcluida),
         ];
+
+        $idsNotificacaoes = [];
         foreach ($notificacoes as $notificacao) {
-            $this->notificacaoRepo->criar($notificacao);
+            $idsNotificacaoes[] = [
+                'notificacao' => $notificacao,
+                'tipo' => $notificacao->tipo,
+                'id' => $this->notificacaoRepo->criar($notificacao)
+            ];
         }
+
+        return $idsNotificacaoes;
     }
 
     /**
      * @throws ValidatorException
      */
-    public function cancelar(int $id): void
+    public function cancelar(int $id): int
     {
         $solicitacao = $this->getSolicitacao404($id);
 
@@ -129,8 +137,10 @@ readonly class AcaoSolicitacao
         $this->validarPrazo($solicitacao);
 
         $this->concluidaRepo->concluirCancelada($id);
-    
-        // Sem notificações mesmo, pra economizar tempo de desenvolvimento
+
+        return $this->notificacaoRepo->criar(
+            Notificacao::solicitacaoEnviadaCancelada($solicitacao['tecnico_destino_id'], $id)
+        );
     }
 
 

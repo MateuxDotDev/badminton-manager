@@ -43,16 +43,22 @@ Template::nav($session);
 
     <template id="template-competicao">
         <div class="col-12 col-lg-6 competicao-col gy-4">
-            <article class="d-flex competicao-card card card-body bg-light border-0">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+            <article class="d-flex competicao-card card card-body bg-light border-0 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3 gap-3">
                     <h4 class="mb-0">Liga Nacional de Badminton</h4>
-                    <span>
+                    <span class="d-flex flex-nowrap">
                         <i class="bi bi-calendar2-event me-2"></i>
                         <small class="help-cursor"></small>
                     </span>
                 </div>
-                <p class="my-3"></p>
-                <div class="row gy-2">
+                <p class="my-auto"></p>
+                <div class="row gy-2 mt-3">
+                    <div class="col-12 col-xxl-12">
+                        <a class="btn btn-success btn-atletas  w-100" title="Ver atletas">
+                            <i class="bi bi-person"></i>
+                            <span>Ver atletas</span>
+                        </a>
+                    </div>
                     <div class="col-12 col-xxl-6">
                         <a class="btn btn-outline-secondary btn-solicitacoes w-100" title="Solicitações pendentes">
                             <i class="bi bi-send"></i>
@@ -60,15 +66,9 @@ Template::nav($session);
                         </a>
                     </div>
                     <div class="col-12 col-xxl-6">
-                        <a class="btn btn-outline-success btn-cadastrar w-100" title="Cadastrar atleta">
+                        <a class="btn btn-outline-primary btn-cadastrar w-100" title="Cadastrar atleta">
                             <i class="bi bi-person-plus"></i>
                             <span>Cadastrar atleta</span>
-                        </a>
-                    </div>
-                    <div class="col-12 col-xxl-6 offset-xxl-3">
-                        <a class="btn btn-outline-primary btn-atletas  w-100" title="Ver atletas">
-                            <i class="bi bi-person"></i>
-                            <span>Ver atletas</span>
                         </a>
                     </div>
                 </div>
