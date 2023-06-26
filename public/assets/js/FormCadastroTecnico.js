@@ -149,6 +149,7 @@ class FormCadastroTecnico {
     }
 
     validar() {
+        console.log(this.#form.reportValidity());
         return this.#form.reportValidity();
     }
 

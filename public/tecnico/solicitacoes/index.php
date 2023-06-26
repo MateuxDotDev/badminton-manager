@@ -367,9 +367,10 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
 
         if (idSolicitacao && acao) {
             const btn = qs(`#btn-${acao}-${idSolicitacao}`);
-            console.log({ btn });
             if (btn && btn.click) {
                 btn.click();
+            } else {
+                alertaErro('Solicitação não encontrada');
             }
         }
     });

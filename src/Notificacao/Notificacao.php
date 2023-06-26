@@ -83,4 +83,13 @@ readonly class Notificacao
             $idSolicitacao,
         );
     }
+
+    public static function inclusaoCompeticao(int $idTecnico, int $idCompeticao): self
+    {
+        return new self(
+            TipoNotificacao::ATLETA_INCLUIDO_NA_COMPETICAO,
+            $idTecnico,
+            $idCompeticao,
+        );
+    }
 }
