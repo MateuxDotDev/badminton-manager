@@ -326,7 +326,7 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
             const json = JSON.parse(text);
             if (resp.ok) {
                 agendarAlertaSucesso(json.mensagem);
-                location.reload();
+                location.assign('/tecnico/solicitacoes/');
             } else {
                 Toast.fire({
                     icon: 'error',
