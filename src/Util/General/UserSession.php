@@ -80,6 +80,4 @@ class UserSession
         }
         return unserialize($this->data['tecnico']);
     }
-
-    // TODO: get metodo para pegar o tecnico via token
 }
