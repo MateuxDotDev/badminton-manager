@@ -36,6 +36,11 @@ try {
 
     $duplasRepo = new DuplaRepository($pdo);
     $duplas = $duplasRepo->formadas($competicaoId);
+    $duplas = array_map(function ($dupla) use ($session) {
+        $tecnicos =  array_map(fn ($tecnico) => $tecnico['tecnico']['id'], $dupla['atletas']);
+        $dupla['mine'] = in_array($session->getTecnico()->id(), $tecnicos);
+        return $dupla;
+    }, $duplas);
 } catch (Exception $e) {
     $hasError = true;
 }
@@ -98,7 +103,9 @@ $rowTemplate = <<<HTML
 <template id="dupla-card-template">
     <div class="card card-body bg-light border-0 dupla-card">
         <div class="row mb-2">
-            <h4 class="fw-normal text-secondary text-center text-lg-start">Categoria: <span class="categoria fw-bold text-black"></span></h4>
+            <h4 class="fw-normal text-secondary text-center text-lg-start d-flex align-items-center dupla-card-header">
+                Categoria: <span class="categoria fw-bold text-black"></span>
+            </h4>
         </div>
         <div class="row gy-4 dupla-card-cols">
         </div>
@@ -170,12 +177,60 @@ print($colTemplate);
             eqs(card, '.dupla-card-cols').appendChild(col);
         });
 
-        eqs(card, '.categoria').textContent = dupla.categoria;
+        if (dupla.mine) {
+            eqs(card, '.dupla-card-header').appendChild(botaoDesfazer(dupla));
+        }
 
+        eqs(card, '.categoria').textContent = dupla.categoria;
         eqs(card, '.dupla-card').id = `dupla-${dupla.id}`;
         componentesDuplas.push(eqs(card, '.dupla-card'));
 
         return card;
+    }
+
+    function botaoDesfazer(dupla) {
+        const botao = document.createElement('button');
+        botao.classList.add('btn', 'btn-danger', 'btn-sm', 'ms-auto', 'ms-4');
+        botao.setAttribute('type', 'button');
+        botao.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Desfazer';
+        botao.title = 'Desfazer dupla';
+        const nomeAtletas = dupla.atletas.map(atleta => atleta.nome).join(' e ');
+        botao.addEventListener('click', async () => {
+            if (await confirmarExclusao(`Tem certeza que deseja desfazer a dupla entre os atletas ${nomeAtletas}?`)) {
+                await desfazerDupla(dupla.id);
+            }
+        });
+
+        return botao;
+    }
+
+    async function desfazerDupla(idDupla) {
+        try {
+            const payload = {
+                idDupla,
+                acao: 'desfazer'
+            };
+            console.log(payload)
+            const response = await fetch(`/tecnico/competicoes/atletas/duplas/acao.php`, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+
+            if (response.ok) {
+                // POG -> Programacao Orientada a Gambiarra!
+                agendarAlertaSucesso('Dupla desfeita com sucesso!');
+                location.assign('/tecnico/competicoes/atletas/duplas/?competicao=<?= $competicao->id() ?>');
+            } else {
+                const mensagem = (await response.json()).mensagem;
+                if (mensagem) {
+                    alertaErro(mensagem);
+                } else {
+                    alertaErro('Não foi possível desfazer a dupla. Tente novamente mais tarde.');
+                }
+            }
+        } catch (error) {
+            alertaErro('Não foi possível desfazer a dupla. Tente novamente mais tarde.');
+        }
     }
 
     window.addEventListener('load', () => {
@@ -187,6 +242,9 @@ print($colTemplate);
         duplas.forEach(dupla => {
             conteudo.appendChild(createDuplaCard(dupla));
         });
+
+        console.log(componentesDuplas);
+        checkUrl();
 
         inputPesquisa.addEventListener('keydown', debounce(300, () => {
             if (inputPesquisa.value.trim() === '') {
@@ -222,6 +280,26 @@ print($colTemplate);
                 card.classList.add('d-none');
             }
         });
+    }
+
+    function checkUrl() {
+        const getParams = new URLSearchParams(location.search);
+        const dupla = getParams.get('dupla');
+        const acao = getParams.get('acao');
+        if (dupla && acao) {
+            const idDupla = Number(dupla);
+            if (acao === 'desfazer' && idDupla) {
+                const dupla = componentesDuplas.find(dupla => {
+                    const id = dupla.id.match(/\d+/g).map(Number)[0];
+                    return id === idDupla;
+                });
+                if (dupla) {
+                    dupla.querySelector('button').click();
+                } else {
+                    alertaErro('Não foi possível encontrar a dupla.');
+                }
+            }
+        }
     }
 </script>
 

@@ -66,21 +66,35 @@ readonly class Notificacao
     }
 
 
-    public static function solicitacaoRecebidaAceita(int $idTecnico, int $idSolicitacao): self
+    public static function solicitacaoRecebidaAceita(
+        int $idTecnico,
+        int $idSolicitacao,
+        int $atletaOrigem,
+        int $atletaDestino
+    ): self
     {
         return new self(
             TipoNotificacao::SOLICITACAO_RECEBIDA_ACEITA,
             $idTecnico,
             $idSolicitacao,
+            $atletaOrigem,
+            $atletaDestino,
         );
     }
 
-    public static function solicitacaoEnviadaAceita(int $idTecnico, int $idSolicitacao): self
+    public static function solicitacaoEnviadaAceita(
+        int $idTecnico,
+        int $idSolicitacao,
+        int $atletaOrigem,
+        int $atletaDestino
+    ): self
     {
         return new self(
             TipoNotificacao::SOLICITACAO_ENVIADA_ACEITA,
             $idTecnico,
             $idSolicitacao,
+            $atletaOrigem,
+            $atletaDestino,
         );
     }
 

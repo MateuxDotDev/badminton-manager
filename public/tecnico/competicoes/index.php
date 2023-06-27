@@ -54,7 +54,7 @@ Template::nav($session);
                 <p class="my-auto"></p>
                 <div class="row gy-2 mt-3">
                     <div class="col-12 col-xxl-12">
-                        <a class="btn btn-success btn-atletas  w-100" title="Ver atletas">
+                        <a class="btn btn-success btn-atletas w-100 mb-xxl-3" title="Ver atletas">
                             <i class="bi bi-person"></i>
                             <span>Ver atletas</span>
                         </a>

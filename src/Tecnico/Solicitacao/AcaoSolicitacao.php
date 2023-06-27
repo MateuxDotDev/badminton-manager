@@ -184,7 +184,7 @@ readonly class AcaoSolicitacao
     /**
      * @throws ValidatorException
      */
-    public function aceitar(int $idPendente): void
+    public function aceitar(int $idPendente): array
     {
         $pendente = $this->getSolicitacao404($idPendente);
 
@@ -197,7 +197,6 @@ readonly class AcaoSolicitacao
         }
 
         $this->validarPrazo($pendente);
-
 
         // A princípio não deveria acontecer de um deles estar indisponível
         // porque quando uma solicitação é aceita e a dupla é formada, as outras solicitações no mesmo
@@ -227,6 +226,7 @@ readonly class AcaoSolicitacao
             $pendente['categoria_id'],
             Sexo::from($pendente['atleta_destino_sexo']),
         );
+
         if ($remetenteIndisponivel) {
             throw new ValidatorException(
                 'O atleta '.$pendente['atleta_origem_nome'].' já formou uma dupla '.$descricaoDupla
@@ -264,11 +264,31 @@ readonly class AcaoSolicitacao
             }
         }
 
-        $notificacoes[] = Notificacao::solicitacaoEnviadaAceita($pendente['tecnico_origem_id'], $idConcluidaAceita);
-        $notificacoes[] = Notificacao::solicitacaoRecebidaAceita($pendente['tecnico_destino_id'], $idConcluidaAceita);
+        $notificacoes[] = Notificacao::solicitacaoEnviadaAceita(
+            $pendente['tecnico_origem_id'],
+            $idConcluidaAceita,
+            $pendente['atleta_destino_id'],
+            $pendente['atleta_origem_id'],
+        );
+        $notificacoes[] = Notificacao::solicitacaoRecebidaAceita(
+            $pendente['tecnico_destino_id'],
+            $idConcluidaAceita,
+            $pendente['atleta_destino_id'],
+            $pendente['atleta_origem_id'],
+        );
 
+        $retorno = [];
         foreach ($notificacoes as $notificacao) {
-            $this->notificacaoRepo->criar($notificacao);
+            $retorno[] = [
+                'notificacao' => $notificacao,
+                'tipo' => $notificacao->tipo,
+                'tecnico' => $notificacao->idTecnico,
+                'atletaOrigem' => $notificacao->id2,
+                'atletaDestino' => $notificacao->id3,
+                'id' => $this->notificacaoRepo->criar($notificacao)
+            ];
         }
+
+        return $retorno;
     }
 }

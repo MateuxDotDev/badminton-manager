@@ -4,6 +4,7 @@ namespace App\Tecnico\Dupla;
 
 use App\Tecnico\Atleta\Sexo;
 use App\Tecnico\Atleta\TipoDupla;
+use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use PDO;
 
@@ -121,5 +122,107 @@ class DuplaRepository
         }
 
         return $duplas;
+    }
+
+    /**
+     * @throws ValidatorException
+     */
+    public function desfazer(int $idDupla, int $idTecnico): bool
+    {
+        $sql = <<<SQL
+            DELETE FROM dupla
+                  WHERE id = :id
+                    AND EXISTS (
+                        SELECT 1
+                          FROM atleta a
+                          JOIN tecnico t
+                            ON t.id = a.tecnico_id
+                         WHERE a.id IN (dupla.atleta1_id, dupla.atleta2_id)
+                           AND t.id = :tecnico_id
+                    )
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'id' => $idDupla,
+            'tecnico_id' => $idTecnico
+        ]);
+
+        if ($stmt->rowCount() === 0) {
+            throw new ValidatorException('Dupla não encontrada ou não pertence ao você');
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * @throws ValidatorException
+     */
+    public function getViaAtletas(int $atleta1, int $atleta2): array
+    {
+        $sql = <<<SQL
+            SELECT d.id,
+                   d.solicitacao_id AS idSolicitacao,
+                   c.descricao AS categoria,
+                   co.nome AS competicao,
+                   co.id AS "competicaoId",
+                   jsonb_agg(
+                       jsonb_build_object(
+                           'id', a.id,
+                           'nome', a.nome_completo,
+                           'sexo', a.sexo,
+                           'dataNascimento', a.data_nascimento,
+                           'foto', a.path_foto,
+                           'informacoes', a.informacoes,
+                           'tecnico', json_build_object(
+                               'id', t.id,
+                               'nome', t.nome_completo,
+                               'email', t.email,
+                               'clube', cl.nome
+                           )
+                       )
+                   ) AS "atletas"
+              FROM dupla d
+              JOIN atleta a
+                ON a.id IN (d.atleta1_id, d.atleta2_id)
+              JOIN tecnico t
+                ON t.id = a.tecnico_id
+              JOIN competicao co
+                ON co.id = d.competicao_id
+              JOIN categoria c
+                ON c.id = d.categoria_id
+              JOIN clube cl
+                ON cl.id = t.clube_id
+             WHERE (d.atleta1_id = :atleta1 AND d.atleta2_id = :atleta2) OR
+                   (d.atleta1_id = :atleta2 AND d.atleta2_id = :atleta1)
+          GROUP BY 1, 2, 3, 4, 5
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'atleta1' => $atleta1,
+            'atleta2' => $atleta2,
+        ]);
+
+        $rows = $stmt->fetchAll();
+
+        if (count($rows) === 0) {
+            throw new ValidatorException('Dupla não encontrada');
+        }
+
+        $row = $rows[0];
+        $atletas = json_decode($row['atletas'], true);
+        foreach ($atletas as &$atleta) {
+            $dataNascimento = Dates::parseDay($atleta['dataNascimento']);
+            $atleta['idade'] = Dates::age($dataNascimento);
+            $atleta['dataNascimento'] = Dates::formatDayBr($dataNascimento);
+            $atleta['sexo'] = Sexo::from($atleta['sexo'])->value;
+        }
+        unset($atleta);
+
+        return [
+            ...$row,
+            'atletas' => $atletas,
+        ];
     }
 }
