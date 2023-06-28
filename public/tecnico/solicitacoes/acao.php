@@ -231,13 +231,6 @@ function aceitarSolicitacao(array $req): Response
  */
 function aceitarSolicitacaoMail(PDO $pdo, array $notificacao): bool
 {
-    $mailRepo = new MailRepository($pdo);
-    $duplaRepo = new DuplaRepository($pdo);
-    $tokenRepo = new TokenRepository($pdo);
-    $tecnicoRepo = new TecnicoRepository($pdo);
-
-    $dupla = $duplaRepo->getViaAtletas($notificacao['atletaOrigem'], $notificacao['atletaDestino']);
-
     if ($notificacao['tipo'] == TipoNotificacao::SOLICITACAO_ENVIADA_ACEITA) {
         $mailClass = SolicitacaoAceitaEnviadaMail::class;
         $atletaDestId = $notificacao['atletaDestino'];
@@ -251,6 +244,13 @@ function aceitarSolicitacaoMail(PDO $pdo, array $notificacao): bool
     } else {
         return true;
     }
+
+    $mailRepo = new MailRepository($pdo);
+    $duplaRepo = new DuplaRepository($pdo);
+    $tokenRepo = new TokenRepository($pdo);
+    $tecnicoRepo = new TecnicoRepository($pdo);
+
+    $dupla = $duplaRepo->getViaAtletas($notificacao['atletaOrigem'], $notificacao['atletaDestino']);
 
     foreach ($dupla['atletas'] as $atleta) {
         if ($atleta['id'] == $atletaDestId) {
