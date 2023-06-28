@@ -24,6 +24,7 @@ use App\Util\Http\Request;
 use App\Util\Http\Response;
 use App\Util\Database\Connection;
 use App\Util\Mail\Mailer;
+use App\Util\Mail\Service\MailService;
 
 try {
     solicitacaoController()->enviar();
@@ -72,8 +73,9 @@ function construirAcaoSolicitacao(PDO $pdo): AcaoSolicitacao
     $notificacaoRepo = new NotificacaoRepository($pdo);
     $concluidaRepo = new SolicitacaoConcluidaRepository($pdo);
     $duplaRepo = new DuplaRepository($pdo);
+    $mailService = new MailService($pdo);
 
-    return new AcaoSolicitacao($pdo, $session, $dataAgora, $notificacaoRepo, $concluidaRepo, $duplaRepo);
+    return new AcaoSolicitacao($pdo, $session, $dataAgora, $notificacaoRepo, $concluidaRepo, $duplaRepo, $mailService);
 }
 
 /**
@@ -143,7 +145,7 @@ function rejeitarSolicitacaoMail(PDO $pdo, SolicitacaoPendente $solicitacao, int
     $atletaDest = $atletaRepo->getViaId($solicitacao->idAtletaRemetente);
     $atletaRem = $atletaRepo->getViaId($solicitacao->idAtletaDestinatario);
     $tecnicoDest = $tecnicoRepo->getViaAtleta($atletaDest->id());
-    $categoria = $categoriaRepo->getCategoriaById($solicitacao->idCategoria);
+    $categoria = $categoriaRepo->getById($solicitacao->idCategoria);
     $competicao = $competicaoRepo->getViaId($solicitacao->idCompeticao);
 
     $mail = new RejeitarSolicitacaoMail(new Mailer());

@@ -33,7 +33,7 @@ class CategoriaRepository
         return $categorias;
     }
 
-    public function getCategoriaById(int $id): ?Categoria
+    public function getById(int $id): ?Categoria
     {
         $sql = <<<SQL
             SELECT id, descricao, idade_maior_que, idade_menor_que

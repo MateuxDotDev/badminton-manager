@@ -307,7 +307,7 @@ function htmlSolicitacaoEnviada(SolicitacaoPendente $solicitacao)
     document.querySelectorAll('.btn-cancelar').forEach(btn => {
         btn.addEventListener('click', async () => {
             const ok = await confirmarExclusao('Essa solicitação para formar dupla será cancelada.', {
-                confirmButtonText: 'Cancelar'
+                confirmButtonText: 'Sim, cancelar'
             });
             if (!ok) return;
             const id = btn.getAttribute('data-id');

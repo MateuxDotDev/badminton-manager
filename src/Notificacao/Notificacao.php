@@ -2,7 +2,7 @@
 
 namespace App\Notificacao;
 
-use \DateTimeInterface;
+use DateTimeInterface;
 
 readonly class Notificacao
 {

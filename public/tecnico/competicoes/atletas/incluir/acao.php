@@ -317,7 +317,7 @@ function getCategoriasFormulario(PDO $pdo): array
     foreach ($_POST as $chave => $valor) {
         if (explode('-', $chave)[0] == 'categoria') {
             $repoCategoria = new CategoriaRepository($pdo);
-            $categoria = $repoCategoria->getCategoriaById($valor);
+            $categoria = $repoCategoria->getById($valor);
             $categorias[$valor] = $categoria;
         }
     }

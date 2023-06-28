@@ -11,6 +11,8 @@ use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use App\Util\General\UserSession;
 use App\Util\Http\HttpStatus;
+use App\Util\Mail\Service\MailService;
+use App\Util\Mail\Service\MailServiceInterface;
 use \PDO;
 use \DateTimeInterface;
 
@@ -23,6 +25,7 @@ readonly class AcaoSolicitacao
         private NotificacaoRepository $notificacaoRepo,
         private SolicitacaoConcluidaRepository $concluidaRepo,
         private DuplaRepository $duplaRepo,
+        private MailServiceInterface $mailService,
     ) {}
 
     private function getSolicitacao(int $id): array
@@ -122,7 +125,7 @@ readonly class AcaoSolicitacao
     /**
      * @throws ValidatorException
      */
-    public function cancelar(int $id): int
+    public function cancelar(int $id): void
     {
         $solicitacao = $this->getSolicitacao404($id);
 
@@ -136,11 +139,12 @@ readonly class AcaoSolicitacao
 
         $this->validarPrazo($solicitacao);
 
-        $this->concluidaRepo->concluirCancelada($id);
+        $idCancelado = $this->concluidaRepo->concluirCancelada($id);
 
-        return $this->notificacaoRepo->criar(
-            Notificacao::solicitacaoEnviadaCancelada($solicitacao['tecnico_destino_id'], $id)
-        );
+        $notificaco = Notificacao::solicitacaoEnviadaCancelada($solicitacao['tecnico_destino_id'], $idCancelado);
+
+        $this->notificacaoRepo->criar($notificaco);
+        $this->mailService->enviarDeNotificacao($notificaco);
     }
 
 
@@ -268,7 +272,9 @@ readonly class AcaoSolicitacao
         $notificacoes[] = Notificacao::solicitacaoRecebidaAceita($pendente['tecnico_destino_id'], $idConcluidaAceita);
 
         foreach ($notificacoes as $notificacao) {
+            // Talvez deveria ficar na classe Notificacao, facilitaria e automatizaria, porem teria problemas de mock, testes e transactions
             $this->notificacaoRepo->criar($notificacao);
+            $this->mailService->enviarDeNotificacao($notificacao);
         }
     }
 }
