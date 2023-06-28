@@ -3,8 +3,8 @@
 namespace App\Util\Mail\Service\Actions;
 
 use App\Notificacao\Notificacao;
-use PDO;
 use Exception;
+use PDO;
 
 interface MailActionInterface
 {

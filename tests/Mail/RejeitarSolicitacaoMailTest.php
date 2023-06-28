@@ -2,14 +2,15 @@
 
 namespace Tests\Mail;
 
-use App\Mail\SolicitacaoCanceladaMail;
+use App\Mail\RejeitarSolicitacaoMail;
 use App\Util\Exceptions\MailException;
+use App\Util\General\Dates;
 use App\Util\Mail\MailerInterface;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class SolicitacaoCanceladaMailTest extends TestCase
+class RejeitarSolicitacaoMailTest extends TestCase
 {
     private MockObject|MailerInterface $mailerMock;
 
@@ -25,8 +26,8 @@ class SolicitacaoCanceladaMailTest extends TestCase
 
     public function testConstruct()
     {
-        $mail = new SolicitacaoCanceladaMail($this->mailerMock, 'Atleta A', 'Atleta B', 'Competição A');
-        $this->assertInstanceOf(SolicitacaoCanceladaMail::class, $mail);
+        $mail = new RejeitarSolicitacaoMail($this->mailerMock);
+        $this->assertInstanceOf(RejeitarSolicitacaoMail::class, $mail);
     }
 
     /**
@@ -34,15 +35,11 @@ class SolicitacaoCanceladaMailTest extends TestCase
      */
     public function testSend()
     {
-        $atletaDest = 'Atleta A';
-        $atletaRem = 'Atleta B';
-        $competicao = 'Competição A';
-
-        $mail = new SolicitacaoCanceladaMail($this->mailerMock, $atletaDest, $atletaRem, $competicao);
+        $mail = new RejeitarSolicitacaoMail($this->mailerMock);
 
         $toEmail = 'test@example.com';
-        $toName = $atletaDest;
-        $subject = 'A solicitação de formar dupla com o seu atleta ' . $atletaDest . '  e ' . $atletaRem . '  na competição ' . $competicao . ' foi cancelada!';
+        $toName = 'Test User';
+        $subject = 'Uma solicitação de dupla sua foi rejeitada.';
         $altBody = 'Test alternative body';
 
         $this->mailerMock
@@ -54,7 +51,7 @@ class SolicitacaoCanceladaMailTest extends TestCase
                 $this->equalTo($subject),
                 $this->callback(function ($body) {
                     $this->assertStringContainsString('Olá {{ dest_tecnico }}!', $body);
-                    $this->assertStringContainsString('A solicitação de formar dupla com o seu atleta {{ dest_nome }} e {{ rem_nome }} na competição {{ competicao }} foi cancelada! Mais detalhes:', $body);
+                    $this->assertStringContainsString('A solicitação de formar dupla com o seu atleta {{ dest_nome }} e {{ rem_nome }} na competição {{ competicao }} foi cancelada! Mais detalhes', $body);
                     return true;
                 }),
                 $this->equalTo($altBody)
@@ -74,31 +71,28 @@ class SolicitacaoCanceladaMailTest extends TestCase
 
     public function testFillTemplate()
     {
-        $atletaDest = 'Atleta A';
-        $atletaRem = 'Atleta B';
-        $competicao = 'Competição A';
-        $mail = new SolicitacaoCanceladaMail($this->mailerMock, $atletaDest, $atletaRem, $competicao);
+        $mail = new RejeitarSolicitacaoMail($this->mailerMock);
 
         $templateData = [
             'dest_tecnico' => 'Técnico A',
-            'dest_nome' => $atletaDest,
-            'rem_nome' => $atletaRem,
-            'competicao' => $competicao,
+            'dest_nome' => 'Atleta A',
+            'rem_nome' => 'Atleta B',
+            'competicao' => 'Competição A',
             'dest_sexo' => 'Masculino',
-            'rem_sexo' => 'Feminino',
-            'dest_idade' => '18',
-            'rem_idade' => '18',
+            'rem_sexo' => 'Masculino',
+            'dest_idade' => '21',
+            'rem_idade' => '21',
             'dest_nascimento' => '01/01/2000',
             'rem_nascimento' => '01/01/2000',
-            'dest_info' => 'Informações adicionais do atleta A',
-            'rem_info' => 'Informações adicionais do atleta B',
+            'dest_info' => 'Informações adicionais do Atleta A',
+            'rem_info' => 'Informações adicionais do Atleta B',
             'categoria' => 'Categoria A',
-            'observacoes' => 'Observações adicionais',
-            'ano_atual' => date('Y'),
+            'observacoes' => 'Observações A',
+            'ano_atual' => Dates::currentYear(),
         ];
 
         foreach ($templateData as $key => $value) {
-            $this->assertStringContainsString('{{ ' . $key . ' }}', $mail->getBody());
+            $this->assertStringContainsString($key, $mail->getBody());
             $this->assertStringNotContainsString($value, $mail->getBody());
         }
 

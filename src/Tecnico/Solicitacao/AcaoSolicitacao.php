@@ -11,10 +11,9 @@ use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use App\Util\General\UserSession;
 use App\Util\Http\HttpStatus;
-use App\Util\Mail\Service\MailService;
 use App\Util\Mail\Service\MailServiceInterface;
-use \PDO;
-use \DateTimeInterface;
+use DateTimeInterface;
+use PDO;
 
 readonly class AcaoSolicitacao
 {

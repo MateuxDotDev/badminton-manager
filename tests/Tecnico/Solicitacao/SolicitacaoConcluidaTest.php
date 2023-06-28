@@ -3,7 +3,6 @@
 namespace Tests\Tecnico\Solicitacao;
 
 use App\Tecnico\Solicitacao\SolicitacaoConcluida;
-use App\Util\General\Dates;
 use PHPUnit\Framework\TestCase;
 
 class SolicitacaoConcluidaTest extends TestCase

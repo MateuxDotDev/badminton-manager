@@ -4,7 +4,6 @@ namespace Tests\Tecnico\Solicitacao;
 
 use App\Tecnico\Solicitacao\SolicitacaoConcluidaRepository;
 use App\Util\Exceptions\ValidatorException;
-use App\Util\General\Dates;
 use App\Util\Http\HttpStatus;
 use PDO;
 use PDOStatement;
