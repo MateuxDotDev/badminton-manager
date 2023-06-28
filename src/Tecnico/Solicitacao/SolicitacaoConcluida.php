@@ -18,7 +18,7 @@ readonly class SolicitacaoConcluida
         private DateTimeInterface $alteradoEm,
     ) {}
 
-    public function getId(): int
+    public function id(): int
     {
         return $this->id;
     }
