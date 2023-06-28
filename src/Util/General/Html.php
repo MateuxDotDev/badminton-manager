@@ -3,8 +3,6 @@
 namespace App\Util\General;
 
 use App\Tecnico\Atleta\Atleta;
-use \DateTimeInterface;
-use \DateTime;
 use App\Tecnico\Atleta\Sexo;
 
 class Html

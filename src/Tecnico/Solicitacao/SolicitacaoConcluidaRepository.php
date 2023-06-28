@@ -103,4 +103,34 @@ class SolicitacaoConcluidaRepository
         $this->excluirPendente($idPendente);
         return $idConcluida;
     }
+
+    /**
+     * @throws ValidatorException
+     */
+    public function getViaId(int $id): SolicitacaoConcluida
+    {
+        $sql = <<<SQL
+            SELECT id,
+                   competicao_id,
+                   atleta_origem_id,
+                   atleta_destino_id,
+                   informacoes,
+                   categoria_id,
+                   criado_em,
+                   alterado_em
+              FROM solicitacao_dupla_concluida
+             WHERE id = :id
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['id' => $id]);
+
+        $rows = $stmt->fetchAll();
+
+        if (empty($rows)) {
+            throw new ValidatorException('Solicitação não encontrada', HttpStatus::NOT_FOUND);
+        }
+
+        return SolicitacaoConcluida::fromRow($rows[0]);
+    }
 }

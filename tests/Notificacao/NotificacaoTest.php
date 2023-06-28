@@ -105,6 +105,20 @@ class NotificacaoTest extends TestCase
         $this->assertNull($notificacao->id2);
         $this->assertNull($notificacao->id3);
     }
+
+    public function testInclusaoCompeticao(): void
+    {
+        $idTecnico = 1;
+        $idCompeticao = 1;
+
+        $notificacao = Notificacao::inclusaoCompeticao($idTecnico, $idCompeticao);
+
+        $this->assertEquals(TipoNotificacao::ATLETA_INCLUIDO_NA_COMPETICAO, $notificacao->tipo);
+        $this->assertEquals($idTecnico, $notificacao->idTecnico);
+        $this->assertEquals($idCompeticao, $notificacao->id1);
+        $this->assertNull($notificacao->id2);
+        $this->assertNull($notificacao->id3);
+    }
 }
 
 

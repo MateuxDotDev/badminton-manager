@@ -2,8 +2,8 @@
 
 namespace App\Tecnico\Solicitacao;
 
-use DateTimeInterface;
 use App\Util\General\Dates;
+use DateTimeInterface;
 
 readonly class SolicitacaoPendente
 {

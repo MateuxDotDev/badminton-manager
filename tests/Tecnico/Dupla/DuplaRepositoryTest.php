@@ -4,10 +4,10 @@ namespace Tests\Tecnico\Dupla;
 
 use App\Tecnico\Atleta\Sexo;
 use App\Tecnico\Dupla\DuplaRepository;
-use PHPUnit\Framework\MockObject\Exception;
-use PHPUnit\Framework\TestCase;
 use PDO;
 use PDOStatement;
+use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\TestCase;
 
 class DuplaRepositoryTest extends TestCase
 {

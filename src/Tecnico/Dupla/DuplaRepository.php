@@ -3,7 +3,6 @@
 namespace App\Tecnico\Dupla;
 
 use App\Tecnico\Atleta\Sexo;
-use App\Tecnico\Atleta\TipoDupla;
 use App\Util\General\Dates;
 use PDO;
 

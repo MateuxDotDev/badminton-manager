@@ -62,7 +62,7 @@ class CategoriaRepositoryTest extends TestCase
                 ['id' => 1, 'descricao' => 'Categoria 1', 'idade_maior_que' => 15, 'idade_menor_que' => 20]
             ]);
 
-        $categoria = $this->repository->getCategoriaById(1);
+        $categoria = $this->repository->getById(1);
 
         $this->assertEquals($categoriaEsperada, $categoria);
     }

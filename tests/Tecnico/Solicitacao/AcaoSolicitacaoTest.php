@@ -10,11 +10,12 @@ use App\Tecnico\Tecnico;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
 use App\Util\Http\HttpStatus;
+use App\Util\Mail\Service\MailService;
 use DateTime;
+use PDO;
 use PDOStatement;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
-use PDO;
 
 class AcaoSolicitacaoTest extends TestCase
 {
@@ -23,6 +24,7 @@ class AcaoSolicitacaoTest extends TestCase
     private NotificacaoRepository $notificacaoRepo;
     private SolicitacaoConcluidaRepository $concluidaRepo;
     private DuplaRepository $duplaRepo;
+    private MailService $mailService;
     private array $solicitacao;
 
     /**
@@ -35,6 +37,7 @@ class AcaoSolicitacaoTest extends TestCase
         $this->notificacaoRepo = $this->createMock(NotificacaoRepository::class);
         $this->concluidaRepo = $this->createMock(SolicitacaoConcluidaRepository::class);
         $this->duplaRepo = $this->createMock(DuplaRepository::class);
+        $this->mailService = $this->createMock(MailService::class);
         $this->solicitacao = [
             'id' => 1,
             'atleta_origem_id' => 1,
@@ -80,6 +83,7 @@ class AcaoSolicitacaoTest extends TestCase
             $this->notificacaoRepo,
             $this->concluidaRepo,
             $this->duplaRepo,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -122,6 +126,7 @@ class AcaoSolicitacaoTest extends TestCase
             $this->notificacaoRepo,
             $this->concluidaRepo,
             $this->duplaRepo,
+            $this->mailService,
         );
 
         $acaoSolicitacao->rejeitar(1);
@@ -159,6 +164,7 @@ class AcaoSolicitacaoTest extends TestCase
             $this->notificacaoRepo,
             $this->concluidaRepo,
             $this->duplaRepo,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -204,6 +210,7 @@ class AcaoSolicitacaoTest extends TestCase
             $this->notificacaoRepo,
             $this->concluidaRepo,
             $this->duplaRepo,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -249,6 +256,7 @@ class AcaoSolicitacaoTest extends TestCase
             $this->notificacaoRepo,
             $this->concluidaRepo,
             $this->duplaRepo,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -294,11 +302,10 @@ class AcaoSolicitacaoTest extends TestCase
             $this->notificacaoRepo,
             $this->concluidaRepo,
             $this->duplaRepo,
+            $this->mailService,
         );
 
-        $result = $acaoSolicitacao->cancelar(1);
-
-        $this->assertEquals(1, $result);
+        $acaoSolicitacao->cancelar(1);
     }
 
     /**
@@ -332,6 +339,7 @@ class AcaoSolicitacaoTest extends TestCase
             $this->notificacaoRepo,
             $this->concluidaRepo,
             $this->duplaRepo,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -409,6 +417,7 @@ class AcaoSolicitacaoTest extends TestCase
             $this->notificacaoRepo,
             $this->concluidaRepo,
             $this->duplaRepo,
+            $this->mailService,
         );
 
         $acaoSolicitacao->aceitar(1);
@@ -443,6 +452,7 @@ class AcaoSolicitacaoTest extends TestCase
             $this->notificacaoRepo,
             $this->concluidaRepo,
             $this->duplaRepo,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -515,6 +525,7 @@ class AcaoSolicitacaoTest extends TestCase
             $this->notificacaoRepo,
             $this->concluidaRepo,
             $this->duplaRepo,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -587,6 +598,7 @@ class AcaoSolicitacaoTest extends TestCase
             $this->notificacaoRepo,
             $this->concluidaRepo,
             $this->duplaRepo,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);

@@ -154,7 +154,8 @@ function realizarCadastroComNovoAtleta($pdo): Response
         ->addSexoDupla(...getSexoDuplaValidado())
         ;
 
-    $response = cadastrarNovoAtleta($pdo, $atleta);
+    cadastrarNovoAtleta($pdo, $atleta);
+    $response = cadastrarAtletaCompeticao($pdo, $atletaCompeticao);
     return $response;
 }
 
@@ -162,7 +163,7 @@ function realizarCadastroComNovoAtleta($pdo): Response
  * @throws ValidatorException
  * @throws Exception
  */
-function cadastrarNovoAtleta($pdo, Atleta $atleta): Response
+function cadastrarNovoAtleta($pdo, Atleta $atleta): void
 {
     $imagemService = new UploadImagemService();
 
@@ -176,10 +177,10 @@ function cadastrarNovoAtleta($pdo, Atleta $atleta): Response
     $criado = $repo->criarAtleta($atleta);
     if ($criado > 0) {
         $atleta->setId($criado);
-        return Response::ok('', ['atleta' => $atleta]);
+        return;
     }
 
-    return Response::erro('Erro ao cadastrar atleta');
+    throw new ValidatorException('Erro ao cadastrar atleta');
 }
 
 /**
@@ -317,7 +318,7 @@ function getCategoriasFormulario(PDO $pdo): array
     foreach ($_POST as $chave => $valor) {
         if (explode('-', $chave)[0] == 'categoria') {
             $repoCategoria = new CategoriaRepository($pdo);
-            $categoria = $repoCategoria->getCategoriaById($valor);
+            $categoria = $repoCategoria->getById($valor);
             $categorias[$valor] = $categoria;
         }
     }

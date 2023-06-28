@@ -242,7 +242,7 @@ function enviarSolicitacao(array $req): Response
         $atletaRem = $atletaRepo->getViaId($dto->idAtletaRemetente);
         $tecnicoDest = $tecnicoRepo->getViaAtleta($atletaDest->id());
         $tecnicoRem = $tecnicoRepo->getViaAtleta($atletaRem->id());
-        $categoria = $categoriaRepo->getCategoriaById($dto->idCategoria);
+        $categoria = $categoriaRepo->getById($dto->idCategoria);
         $notificacoes = $notificacoesRepo->getViaId1($id, TipoNotificacao::SOLICITACAO_ENVIADA);
         $notificacaoIdRem = 0;
         foreach ($notificacoes as $notificacao) {
