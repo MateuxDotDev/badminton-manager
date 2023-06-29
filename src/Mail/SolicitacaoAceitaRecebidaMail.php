@@ -11,7 +11,7 @@ class SolicitacaoAceitaRecebidaMail extends MailTemplate
         parent::__construct(
             $mailer,
             file_get_contents(__DIR__ . '/../Util/Mail/Template/solicitacao-aceita-recebida.html'),
-            'Voçê aceitou solicitação de dupla entre o seu atleta ' . $destinatario . ' e o atleta ' . $remetente . ' para a competição ' . $competicao . '!'
+            'Você aceitou solicitação de dupla entre o seu atleta ' . $destinatario . ' e o atleta ' . $remetente . ' para a competição ' . $competicao . '!'
         );
     }
 }

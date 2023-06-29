@@ -5,6 +5,7 @@ namespace App\Tecnico\Dupla;
 use App\Tecnico\Atleta\Sexo;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
+use App\Util\Http\HttpStatus;
 use PDO;
 
 class DuplaRepository
@@ -210,9 +211,9 @@ class DuplaRepository
         $rows = $stmt->fetchAll();
 
         if (empty($rows)) {
-            throw new ValidatorException('Dupla não encontrada');
+            throw new ValidatorException('Dupla não encontrada', HttpStatus::NOT_FOUND);
         } elseif (count($rows) > 1) {
-            throw new ValidatorException('Dupla duplicada');
+            throw new ValidatorException('Dupla duplicada', HttpStatus::INTERNAL_SERVER_ERROR);
         }
 
         return Dupla::fromRow($rows[0]);

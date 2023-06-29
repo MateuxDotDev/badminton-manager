@@ -41,7 +41,7 @@ class Dupla
         $this->dataCriacao = $dataCriacao;
     }
 
-    public function idSolidicacao(): int
+    public function idSolicitacao(): int
     {
         return $this->idSolicitacao;
     }

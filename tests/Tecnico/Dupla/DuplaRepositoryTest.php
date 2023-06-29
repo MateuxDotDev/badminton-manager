@@ -4,6 +4,8 @@ namespace Tests\Tecnico\Dupla;
 
 use App\Tecnico\Atleta\Sexo;
 use App\Tecnico\Dupla\DuplaRepository;
+use App\Util\Exceptions\ValidatorException;
+use App\Util\Http\HttpStatus;
 use PDO;
 use PDOStatement;
 use PHPUnit\Framework\MockObject\Exception;
@@ -194,5 +196,134 @@ class DuplaRepositoryTest extends TestCase
         $idades = array_map(fn($atleta) => $atleta['idade'], $atletas);
         $this->assertIsArray($idades);
         $this->assertCount(2, $idades);
+    }
+
+    /**
+     * @throws ValidatorException
+     * @throws Exception
+     */
+    public function testGetViaAtletas(): void
+    {
+        $row = [
+            'id' => 1,
+            'idSolicitacao' => 1,
+            'criadoEm' => '2021-01-01 00:00:00.000000',
+            'categoria' => 'Sub 17',
+            'categoriaId' => 1,
+            'competicao' => 'Campeonato Mundial',
+            'competicaoId' => 1,
+            'atletas' => json_encode([
+                [
+                    'id' => 1,
+                    'nome' => 'Atleta 1',
+                    'sexo' => 'M',
+                    'dataNascimento' => '2000-01-01',
+                    'foto' => 'foto.jpg',
+                    'informacoes' => 'Informações',
+                    'tecnico' => [
+                        'id' => 1,
+                        'nome' => 'Tecnico 1',
+                        'email' => 'tecnico1@mail.com',
+                        'informacoes' => 'Informações',
+                        'clubeId' => 1,
+                        'clube' => 'Clube 1'
+                    ]
+                ],
+                [
+                    'id' => 2,
+                    'nome' => 'Atleta 2',
+                    'sexo' => 'F',
+                    'dataNascimento' => '2000-01-01',
+                    'foto' => 'foto.jpg',
+                    'informacoes' => 'Informações',
+                    'tecnico' => [
+                        'id' => 2,
+                        'nome' => 'Tecnico 2',
+                        'email' => 'tecnico2@mail.com',
+                        'informacoes' => 'Informações',
+                        'clubeId' => 2,
+                        'clube' => 'Clube 2'
+                    ]
+                ]
+            ])
+        ];
+
+        $stmt = $this->createMock(PDOStatement::class);
+
+        $this->pdo->expects($this->once())
+            ->method('prepare')
+            ->willReturn($stmt);
+
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->with(['atleta1' => 1, 'atleta2' => 2]);
+
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([$row]);
+
+        $dupla = $this->repository->getViaAtletas(1, 2);
+
+        $this->assertEquals(1, $dupla->id());
+        $this->assertEquals(1, $dupla->idSolicitacao());
+        $this->assertEquals('Sub 17', $dupla->categoria()->descricao());
+        $this->assertEquals(1, $dupla->categoria()->id());
+        $this->assertEquals('Campeonato Mundial', $dupla->competicao()->nome());
+        $this->assertEquals(1, $dupla->atleta1()->id());
+        $this->assertEquals(2, $dupla->atleta2()->id());
+        $this->assertEquals(1, $dupla->atletaFromTecnico(1)->id());
+        $this->assertEquals(2, $dupla->other(1)->id());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testGetViaAtletasNaoEncontrada(): void
+    {
+        $stmt = $this->createMock(PDOStatement::class);
+
+        $this->pdo->expects($this->once())
+            ->method('prepare')
+            ->willReturn($stmt);
+
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->with(['atleta1' => 1, 'atleta2' => 2]);
+
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([]);
+
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionMessage('Dupla não encontrada');
+        $this->expectExceptionCode(HttpStatus::NOT_FOUND->value);
+
+        $this->repository->getViaAtletas(1, 2);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testGetViaAtletasDuplicada(): void
+    {
+        $stmt = $this->createMock(PDOStatement::class);
+
+        $this->pdo->expects($this->once())
+            ->method('prepare')
+            ->willReturn($stmt);
+
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->with(['atleta1' => 1, 'atleta2' => 2]);
+
+        $stmt->expects($this->once())
+            ->method('fetchAll')
+            ->willReturn([[], []]);
+
+        $this->expectException(ValidatorException::class);
+        $this->expectExceptionMessage('Dupla duplicada');
+        $this->expectExceptionCode(HttpStatus::INTERNAL_SERVER_ERROR->value);
+
+        $this->repository->getViaAtletas(1, 2);
     }
 }
