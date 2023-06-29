@@ -82,28 +82,32 @@ class NotificacaoTest extends TestCase
     {
         $idTecnico = 1;
         $idSolicitacao = 2;
+        $idAtletaDest = 3;
+        $idAtletaRem = 4;
 
-        $notificacao = Notificacao::solicitacaoRecebidaAceita($idTecnico, $idSolicitacao);
+        $notificacao = Notificacao::solicitacaoRecebidaAceita($idTecnico, $idSolicitacao, $idAtletaDest, $idAtletaRem);
 
         $this->assertEquals(TipoNotificacao::SOLICITACAO_RECEBIDA_ACEITA, $notificacao->tipo);
         $this->assertEquals($idTecnico, $notificacao->idTecnico);
         $this->assertEquals($idSolicitacao, $notificacao->id1);
-        $this->assertNull($notificacao->id2);
-        $this->assertNull($notificacao->id3);
+        $this->assertEquals($idAtletaDest, $notificacao->id2);
+        $this->assertEquals($idAtletaRem, $notificacao->id3);
     }
 
     public function testSolicitacaoEnviadaAceita()
     {
         $idTecnico = 1;
         $idSolicitacao = 2;
+        $idAtletaDest = 3;
+        $idAtletaRem = 4;
 
-        $notificacao = Notificacao::solicitacaoEnviadaAceita($idTecnico, $idSolicitacao);
+        $notificacao = Notificacao::solicitacaoEnviadaAceita($idTecnico, $idSolicitacao, $idAtletaDest, $idAtletaRem);
 
         $this->assertEquals(TipoNotificacao::SOLICITACAO_ENVIADA_ACEITA, $notificacao->tipo);
         $this->assertEquals($idTecnico, $notificacao->idTecnico);
         $this->assertEquals($idSolicitacao, $notificacao->id1);
-        $this->assertNull($notificacao->id2);
-        $this->assertNull($notificacao->id3);
+        $this->assertEquals($idAtletaDest, $notificacao->id2);
+        $this->assertEquals($idAtletaRem, $notificacao->id3);
     }
 
     public function testInclusaoCompeticao(): void

@@ -13,6 +13,7 @@ use App\Tecnico\Solicitacao\SolicitacaoPendenteRepository;
 use App\Tecnico\Tecnico;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
+use App\Util\Mail\Service\MailService;
 use DateTime;
 use PDO;
 use PDOStatement;
@@ -28,6 +29,7 @@ class EnviarSolicitacaoTest extends TestCase
     private SolicitacaoPendenteRepository $solicitacaoPendenteRepository;
     private NotificacaoRepository $notificacaoRepository;
     private DuplaRepository $duplaRepository;
+    private MailService $mailService;
 
     /**
      * @throws Exception
@@ -41,6 +43,7 @@ class EnviarSolicitacaoTest extends TestCase
         $this->solicitacaoPendenteRepository = $this->createMock(SolicitacaoPendenteRepository::class);
         $this->notificacaoRepository = $this->createMock(NotificacaoRepository::class);
         $this->duplaRepository = $this->createMock(DuplaRepository::class);
+        $this->mailService = $this->createMock(MailService::class);
     }
 
     /**
@@ -107,8 +110,13 @@ class EnviarSolicitacaoTest extends TestCase
             ->willReturn(null);
 
         $this->solicitacaoPendenteRepository
+            ->expects($this->once())
             ->method('enviar')
             ->willReturn(1);
+
+        $this->notificacaoRepository->expects($this->exactly(2))
+            ->method('criar')
+            ->willReturnOnConsecutiveCalls(1, 2);
 
         $enviarSolicitacao = new EnviarSolicitacao(
             $this->pdo,
@@ -117,11 +125,10 @@ class EnviarSolicitacaoTest extends TestCase
             $this->solicitacaoPendenteRepository,
             $this->notificacaoRepository,
             $this->duplaRepository,
+            $this->mailService,
         );
 
-        $result = $enviarSolicitacao($dto);
-
-        $this->assertEquals(1, $result);
+        $enviarSolicitacao($dto);
     }
 
     /**
@@ -145,6 +152,7 @@ class EnviarSolicitacaoTest extends TestCase
             $this->solicitacaoPendenteRepository,
             $this->notificacaoRepository,
             $this->duplaRepository,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -178,6 +186,7 @@ class EnviarSolicitacaoTest extends TestCase
             $this->solicitacaoPendenteRepository,
             $this->notificacaoRepository,
             $this->duplaRepository,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -219,6 +228,7 @@ class EnviarSolicitacaoTest extends TestCase
             $this->solicitacaoPendenteRepository,
             $this->notificacaoRepository,
             $this->duplaRepository,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -275,6 +285,7 @@ class EnviarSolicitacaoTest extends TestCase
             $this->solicitacaoPendenteRepository,
             $this->notificacaoRepository,
             $this->duplaRepository,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -331,6 +342,7 @@ class EnviarSolicitacaoTest extends TestCase
             $this->solicitacaoPendenteRepository,
             $this->notificacaoRepository,
             $this->duplaRepository,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -416,6 +428,7 @@ class EnviarSolicitacaoTest extends TestCase
             $this->solicitacaoPendenteRepository,
             $this->notificacaoRepository,
             $this->duplaRepository,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -479,6 +492,7 @@ class EnviarSolicitacaoTest extends TestCase
             $this->solicitacaoPendenteRepository,
             $this->notificacaoRepository,
             $this->duplaRepository,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -543,6 +557,7 @@ class EnviarSolicitacaoTest extends TestCase
             $this->solicitacaoPendenteRepository,
             $this->notificacaoRepository,
             $this->duplaRepository,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -607,6 +622,7 @@ class EnviarSolicitacaoTest extends TestCase
             $this->solicitacaoPendenteRepository,
             $this->notificacaoRepository,
             $this->duplaRepository,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -681,6 +697,7 @@ class EnviarSolicitacaoTest extends TestCase
             $this->solicitacaoPendenteRepository,
             $this->notificacaoRepository,
             $this->duplaRepository,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -760,6 +777,7 @@ class EnviarSolicitacaoTest extends TestCase
             $this->solicitacaoPendenteRepository,
             $this->notificacaoRepository,
             $this->duplaRepository,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);
@@ -839,6 +857,7 @@ class EnviarSolicitacaoTest extends TestCase
             $this->solicitacaoPendenteRepository,
             $this->notificacaoRepository,
             $this->duplaRepository,
+            $this->mailService,
         );
 
         $this->expectException(ValidatorException::class);

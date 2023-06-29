@@ -1,4 +1,4 @@
-<?php
+<?php  /** @noinspection PhpClassCanBeReadonlyInspection */
 
 namespace App\Util\Mail\Service;
 
@@ -12,10 +12,10 @@ use App\Util\Mail\Service\Actions\MailSolicitacaoRejeitadaAction;
 use Exception;
 use PDO;
 
-readonly class MailService implements MailServiceInterface
+class MailService implements MailServiceInterface
 {
     public function __construct(
-        private PDO $pdo,
+        private readonly PDO $pdo,
     ) {}
 
     /**
