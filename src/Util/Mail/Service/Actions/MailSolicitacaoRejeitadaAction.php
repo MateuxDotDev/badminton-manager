@@ -6,42 +6,35 @@ use App\Categorias\CategoriaRepository;
 use App\Competicoes\CompeticaoRepository;
 use App\Mail\EmailDTO;
 use App\Mail\MailRepository;
-use App\Mail\SolicitacaoCanceladaMail;
+use App\Mail\SolicitacaoRejeitadaMail;
 use App\Notificacao\Notificacao;
 use App\Tecnico\Atleta\AtletaRepository;
 use App\Tecnico\Solicitacao\SolicitacaoConcluidaRepository;
 use App\Tecnico\TecnicoRepository;
+use App\Util\General\Dates;
 use App\Util\Mail\Mailer;
-use Exception;
 use PDO;
 
-class MailSolicitacaoCanceladaAction implements MailActionInterface
+class MailSolicitacaoRejeitadaAction implements MailActionInterface
 {
-    /**
-     * @throws Exception
-     */
     public function enviarDeNotificacao(Notificacao $notificacao, PDO $pdo): void
     {
-        $solicitacaoRepo = new SolicitacaoConcluidaRepository($pdo);
+        $mailRepo = new MailRepository($pdo);
         $tecnicoRepo = new TecnicoRepository($pdo);
         $atletaRepo = new AtletaRepository($pdo);
-        $competicaoRepo = new CompeticaoRepository($pdo);
         $categoriaRepo = new CategoriaRepository($pdo);
+        $competicaoRepo = new CompeticaoRepository($pdo);
+        $solicitacaoRepo = new SolicitacaoConcluidaRepository($pdo);
 
         $solicitacao = $solicitacaoRepo->getViaId($notificacao->id1);
 
-        $competicao = $competicaoRepo->getViaId($solicitacao->competicaoId());
-        $atletaRem = $atletaRepo->getViaId($solicitacao->atletaOrigemId());
         $atletaDest = $atletaRepo->getViaId($solicitacao->atletaDestinoId());
+        $atletaRem = $atletaRepo->getViaId($solicitacao->atletaOrigemId());
         $tecnicoDest = $tecnicoRepo->getViaAtleta($atletaDest->id());
         $categoria = $categoriaRepo->getById($solicitacao->categoriaId());
+        $competicao = $competicaoRepo->getViaId($solicitacao->competicaoId());
 
-        $mail = new SolicitacaoCanceladaMail(
-            new Mailer(),
-            $atletaDest->nomeCompleto(),
-            $atletaRem->nomeCompleto(),
-            $competicao->nome()
-        );
+        $mail = new SolicitacaoRejeitadaMail(new Mailer());
 
         $mail->fillTemplate([
             'dest_tecnico' => $tecnicoDest->nomeCompleto(),
@@ -50,27 +43,26 @@ class MailSolicitacaoCanceladaAction implements MailActionInterface
             'competicao' => $competicao->nome(),
             'dest_sexo' => $atletaDest->sexo()->toString(),
             'rem_sexo' => $atletaRem->sexo()->toString(),
-            'dest_idade' => $atletaDest->idade(),
-            'rem_idade' => $atletaRem->idade(),
-            'dest_nascimento' => $atletaDest->dataNascimento()->format('d/m/Y'),
-            'rem_nascimento' => $atletaRem->dataNascimento()->format('d/m/Y'),
+            'dest_idade' => Dates::age($atletaDest->dataNascimento()),
+            'rem_idade' => Dates::age($atletaRem->dataNascimento()),
+            'dest_nascimento' => Dates::formatDayBr($atletaDest->dataNascimento()),
+            'rem_nascimento' => Dates::formatDayBr($atletaRem->dataNascimento()),
             'dest_info' => $atletaDest->informacoesAdicionais(),
             'rem_info' => $atletaRem->informacoesAdicionais(),
             'categoria' => $categoria->descricao(),
             'observacoes' => $solicitacao->informacoes(),
-            'ano_atual' => date('Y'),
+            'ano_atual' => Dates::currentYear(),
         ]);
 
-        $emailDto = new EmailDTO(
+        $mailDto = new EmailDTO(
             $tecnicoDest->nomeCompleto(),
             $tecnicoDest->email(),
             $mail->getSubject(),
             $mail->getBody(),
             $mail->getAltBody(),
-            $notificacao->id,
+            $notificacao->id
         );
 
-        $mailRepo = new MailRepository($pdo);
-        $mailRepo->criar($emailDto);
+        $mailRepo->criar($mailDto);
     }
 }

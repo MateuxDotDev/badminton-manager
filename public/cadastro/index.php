@@ -1,4 +1,5 @@
 <?php
+
 use App\Util\Template\Template;
 
 require_once(__DIR__.'/../../vendor/autoload.php');

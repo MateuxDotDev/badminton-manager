@@ -5,7 +5,6 @@ use App\Tecnico\Atleta\Sexo;
 use App\Tecnico\Tecnico;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
-use App\Util\General\UserSession;
 use App\Util\Http\Request;
 
 require_once(__DIR__ . '/../../../vendor/autoload.php');

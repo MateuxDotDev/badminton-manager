@@ -2,32 +2,23 @@
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
-use App\Categorias\CategoriaRepository;
 use App\Competicoes\CompeticaoRepository;
-use App\Mail\EmailDTO;
-use App\Mail\MailRepository;
-use App\Mail\MailRepositoryInterface;
-use App\Mail\NovaSolicitacaoMail;
-use App\Notificacao\NotificacaoRepository;
 use App\Competicoes\PesquisaAtletaCompeticao;
-use App\Notificacao\TipoNotificacao;
-use App\Tecnico\Atleta\AtletaRepository;
+use App\Notificacao\NotificacaoRepository;
 use App\Tecnico\Atleta\Sexo;
 use App\Tecnico\Dupla\DuplaRepository;
 use App\Tecnico\Solicitacao\EnviarSolicitacao;
 use App\Tecnico\Solicitacao\EnviarSolicitacaoDTO;
 use App\Tecnico\Solicitacao\SolicitacaoPendenteRepository;
 use App\Tecnico\Tecnico;
-use App\Tecnico\TecnicoRepository;
 use App\Token\TokenRepository;
 use App\Util\Database\Connection;
-use App\Util\Environment\Environment;
 use App\Util\Exceptions\ResponseException;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
 use App\Util\Http\Request;
 use App\Util\Http\Response;
-use App\Util\Mail\Mailer;
+use App\Util\Mail\Service\MailService;
 use App\Util\Services\TokenService\AcoesToken;
 use App\Util\Services\TokenService\TokenService;
 
@@ -227,71 +218,21 @@ function enviarSolicitacao(array $req): Response
     $solicitacoesRepo = new SolicitacaoPendenteRepository($pdo);
     $notificacoesRepo = new NotificacaoRepository($pdo);
     $duplaRepo = new DuplaRepository($pdo);
-    $mailRepo = new MailRepository($pdo);
-    $tecnicoRepo = new TecnicoRepository($pdo);
-    $atletaRepo = new AtletaRepository($pdo);
-    $categoriaRepo = new CategoriaRepository($pdo);
+    $mailService = new MailService($pdo);
 
     try {
         $pdo->beginTransaction();
 
-        $enviar = new EnviarSolicitacao($pdo, $session, $competicoesRepo, $solicitacoesRepo, $notificacoesRepo, $duplaRepo);
-        $id = $enviar($dto);
-
-        $atletaDest = $atletaRepo->getViaId($dto->idAtletaDestinatario);
-        $atletaRem = $atletaRepo->getViaId($dto->idAtletaRemetente);
-        $tecnicoDest = $tecnicoRepo->getViaAtleta($atletaDest->id());
-        $tecnicoRem = $tecnicoRepo->getViaAtleta($atletaRem->id());
-        $categoria = $categoriaRepo->getById($dto->idCategoria);
-        $notificacoes = $notificacoesRepo->getViaId1($id, TipoNotificacao::SOLICITACAO_ENVIADA);
-        $notificacaoIdRem = 0;
-        foreach ($notificacoes as $notificacao) {
-            if ($notificacao['tecnico_id'] == $tecnicoRem->id()) {
-                $notificacaoIdRem = $notificacao['id'];
-                break;
-            }
-        }
-        $competicao = $competicoesRepo->getViaId($dto->idCompeticao);
-
-        $tokenAceitar = gerarToken($pdo, $tecnicoDest, AcoesToken::ACEITAR_SOLICITACAO);
-        $tokenRejeitar = gerarToken($pdo, $tecnicoDest, AcoesToken::REJEITAR_SOLICITACAO);
-
-        $baseUrl = Environment::getBaseUrl() . '/tecnico/solicitacoes/?solicitacao=' . $id;
-
-        $mail = new NovaSolicitacaoMail(new Mailer());
-        $mail->fillTemplate([
-            'dest_tecnico' => $tecnicoDest->nomeCompleto(),
-            'competicao' => $competicao->nome(),
-            'rem_nome' => $atletaRem->nomeCompleto(),
-            'dest_nome' => $atletaDest->nomeCompleto(),
-            'dest_sexo' => $atletaDest->sexo()->toString(),
-            'rem_sexo' => $atletaRem->sexo()->toString(),
-            'dest_idade' => $atletaDest->idade(),
-            'rem_idade' => $atletaRem->idade(),
-            'dest_nascimento' => $atletaDest->dataNascimento()->format('d/m/Y'),
-            'rem_nascimento' => $atletaRem->dataNascimento()->format('d/m/Y'),
-            'dest_info' => $atletaDest->informacoesAdicionais(),
-            'rem_info' => $atletaRem->informacoesAdicionais(),
-            'categoria' => $categoria->descricao(),
-            'observacoes' => $dto->informacoes,
-            'rem_tec_nome' => $tecnicoRem->nomeCompleto(),
-            'rem_tec_clube' => $tecnicoRem->clube()->nome(),
-            'rem_tec_info' => $tecnicoRem->informacoes(),
-            'rem_tec_email' => $tecnicoRem->email(),
-            'link_aceite' => $baseUrl . '&acao=aceitar&token=' . $tokenAceitar,
-            'link_rejeicao' => $baseUrl . '&acao=rejeitar&token=' . $tokenRejeitar,
-            'ano_atual' => date('Y'),
-        ]);
-
-        $mailDto = new EmailDTO(
-            $tecnicoDest->nomeCompleto(),
-            $tecnicoDest->email(),
-            $mail->getSubject(),
-            $mail->getBody(),
-            $mail->getAltBody(),
-            $notificacaoIdRem
+        $enviar = new EnviarSolicitacao(
+            $pdo,
+            $session,
+            $competicoesRepo,
+            $solicitacoesRepo,
+            $notificacoesRepo,
+            $duplaRepo,
+            $mailService,
         );
-        $mailRepo->criar($mailDto);
+        $id = $enviar($dto);
 
         $pdo->commit();
         return Response::ok('Solicitação enviada com sucesso', ['id' => $id]);

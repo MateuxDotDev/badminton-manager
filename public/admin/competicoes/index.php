@@ -3,8 +3,8 @@ require_once('../../../vendor/autoload.php');
 
 use App\Competicoes\CompeticaoRepository;
 use App\Util\Database\Connection;
-use App\Util\Template\Template;
 use App\Util\General\UserSession;
+use App\Util\Template\Template;
 
 $session = UserSession::obj();
 

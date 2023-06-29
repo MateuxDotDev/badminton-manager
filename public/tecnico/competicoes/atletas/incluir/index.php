@@ -2,13 +2,13 @@
 
 require_once(__DIR__ . '/../../../../../vendor/autoload.php');
 
-use App\Util\Template\Template;
+use App\Categorias\CategoriaRepository;
+use App\Competicoes\CompeticaoRepository;
+use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoRepository;
 use App\Util\Database\Connection;
 use App\Util\General\UserSession;
 use App\Util\Http\Request;
-use App\Competicoes\CompeticaoRepository;
-use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoRepository;
-use App\Categorias\CategoriaRepository;
+use App\Util\Template\Template;
 
 $session = UserSession::obj();
 

@@ -2,8 +2,8 @@
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
-use App\Competicoes\CompeticaoRepository;
 use App\Categorias\CategoriaRepository;
+use App\Competicoes\CompeticaoRepository;
 use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoRepository;
 use App\Tecnico\Atleta\AtletaRepository;
 use App\Tecnico\Atleta\Sexo;

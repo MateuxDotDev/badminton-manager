@@ -2,7 +2,7 @@
 
 namespace Tests\Mail;
 
-use App\Mail\RejeitarSolicitacaoMail;
+use App\Mail\SolicitacaoRejeitadaMail;
 use App\Util\Exceptions\MailException;
 use App\Util\General\Dates;
 use App\Util\Mail\MailerInterface;
@@ -26,8 +26,8 @@ class RejeitarSolicitacaoMailTest extends TestCase
 
     public function testConstruct()
     {
-        $mail = new RejeitarSolicitacaoMail($this->mailerMock);
-        $this->assertInstanceOf(RejeitarSolicitacaoMail::class, $mail);
+        $mail = new SolicitacaoRejeitadaMail($this->mailerMock);
+        $this->assertInstanceOf(SolicitacaoRejeitadaMail::class, $mail);
     }
 
     /**
@@ -35,7 +35,7 @@ class RejeitarSolicitacaoMailTest extends TestCase
      */
     public function testSend()
     {
-        $mail = new RejeitarSolicitacaoMail($this->mailerMock);
+        $mail = new SolicitacaoRejeitadaMail($this->mailerMock);
 
         $toEmail = 'test@example.com';
         $toName = 'Test User';
@@ -71,7 +71,7 @@ class RejeitarSolicitacaoMailTest extends TestCase
 
     public function testFillTemplate()
     {
-        $mail = new RejeitarSolicitacaoMail($this->mailerMock);
+        $mail = new SolicitacaoRejeitadaMail($this->mailerMock);
 
         $templateData = [
             'dest_tecnico' => 'Técnico A',

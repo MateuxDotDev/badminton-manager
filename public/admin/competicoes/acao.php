@@ -1,16 +1,16 @@
 <?php
-use App\Util\General\UserSession;
-
-require_once('../../../vendor/autoload.php');
 
 use App\Competicoes\Competicao;
 use App\Competicoes\CompeticaoRepository;
 use App\Util\Database\Connection;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
-use App\Util\Http\Request;
+use App\Util\General\UserSession;
 use App\Util\Http\HttpStatus;
+use App\Util\Http\Request;
 use App\Util\Http\Response;
+
+require_once('../../../vendor/autoload.php');
 
 $session = UserSession::obj();
 

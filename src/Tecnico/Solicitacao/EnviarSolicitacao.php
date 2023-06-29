@@ -11,6 +11,8 @@ use App\Tecnico\Dupla\DuplaRepository;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
 use App\Util\Http\HttpStatus;
+use App\Util\Mail\Service\MailService;
+use App\Util\Mail\Service\MailServiceInterface;
 use Exception;
 use PDO;
 
@@ -23,6 +25,7 @@ readonly class EnviarSolicitacao
         private SolicitacaoPendenteRepositoryInterface $solicitacoes,
         private NotificacaoRepositoryInterface $notificacoes,
         private DuplaRepository $duplas,
+        private MailServiceInterface $mailService,
     ) {}
 
     private function getAtleta(int $idCompeticao, int $idAtleta): ?array
@@ -107,7 +110,7 @@ readonly class EnviarSolicitacao
      * @throws ValidatorException
      * @throws Exception
      */
-    public function __invoke(EnviarSolicitacaoDTO $dto): int
+    public function __invoke(EnviarSolicitacaoDTO $dto): void
     {
         $competicao = $this->competicoes->getViaId($dto->idCompeticao);
         if ($competicao == null) {
@@ -174,9 +177,14 @@ readonly class EnviarSolicitacao
 
         $idSolicitacao = $this->solicitacoes->enviar($dto);
 
-        $this->notificacoes->criar(Notificacao::solicitacaoEnviada($remetente['idTecnico'], $idSolicitacao));
-        $this->notificacoes->criar(Notificacao::solicitacaoRecebida($destinatario['idTecnico'], $idSolicitacao));
+        $notificacoes = [];
 
-        return $idSolicitacao;
+        $notificacoes[] = Notificacao::solicitacaoEnviada($remetente['idTecnico'], $idSolicitacao);
+        $notificacoes[] = Notificacao::solicitacaoRecebida($destinatario['idTecnico'], $idSolicitacao);
+
+        foreach ($notificacoes as $notificacao) {
+            $notificacao->setId($this->notificacoes->criar($notificacao));
+            $this->mailService->enviarDeNotificacao($notificacao);
+        }
     }
 }
