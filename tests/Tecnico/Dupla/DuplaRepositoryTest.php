@@ -326,4 +326,32 @@ class DuplaRepositoryTest extends TestCase
 
         $this->repository->getViaAtletas(1, 2);
     }
+
+    /**
+     * @throws ValidatorException
+     * @throws Exception
+     */
+    public function testDesfazer(): void
+    {
+        $stmt = $this->createMock(PDOStatement::class);
+
+        $this->pdo->expects($this->once())
+            ->method('prepare')
+            ->willReturn($stmt);
+
+        $stmt->expects($this->once())
+            ->method('execute')
+            ->with([
+                'id' => 1,
+                'tecnico_id' => 1,
+            ]);
+
+        $stmt->expects($this->once())
+            ->method('rowCount')
+            ->willReturn(1);
+
+        $desfeito = $this->repository->desfazer(1, 1);
+
+        $this->assertTrue($desfeito);
+    }
 }

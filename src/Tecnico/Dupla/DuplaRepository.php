@@ -148,11 +148,7 @@ class DuplaRepository
             'tecnico_id' => $idTecnico
         ]);
 
-        if ($stmt->rowCount() === 0) {
-            throw new ValidatorException('Dupla não encontrada ou não pertence ao você');
-        } else {
-            return true;
-        }
+        return $stmt->rowCount() > 0;
     }
 
     /**
