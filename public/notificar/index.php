@@ -50,8 +50,8 @@ try {
     $erros = [];
 
     foreach ($emails as $email) {
-        $mailer = new Mailer();
         try {
+            $mailer = new Mailer();
             if ($mailer->sendEmail(
                 $email->toEmail,
                 $email->toName,
