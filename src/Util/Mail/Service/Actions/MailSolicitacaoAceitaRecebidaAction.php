@@ -24,7 +24,15 @@ class MailSolicitacaoAceitaRecebidaAction implements MailActionInterface
         $tecnicoRepo = new TecnicoRepository($pdo);
         $mailRepo = new MailRepository($pdo);
 
-        $dupla = $duplaRepo->getViaAtletas($notificacao->id2, $notificacao->id3);
+
+        // FIX de última hora
+        $sql = "SELECT categoria_id FROM solicitacao_dupla_concluida WHERE id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([ $notificacao->id1 ]);
+        $categoria = $stmt->fetchColumn();
+
+
+        $dupla = $duplaRepo->getViaAtletas($notificacao->id2, $notificacao->id3, $categoria);
 
         $atletaDest = $dupla->atletaFromTecnico($notificacao->idTecnico);
         $atletaRem = $dupla->other($atletaDest->id());

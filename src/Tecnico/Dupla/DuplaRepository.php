@@ -154,7 +154,7 @@ class DuplaRepository
     /**
      * @throws ValidatorException
      */
-    public function getViaAtletas(int $atleta1, int $atleta2): Dupla
+    public function getViaAtletas(int $atleta1, int $atleta2, int $categoria): Dupla
     {
         $sql = <<<SQL
             SELECT d.id,
@@ -193,15 +193,17 @@ class DuplaRepository
                 ON c.id = d.categoria_id
               JOIN clube cl
                 ON cl.id = t.clube_id
-             WHERE (d.atleta1_id = :atleta1 AND d.atleta2_id = :atleta2) OR
-                   (d.atleta1_id = :atleta2 AND d.atleta2_id = :atleta1)
+             WHERE ((d.atleta1_id = :atleta1 AND d.atleta2_id = :atleta2) OR
+                    (d.atleta1_id = :atleta2 AND d.atleta2_id = :atleta1))
+               AND d.categoria_id = :categoria
           GROUP BY 1, 2, 3, 4, 5, 6, 7
         SQL;
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
-            'atleta1' => $atleta1,
-            'atleta2' => $atleta2,
+            'atleta1'   => $atleta1,
+            'atleta2'   => $atleta2,
+            'categoria' => $categoria,
         ]);
 
         $rows = $stmt->fetchAll();
