@@ -2,7 +2,6 @@
 
 namespace App\Notificacao;
 
-use App\Util\General\Dates;
 use DateTimeInterface;
 
 class Notificacao
@@ -72,32 +71,28 @@ class Notificacao
     public static function solicitacaoRecebidaAceita(
         int $idTecnico,
         int $idSolicitacao,
-        int $idAtletaOrigem,
-        int $idAtletaDestino
+        int $idDupla
     ): self
     {
         return new self(
             TipoNotificacao::SOLICITACAO_RECEBIDA_ACEITA,
             $idTecnico,
             $idSolicitacao,
-            $idAtletaOrigem,
-            $idAtletaDestino,
+            $idDupla
         );
     }
 
     public static function solicitacaoEnviadaAceita(
         int $idTecnico,
         int $idSolicitacao,
-        int $idAtletaOrigem,
-        int $idAtletaDestino
+        int $idDupla
     ): self
     {
         return new self(
             TipoNotificacao::SOLICITACAO_ENVIADA_ACEITA,
             $idTecnico,
             $idSolicitacao,
-            $idAtletaOrigem,
-            $idAtletaDestino,
+            $idDupla
         );
     }
 

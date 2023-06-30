@@ -72,7 +72,10 @@ try {
         empty($erros) ? HttpStatus::OK : HttpStatus::INTERNAL_SERVER_ERROR,
         "Envio de email concluído.",
         [
-            'enviadas' => $totalEnviadas,
+            'enviadas' => [
+                'total' => $totalEnviadas,
+                'ids' => $enviadas
+            ],
             'erros' => $erros,
             ...$horario
         ]

@@ -2,7 +2,8 @@
 
 namespace Tests\Mail;
 
-use App\Mail\SolicitacaoAceitaRecebidaMail;
+use App\Mail\DuplaFormadaMail;
+use App\Mail\SolicitacaoAceitaEnviadaMail;
 use App\Util\Exceptions\MailException;
 use App\Util\General\Dates;
 use App\Util\Mail\MailerInterface;
@@ -10,7 +11,7 @@ use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class SolicitacaoAceitaRecebidaMailTest extends TestCase
+class DuplaFormadaMailTest extends TestCase
 {
     private MockObject|MailerInterface $mailerMock;
 
@@ -26,8 +27,8 @@ class SolicitacaoAceitaRecebidaMailTest extends TestCase
 
     public function testConstruct()
     {
-        $mail = new SolicitacaoAceitaRecebidaMail($this->mailerMock, 'Atleta A', 'Atleta B', 'Competição A');
-        $this->assertInstanceOf(SolicitacaoAceitaRecebidaMail::class, $mail);
+        $mail = new DuplaFormadaMail($this->mailerMock, 'Atleta A', 'Atleta B', 'Competição A');
+        $this->assertInstanceOf(DuplaFormadaMail::class, $mail);
     }
 
     /**
@@ -39,11 +40,11 @@ class SolicitacaoAceitaRecebidaMailTest extends TestCase
         $atletaRem = 'Atleta B';
         $competicao = 'Competição A';
 
-        $mail = new SolicitacaoAceitaRecebidaMail($this->mailerMock, $atletaDest, $atletaRem, $competicao);
+        $mail = new DuplaFormadaMail($this->mailerMock, $atletaDest, $atletaRem, $competicao);
 
         $toEmail = 'test@example.com';
         $toName = $atletaDest;
-        $subject = 'Você aceitou solicitação de dupla entre o seu atleta Atleta A e o atleta Atleta B para a competição Competição A!';
+        $subject = 'Você formou uma dupla entre o seu atleta Atleta A e o atleta Atleta B para a competição Competição A!';
         $altBody = 'Test alternative body';
 
         $this->mailerMock
@@ -55,7 +56,7 @@ class SolicitacaoAceitaRecebidaMailTest extends TestCase
                 $this->equalTo($subject),
                 $this->callback(function ($body) {
                     $this->assertStringContainsString('Olá {{ dest_tecnico }}!', $body);
-                    $this->assertStringContainsString('Você aceitou solicitação de dupla entre o seu atleta {{ dest_nome }} e o atleta {{ rem_nome }} para a competição {{ competicao }} foi aceita! Aqui estão mais detalhes:', $body);
+                    $this->assertStringContainsString('Você formou uma dupla entre o seu atleta {{ dest_nome }} e o atleta {{ rem_nome }} para a competição {{ competicao }} foi aceita! Aqui estão mais detalhes:', $body);
                     return true;
                 }),
                 $this->equalTo($altBody)
@@ -78,7 +79,7 @@ class SolicitacaoAceitaRecebidaMailTest extends TestCase
         $atletaDest = 'Atleta A';
         $atletaRem = 'Atleta B';
         $competicao = 'Competição A';
-        $mail = new SolicitacaoAceitaRecebidaMail($this->mailerMock, $atletaDest, $atletaRem, $competicao);
+        $mail = new DuplaFormadaMail($this->mailerMock, $atletaDest, $atletaRem, $competicao);
 
         $templateData = [
             'dest_tecnico' => 'Técnico A',

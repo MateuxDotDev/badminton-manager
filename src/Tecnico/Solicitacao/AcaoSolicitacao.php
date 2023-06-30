@@ -143,7 +143,6 @@ readonly class AcaoSolicitacao
 
     private function getSolicitacoesParaCancelar(array $aceita): array
     {
-
         $sql = <<<SQL
             SELECT s.id
                  , ori.id          as atleta_origem_id
@@ -233,7 +232,7 @@ readonly class AcaoSolicitacao
 
         $idConcluidaAceita = $this->concluidaRepo->concluirAceita($pendente['id']);
 
-        $this->duplaRepo->criarDupla(
+        $idDupla = $this->duplaRepo->criarDupla(
             $pendente['competicao_id'],
             $pendente['atleta_origem_id'],
             $pendente['atleta_destino_id'],
@@ -264,14 +263,12 @@ readonly class AcaoSolicitacao
         $notificacoes[] = Notificacao::solicitacaoEnviadaAceita(
             $pendente['tecnico_origem_id'],
             $idConcluidaAceita,
-            $pendente['atleta_origem_id'],
-            $pendente['atleta_destino_id'],
+            $idDupla
         );
         $notificacoes[] = Notificacao::solicitacaoRecebidaAceita(
             $pendente['tecnico_destino_id'],
             $idConcluidaAceita,
-            $pendente['atleta_origem_id'],
-            $pendente['atleta_destino_id'],
+            $idDupla
         );
 
         foreach ($notificacoes as $notificacao) {

@@ -5,7 +5,6 @@ namespace Tests\Tecnico\Dupla;
 use App\Tecnico\Atleta\Sexo;
 use App\Tecnico\Dupla\DuplaRepository;
 use App\Util\Exceptions\ValidatorException;
-use App\Util\Http\HttpStatus;
 use PDO;
 use PDOStatement;
 use PHPUnit\Framework\MockObject\Exception;
@@ -202,7 +201,7 @@ class DuplaRepositoryTest extends TestCase
      * @throws ValidatorException
      * @throws Exception
      */
-    public function testGetViaAtletas(): void
+    public function testGetViaId(): void
     {
         $row = [
             'id' => 1,
@@ -256,13 +255,13 @@ class DuplaRepositoryTest extends TestCase
 
         $stmt->expects($this->once())
             ->method('execute')
-            ->with(['atleta1' => 1, 'atleta2' => 2]);
+            ->with(['id' => 1]);
 
         $stmt->expects($this->once())
-            ->method('fetchAll')
-            ->willReturn([$row]);
+            ->method('fetch')
+            ->willReturn($row);
 
-        $dupla = $this->repository->getViaAtletas(1, 2);
+        $dupla = $this->repository->getViaId(1);
 
         $this->assertEquals(1, $dupla->id());
         $this->assertEquals(1, $dupla->idSolicitacao());
@@ -273,58 +272,6 @@ class DuplaRepositoryTest extends TestCase
         $this->assertEquals(2, $dupla->atleta2()->id());
         $this->assertEquals(1, $dupla->atletaFromTecnico(1)->id());
         $this->assertEquals(2, $dupla->other(1)->id());
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testGetViaAtletasNaoEncontrada(): void
-    {
-        $stmt = $this->createMock(PDOStatement::class);
-
-        $this->pdo->expects($this->once())
-            ->method('prepare')
-            ->willReturn($stmt);
-
-        $stmt->expects($this->once())
-            ->method('execute')
-            ->with(['atleta1' => 1, 'atleta2' => 2]);
-
-        $stmt->expects($this->once())
-            ->method('fetchAll')
-            ->willReturn([]);
-
-        $this->expectException(ValidatorException::class);
-        $this->expectExceptionMessage('Dupla não encontrada');
-        $this->expectExceptionCode(HttpStatus::NOT_FOUND->value);
-
-        $this->repository->getViaAtletas(1, 2);
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function testGetViaAtletasDuplicada(): void
-    {
-        $stmt = $this->createMock(PDOStatement::class);
-
-        $this->pdo->expects($this->once())
-            ->method('prepare')
-            ->willReturn($stmt);
-
-        $stmt->expects($this->once())
-            ->method('execute')
-            ->with(['atleta1' => 1, 'atleta2' => 2]);
-
-        $stmt->expects($this->once())
-            ->method('fetchAll')
-            ->willReturn([[], []]);
-
-        $this->expectException(ValidatorException::class);
-        $this->expectExceptionMessage('Dupla duplicada');
-        $this->expectExceptionCode(HttpStatus::INTERNAL_SERVER_ERROR->value);
-
-        $this->repository->getViaAtletas(1, 2);
     }
 
     /**

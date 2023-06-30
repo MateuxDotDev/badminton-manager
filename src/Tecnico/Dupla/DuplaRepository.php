@@ -5,7 +5,6 @@ namespace App\Tecnico\Dupla;
 use App\Tecnico\Atleta\Sexo;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
-use App\Util\Http\HttpStatus;
 use PDO;
 
 class DuplaRepository
@@ -20,7 +19,7 @@ class DuplaRepository
         int $idAtleta2,
         int $idCategoria,
         int $idSolicitacaoOrigem,
-    ): void
+    ): int
     {
         $sql = <<<SQL
             INSERT INTO dupla
@@ -37,6 +36,8 @@ class DuplaRepository
             'atleta2_id'     => $idAtleta2,
             'solicitacao_id' => $idSolicitacaoOrigem,
         ]);
+
+        return $this->pdo->lastInsertId();
     }
 
     /**
@@ -154,7 +155,7 @@ class DuplaRepository
     /**
      * @throws ValidatorException
      */
-    public function getViaAtletas(int $atleta1, int $atleta2, int $categoria): Dupla
+    public function getViaId(int $id): Dupla
     {
         $sql = <<<SQL
             SELECT d.id,
@@ -193,27 +194,15 @@ class DuplaRepository
                 ON c.id = d.categoria_id
               JOIN clube cl
                 ON cl.id = t.clube_id
-             WHERE ((d.atleta1_id = :atleta1 AND d.atleta2_id = :atleta2) OR
-                    (d.atleta1_id = :atleta2 AND d.atleta2_id = :atleta1))
-               AND d.categoria_id = :categoria
+             WHERE d.id = :id
           GROUP BY 1, 2, 3, 4, 5, 6, 7
         SQL;
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
-            'atleta1'   => $atleta1,
-            'atleta2'   => $atleta2,
-            'categoria' => $categoria,
+            'id' => $id
         ]);
 
-        $rows = $stmt->fetchAll();
-
-        if (empty($rows)) {
-            throw new ValidatorException('Dupla não encontrada', HttpStatus::NOT_FOUND);
-        } elseif (count($rows) > 1) {
-            throw new ValidatorException('Dupla duplicada', HttpStatus::INTERNAL_SERVER_ERROR);
-        }
-
-        return Dupla::fromRow($rows[0]);
+        return Dupla::fromRow($stmt->fetch());
     }
 }

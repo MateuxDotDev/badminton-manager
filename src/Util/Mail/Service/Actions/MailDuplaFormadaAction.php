@@ -2,9 +2,9 @@
 
 namespace App\Util\Mail\Service\Actions;
 
+use App\Mail\DuplaFormadaMail;
 use App\Mail\EmailDTO;
 use App\Mail\MailRepository;
-use App\Mail\SolicitacaoAceitaRecebidaMail;
 use App\Notificacao\Notificacao;
 use App\Tecnico\Dupla\DuplaRepository;
 use App\Tecnico\TecnicoRepository;
@@ -15,7 +15,7 @@ use App\Util\Mail\Mailer;
 use App\Util\Services\TokenService\AcoesToken;
 use PDO;
 
-class MailSolicitacaoAceitaRecebidaAction implements MailActionInterface
+class MailDuplaFormadaAction implements MailActionInterface
 {
     public function enviarDeNotificacao(Notificacao $notificacao, PDO $pdo): void
     {
@@ -24,20 +24,12 @@ class MailSolicitacaoAceitaRecebidaAction implements MailActionInterface
         $tecnicoRepo = new TecnicoRepository($pdo);
         $mailRepo = new MailRepository($pdo);
 
-
-        // FIX de última hora
-        $sql = "SELECT categoria_id FROM solicitacao_dupla_concluida WHERE id = ?";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([ $notificacao->id1 ]);
-        $categoria = $stmt->fetchColumn();
-
-
-        $dupla = $duplaRepo->getViaAtletas($notificacao->id2, $notificacao->id3, $categoria);
+        $dupla = $duplaRepo->getViaId($notificacao->id2);
 
         $atletaDest = $dupla->atletaFromTecnico($notificacao->idTecnico);
         $atletaRem = $dupla->other($atletaDest->id());
 
-        $mail = new SolicitacaoAceitaRecebidaMail(
+        $mail = new DuplaFormadaMail(
             new Mailer(),
             $atletaDest->nomeCompleto(),
             $atletaRem->nomeCompleto(),

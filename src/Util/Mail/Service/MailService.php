@@ -4,10 +4,10 @@ namespace App\Util\Mail\Service;
 
 use App\Notificacao\Notificacao;
 use App\Notificacao\TipoNotificacao;
+use App\Util\Mail\Service\Actions\MailDuplaFormadaAction;
 use App\Util\Mail\Service\Actions\MailNovaSolicitacaoAction;
 use App\Util\Mail\Service\Actions\MailSolicitacaoAceitaRecebidaAction;
 use App\Util\Mail\Service\Actions\MailSolicitacaoCanceladaAction;
-use App\Util\Mail\Service\Actions\MailSolicitacaoEnviadaRecebidaAction;
 use App\Util\Mail\Service\Actions\MailSolicitacaoRejeitadaAction;
 use Exception;
 use PDO;
@@ -28,10 +28,8 @@ class MailService implements MailServiceInterface
                 $action = new MailSolicitacaoCanceladaAction();
                 break;
             case TipoNotificacao::SOLICITACAO_RECEBIDA_ACEITA:
-                $action = new MailSolicitacaoAceitaRecebidaAction();
-                break;
             case TipoNotificacao::SOLICITACAO_ENVIADA_ACEITA:
-                $action = new MailSolicitacaoEnviadaRecebidaAction();
+                $action = new MailDuplaFormadaAction();
                 break;
             case TipoNotificacao::SOLICITACAO_RECEBIDA:
                 $action = new MailNovaSolicitacaoAction();

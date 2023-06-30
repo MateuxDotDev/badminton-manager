@@ -10,7 +10,6 @@ use App\Mail\SolicitacaoCanceladaMail;
 use App\Notificacao\Notificacao;
 use App\Tecnico\Atleta\AtletaRepository;
 use App\Tecnico\Solicitacao\SolicitacaoConcluidaRepository;
-use App\Tecnico\TecnicoRepository;
 use App\Util\Mail\Mailer;
 use Exception;
 use PDO;
@@ -23,7 +22,6 @@ class MailSolicitacaoCanceladaAction implements MailActionInterface
     public function enviarDeNotificacao(Notificacao $notificacao, PDO $pdo): void
     {
         $solicitacaoRepo = new SolicitacaoConcluidaRepository($pdo);
-        $tecnicoRepo = new TecnicoRepository($pdo);
         $atletaRepo = new AtletaRepository($pdo);
         $competicaoRepo = new CompeticaoRepository($pdo);
         $categoriaRepo = new CategoriaRepository($pdo);
@@ -31,9 +29,20 @@ class MailSolicitacaoCanceladaAction implements MailActionInterface
         $solicitacao = $solicitacaoRepo->getViaId($notificacao->id1);
 
         $competicao = $competicaoRepo->getViaId($solicitacao->competicaoId());
-        $atletaRem = $atletaRepo->getViaId($solicitacao->atletaOrigemId());
-        $atletaDest = $atletaRepo->getViaId($solicitacao->atletaDestinoId());
-        $tecnicoDest = $tecnicoRepo->getViaAtleta($atletaDest->id());
+
+        $atletasSolicitacao = [];
+        $atletasSolicitacao[] = $atletaRepo->getViaId($solicitacao->atletaOrigemId());
+        $atletasSolicitacao[] = $atletaRepo->getViaId($solicitacao->atletaDestinoId());
+
+        foreach ($atletasSolicitacao as $atletaSolicitacao) {
+            if ($atletaSolicitacao->tecnico()->id() == $notificacao->idTecnico) {
+                $atletaDest = $atletaSolicitacao;
+            } else {
+                $atletaRem = $atletaSolicitacao;
+            }
+        }
+
+        $tecnicoDest = $atletaDest->tecnico();
         $categoria = $categoriaRepo->getById($solicitacao->categoriaId());
 
         $mail = new SolicitacaoCanceladaMail(

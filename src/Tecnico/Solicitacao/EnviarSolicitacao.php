@@ -11,7 +11,6 @@ use App\Tecnico\Dupla\DuplaRepository;
 use App\Util\Exceptions\ValidatorException;
 use App\Util\General\UserSession;
 use App\Util\Http\HttpStatus;
-use App\Util\Mail\Service\MailService;
 use App\Util\Mail\Service\MailServiceInterface;
 use Exception;
 use PDO;

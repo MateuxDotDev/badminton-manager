@@ -4,7 +4,6 @@ namespace Tests\Notificacao;
 
 use App\Notificacao\Notificacao;
 use App\Notificacao\NotificacaoRepository;
-use App\Notificacao\TipoNotificacao;
 use PDO;
 use PDOStatement;
 use PHPUnit\Framework\MockObject\Exception;
