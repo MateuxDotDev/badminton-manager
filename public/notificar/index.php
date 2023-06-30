@@ -48,9 +48,9 @@ try {
     }
     $enviadas = [];
     $erros = [];
-    $mailer = new Mailer();
 
     foreach ($emails as $email) {
+        $mailer = new Mailer();
         try {
             if ($mailer->sendEmail(
                 $email->toEmail,
