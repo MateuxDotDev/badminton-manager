@@ -3,6 +3,7 @@
 namespace App\Tecnico\Dupla;
 
 use App\Tecnico\Atleta\Sexo;
+use App\Util\Exceptions\ValidatorException;
 use App\Util\General\Dates;
 use PDO;
 
@@ -18,7 +19,7 @@ class DuplaRepository
         int $idAtleta2,
         int $idCategoria,
         int $idSolicitacaoOrigem,
-    ): void
+    ): int
     {
         $sql = <<<SQL
             INSERT INTO dupla
@@ -35,6 +36,8 @@ class DuplaRepository
             'atleta2_id'     => $idAtleta2,
             'solicitacao_id' => $idSolicitacaoOrigem,
         ]);
+
+        return $this->pdo->lastInsertId();
     }
 
     /**
@@ -120,5 +123,86 @@ class DuplaRepository
         }
 
         return $duplas;
+    }
+
+    /**
+     * @throws ValidatorException
+     */
+    public function desfazer(int $idDupla, int $idTecnico): bool
+    {
+        $sql = <<<SQL
+            DELETE FROM dupla
+                  WHERE id = :id
+                    AND EXISTS (
+                        SELECT 1
+                          FROM atleta a
+                          JOIN tecnico t
+                            ON t.id = a.tecnico_id
+                         WHERE a.id IN (dupla.atleta1_id, dupla.atleta2_id)
+                           AND t.id = :tecnico_id
+                    )
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'id' => $idDupla,
+            'tecnico_id' => $idTecnico
+        ]);
+
+        return $stmt->rowCount() > 0;
+    }
+
+    /**
+     * @throws ValidatorException
+     */
+    public function getViaId(int $id): Dupla
+    {
+        $sql = <<<SQL
+            SELECT d.id,
+                   d.solicitacao_id AS "idSolicitacao",
+                   d.criado_em AS "criadoEm",
+                   c.id AS "categoriaId",
+                   c.descricao AS categoria,
+                   co.nome AS competicao,
+                   co.id AS "competicaoId",
+                   jsonb_agg(
+                       jsonb_build_object(
+                           'id', a.id,
+                           'nome', a.nome_completo,
+                           'sexo', a.sexo,
+                           'dataNascimento', a.data_nascimento,
+                           'foto', a.path_foto,
+                           'informacoes', a.informacoes,
+                           'tecnico', json_build_object(
+                               'id', t.id,
+                               'nome', t.nome_completo,
+                               'email', t.email,
+                               'informacoes', t.informacoes,
+                               'clubeId', cl.id,
+                               'clube', cl.nome
+                           )
+                       )
+                   ) AS "atletas"
+              FROM dupla d
+              JOIN atleta a
+                ON a.id IN (d.atleta1_id, d.atleta2_id)
+              JOIN tecnico t
+                ON t.id = a.tecnico_id
+              JOIN competicao co
+                ON co.id = d.competicao_id
+              JOIN categoria c
+                ON c.id = d.categoria_id
+              JOIN clube cl
+                ON cl.id = t.clube_id
+             WHERE d.id = :id
+          GROUP BY 1, 2, 3, 4, 5, 6, 7
+        SQL;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'id' => $id
+        ]);
+
+        return Dupla::fromRow($stmt->fetch());
     }
 }

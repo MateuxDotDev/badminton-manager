@@ -7,10 +7,10 @@ use DateTimeInterface;
 readonly class Categoria
 {
     public function __construct(
-        private ?int $id,
-        private ?string $descricao,
-        private ?int $idadeMaiorQue,
-        private ?int $idadeMenorQue,
+        private ?int $id = null,
+        private ?string $descricao = null,
+        private ?int $idadeMaiorQue = null,
+        private ?int $idadeMenorQue = null,
     ) {}
 
     public function id(): int

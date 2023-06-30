@@ -4,7 +4,7 @@ namespace App\Notificacao;
 
 use DateTimeInterface;
 
-readonly class Notificacao
+class Notificacao
 {
     private function __construct(
         public TipoNotificacao $tipo,
@@ -17,15 +17,17 @@ readonly class Notificacao
         public ?DateTimeInterface $dataVisualizacao = null,
     ) {}
 
-    public static function solicitacaoEnviada(
-        int $idTecnico,
-        int $idSolicitacao,
-    ): self
+    public function setId(int $id): void
+    {
+        $this->id = $id;
+    }
+
+    public static function solicitacaoEnviada(int $idTecnico, int $idSolicitacao): self
     {
         return new self(
             TipoNotificacao::SOLICITACAO_ENVIADA,
             $idTecnico,
-            $idSolicitacao,
+            $idSolicitacao
         );
     }
 
@@ -34,7 +36,7 @@ readonly class Notificacao
         return new self(
             TipoNotificacao::SOLICITACAO_RECEBIDA,
             $idTecnico,
-            $idSolicitacao,
+            $idSolicitacao
         );
     }
 
@@ -66,21 +68,31 @@ readonly class Notificacao
     }
 
 
-    public static function solicitacaoRecebidaAceita(int $idTecnico, int $idSolicitacao): self
+    public static function solicitacaoRecebidaAceita(
+        int $idTecnico,
+        int $idSolicitacao,
+        int $idDupla
+    ): self
     {
         return new self(
             TipoNotificacao::SOLICITACAO_RECEBIDA_ACEITA,
             $idTecnico,
             $idSolicitacao,
+            $idDupla
         );
     }
 
-    public static function solicitacaoEnviadaAceita(int $idTecnico, int $idSolicitacao): self
+    public static function solicitacaoEnviadaAceita(
+        int $idTecnico,
+        int $idSolicitacao,
+        int $idDupla
+    ): self
     {
         return new self(
             TipoNotificacao::SOLICITACAO_ENVIADA_ACEITA,
             $idTecnico,
             $idSolicitacao,
+            $idDupla
         );
     }
 

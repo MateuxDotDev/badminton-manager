@@ -2,11 +2,11 @@
 
 require_once(__DIR__.'/../../vendor/autoload.php');
 
+use App\Tecnico\{TecnicoRepository};
 use App\Tecnico\Conta\Cadastrar;
 use App\Tecnico\Conta\CadastroDTO;
-use App\Util\Exceptions\ValidatorException;
-use App\Tecnico\{TecnicoRepository};
 use App\Util\Database\Connection;
+use App\Util\Exceptions\ValidatorException;
 use App\Util\Http\{Request, Response};
 
 try {

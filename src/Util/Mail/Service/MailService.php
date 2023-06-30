@@ -1,11 +1,15 @@
-<?php
+<?php  /** @noinspection PhpClassCanBeReadonlyInspection */
 
 namespace App\Util\Mail\Service;
 
 use App\Notificacao\Notificacao;
 use App\Notificacao\TipoNotificacao;
-use App\Util\Mail\Service\Actions\MailActionInterface;
+use App\Util\Mail\Service\Actions\MailDuplaFormadaAction;
+use App\Util\Mail\Service\Actions\MailNovaSolicitacaoAction;
+use App\Util\Mail\Service\Actions\MailSolicitacaoAceitaRecebidaAction;
 use App\Util\Mail\Service\Actions\MailSolicitacaoCanceladaAction;
+use App\Util\Mail\Service\Actions\MailSolicitacaoRejeitadaAction;
+use Exception;
 use PDO;
 
 class MailService implements MailServiceInterface
@@ -15,15 +19,26 @@ class MailService implements MailServiceInterface
     ) {}
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
-    function enviarDeNotificacao(Notificacao $notificacao): void
+    public function enviarDeNotificacao(Notificacao $notificacao): void
     {
-        /** @var  $action MailActionInterface */
-        $action = null;
-
-        if ($notificacao->tipo == TipoNotificacao::SOLICITACAO_ENVIADA_CANCELADA) {
-            $action = new MailSolicitacaoCanceladaAction();
+        switch ($notificacao->tipo) {
+            case TipoNotificacao::SOLICITACAO_ENVIADA_CANCELADA:
+                $action = new MailSolicitacaoCanceladaAction();
+                break;
+            case TipoNotificacao::SOLICITACAO_RECEBIDA_ACEITA:
+            case TipoNotificacao::SOLICITACAO_ENVIADA_ACEITA:
+                $action = new MailDuplaFormadaAction();
+                break;
+            case TipoNotificacao::SOLICITACAO_RECEBIDA:
+                $action = new MailNovaSolicitacaoAction();
+                break;
+            case TipoNotificacao::SOLICITACAO_ENVIADA_REJEITADA:
+                $action = new MailSolicitacaoRejeitadaAction();
+                break;
+            default:
+                return;
         }
 
         $action->enviarDeNotificacao($notificacao, $this->pdo);

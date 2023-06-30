@@ -2,7 +2,8 @@
 
 namespace Tests\Mail;
 
-use App\Mail\SolicitacaoRejeitadaMail;
+use App\Mail\DuplaFormadaMail;
+use App\Mail\SolicitacaoAceitaEnviadaMail;
 use App\Util\Exceptions\MailException;
 use App\Util\General\Dates;
 use App\Util\Mail\MailerInterface;
@@ -10,7 +11,7 @@ use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-class RejeitarSolicitacaoMailTest extends TestCase
+class DuplaFormadaMailTest extends TestCase
 {
     private MockObject|MailerInterface $mailerMock;
 
@@ -26,8 +27,8 @@ class RejeitarSolicitacaoMailTest extends TestCase
 
     public function testConstruct()
     {
-        $mail = new SolicitacaoRejeitadaMail($this->mailerMock);
-        $this->assertInstanceOf(SolicitacaoRejeitadaMail::class, $mail);
+        $mail = new DuplaFormadaMail($this->mailerMock, 'Atleta A', 'Atleta B', 'Competição A');
+        $this->assertInstanceOf(DuplaFormadaMail::class, $mail);
     }
 
     /**
@@ -35,11 +36,15 @@ class RejeitarSolicitacaoMailTest extends TestCase
      */
     public function testSend()
     {
-        $mail = new SolicitacaoRejeitadaMail($this->mailerMock);
+        $atletaDest = 'Atleta A';
+        $atletaRem = 'Atleta B';
+        $competicao = 'Competição A';
+
+        $mail = new DuplaFormadaMail($this->mailerMock, $atletaDest, $atletaRem, $competicao);
 
         $toEmail = 'test@example.com';
-        $toName = 'Test User';
-        $subject = 'Uma solicitação de dupla sua foi rejeitada.';
+        $toName = $atletaDest;
+        $subject = 'Você formou uma dupla entre o seu atleta Atleta A e o atleta Atleta B para a competição Competição A!';
         $altBody = 'Test alternative body';
 
         $this->mailerMock
@@ -51,7 +56,7 @@ class RejeitarSolicitacaoMailTest extends TestCase
                 $this->equalTo($subject),
                 $this->callback(function ($body) {
                     $this->assertStringContainsString('Olá {{ dest_tecnico }}!', $body);
-                    $this->assertStringContainsString('A solicitação de formar dupla com o seu atleta {{ dest_nome }} e {{ rem_nome }} na competição {{ competicao }} foi cancelada! Mais detalhes', $body);
+                    $this->assertStringContainsString('Você formou uma dupla entre o seu atleta {{ dest_nome }} e o atleta {{ rem_nome }} para a competição {{ competicao }} foi aceita! Aqui estão mais detalhes:', $body);
                     return true;
                 }),
                 $this->equalTo($altBody)
@@ -71,28 +76,31 @@ class RejeitarSolicitacaoMailTest extends TestCase
 
     public function testFillTemplate()
     {
-        $mail = new SolicitacaoRejeitadaMail($this->mailerMock);
+        $atletaDest = 'Atleta A';
+        $atletaRem = 'Atleta B';
+        $competicao = 'Competição A';
+        $mail = new DuplaFormadaMail($this->mailerMock, $atletaDest, $atletaRem, $competicao);
 
         $templateData = [
             'dest_tecnico' => 'Técnico A',
-            'dest_nome' => 'Atleta A',
-            'rem_nome' => 'Atleta B',
-            'competicao' => 'Competição A',
+            'dest_nome' => $atletaDest,
+            'rem_nome' => $atletaRem,
+            'competicao' => $competicao,
             'dest_sexo' => 'Masculino',
-            'rem_sexo' => 'Masculino',
-            'dest_idade' => '21',
-            'rem_idade' => '21',
-            'dest_nascimento' => '01/01/2000',
-            'rem_nascimento' => '01/01/2000',
-            'dest_info' => 'Informações adicionais do Atleta A',
-            'rem_info' => 'Informações adicionais do Atleta B',
+            'rem_sexo' => 'Feminino',
+            'dest_idade' => '18',
+            'rem_idade' => '18',
+            'dest_nascimento' => '20/02/2001',
+            'rem_nascimento' => '17/09/1994',
+            'dest_info' => 'Informações adicionais do atleta A',
+            'rem_info' => 'Informações adicionais do atleta B',
             'categoria' => 'Categoria A',
-            'observacoes' => 'Observações A',
+            'link_desfazer' => 'http://localhost:8080/desfazer-solicitacao/1234567890',
             'ano_atual' => Dates::currentYear(),
         ];
 
         foreach ($templateData as $key => $value) {
-            $this->assertStringContainsString($key, $mail->getBody());
+            $this->assertStringContainsString('{{ ' . $key . ' }}', $mail->getBody());
             $this->assertStringNotContainsString($value, $mail->getBody());
         }
 

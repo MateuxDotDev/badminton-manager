@@ -82,13 +82,14 @@ class NotificacaoTest extends TestCase
     {
         $idTecnico = 1;
         $idSolicitacao = 2;
+        $idDupla = 3;
 
-        $notificacao = Notificacao::solicitacaoRecebidaAceita($idTecnico, $idSolicitacao);
+        $notificacao = Notificacao::solicitacaoRecebidaAceita($idTecnico, $idSolicitacao, $idDupla);
 
         $this->assertEquals(TipoNotificacao::SOLICITACAO_RECEBIDA_ACEITA, $notificacao->tipo);
         $this->assertEquals($idTecnico, $notificacao->idTecnico);
         $this->assertEquals($idSolicitacao, $notificacao->id1);
-        $this->assertNull($notificacao->id2);
+        $this->assertEquals($idDupla, $notificacao->id2);
         $this->assertNull($notificacao->id3);
     }
 
@@ -96,13 +97,14 @@ class NotificacaoTest extends TestCase
     {
         $idTecnico = 1;
         $idSolicitacao = 2;
+        $idDupla = 3;
 
-        $notificacao = Notificacao::solicitacaoEnviadaAceita($idTecnico, $idSolicitacao);
+        $notificacao = Notificacao::solicitacaoEnviadaAceita($idTecnico, $idSolicitacao, $idDupla);
 
         $this->assertEquals(TipoNotificacao::SOLICITACAO_ENVIADA_ACEITA, $notificacao->tipo);
         $this->assertEquals($idTecnico, $notificacao->idTecnico);
         $this->assertEquals($idSolicitacao, $notificacao->id1);
-        $this->assertNull($notificacao->id2);
+        $this->assertEquals($idDupla, $notificacao->id2);
         $this->assertNull($notificacao->id3);
     }
 

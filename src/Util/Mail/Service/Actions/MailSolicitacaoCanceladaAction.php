@@ -8,10 +8,8 @@ use App\Mail\EmailDTO;
 use App\Mail\MailRepository;
 use App\Mail\SolicitacaoCanceladaMail;
 use App\Notificacao\Notificacao;
-use App\Notificacao\NotificacaoRepository;
 use App\Tecnico\Atleta\AtletaRepository;
 use App\Tecnico\Solicitacao\SolicitacaoConcluidaRepository;
-use App\Tecnico\TecnicoRepository;
 use App\Util\Mail\Mailer;
 use Exception;
 use PDO;
@@ -24,18 +22,27 @@ class MailSolicitacaoCanceladaAction implements MailActionInterface
     public function enviarDeNotificacao(Notificacao $notificacao, PDO $pdo): void
     {
         $solicitacaoRepo = new SolicitacaoConcluidaRepository($pdo);
-        $tecnicoRepo = new TecnicoRepository($pdo);
         $atletaRepo = new AtletaRepository($pdo);
         $competicaoRepo = new CompeticaoRepository($pdo);
         $categoriaRepo = new CategoriaRepository($pdo);
-        $notificacaoRepo = new NotificacaoRepository($pdo);
 
         $solicitacao = $solicitacaoRepo->getViaId($notificacao->id1);
 
         $competicao = $competicaoRepo->getViaId($solicitacao->competicaoId());
-        $atletaRem = $atletaRepo->getViaId($solicitacao->atletaOrigemId());
-        $atletaDest = $atletaRepo->getViaId($solicitacao->atletaDestinoId());
-        $tecnicoDest = $tecnicoRepo->getViaAtleta($atletaDest->id());
+
+        $atletasSolicitacao = [];
+        $atletasSolicitacao[] = $atletaRepo->getViaId($solicitacao->atletaOrigemId());
+        $atletasSolicitacao[] = $atletaRepo->getViaId($solicitacao->atletaDestinoId());
+
+        foreach ($atletasSolicitacao as $atletaSolicitacao) {
+            if ($atletaSolicitacao->tecnico()->id() == $notificacao->idTecnico) {
+                $atletaDest = $atletaSolicitacao;
+            } else {
+                $atletaRem = $atletaSolicitacao;
+            }
+        }
+
+        $tecnicoDest = $atletaDest->tecnico();
         $categoria = $categoriaRepo->getById($solicitacao->categoriaId());
 
         $mail = new SolicitacaoCanceladaMail(
@@ -63,21 +70,13 @@ class MailSolicitacaoCanceladaAction implements MailActionInterface
             'ano_atual' => date('Y'),
         ]);
 
-        $notificacoes = $notificacaoRepo->getViaId1($notificacao->id1, $notificacao->tipo);
-
-        foreach ($notificacoes as $n) {
-            if ($n['tecnico_id'] == $notificacao->idTecnico) {
-                $notificacaoId = $n['id'];
-            }
-        }
-
         $emailDto = new EmailDTO(
             $tecnicoDest->nomeCompleto(),
             $tecnicoDest->email(),
             $mail->getSubject(),
             $mail->getBody(),
             $mail->getAltBody(),
-            $notificacaoId
+            $notificacao->id,
         );
 
         $mailRepo = new MailRepository($pdo);

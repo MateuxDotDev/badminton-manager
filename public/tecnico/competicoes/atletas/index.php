@@ -2,8 +2,8 @@
 
 require_once __DIR__ . '/../../../../vendor/autoload.php';
 
-use App\Competicoes\CompeticaoRepository;
 use App\Categorias\CategoriaRepository;
+use App\Competicoes\CompeticaoRepository;
 use App\Tecnico\Atleta\AtletaCompeticao\AtletaCompeticaoRepository;
 use App\Tecnico\Atleta\AtletaRepository;
 use App\Tecnico\Atleta\Sexo;
@@ -83,7 +83,7 @@ if ($competicao == null) {
         <h1 class="mb-0">Atletas na competição</h1>
         <?php if ($session->isTecnico()): ?>
             <div class="d-flex gap-2">
-                <a href="./tecnico/competicoes/atletas/incluir/?competicao=<?= $competicao->id() ?>" class="btn btn-outline-primary h-100">
+                <a href="/tecnico/competicoes/atletas/incluir/?competicao=<?= $competicao->id() ?>" class="btn btn-outline-primary h-100">
                     <i class="bi bi-person-plus"></i> Cadastrar atleta
                 </a>
                 <a href="./duplas/?competicao=<?= $competicao->id() ?>" class="btn btn-outline-secondary h-100">

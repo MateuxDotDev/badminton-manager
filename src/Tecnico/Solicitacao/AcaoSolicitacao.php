@@ -91,7 +91,7 @@ readonly class AcaoSolicitacao
     /**
      * @throws ValidatorException
      */
-    public function rejeitar(int $idPendente): array
+    public function rejeitar(int $idPendente): void
     {
         $solicitacao = $this->getSolicitacao404($idPendente);
 
@@ -109,16 +109,10 @@ readonly class AcaoSolicitacao
             Notificacao::solicitacaoEnviadaRejeitada($solicitacao['tecnico_origem_id'], $idConcluida),
         ];
 
-        $idsNotificacaoes = [];
         foreach ($notificacoes as $notificacao) {
-            $idsNotificacaoes[] = [
-                'notificacao' => $notificacao,
-                'tipo' => $notificacao->tipo,
-                'id' => $this->notificacaoRepo->criar($notificacao)
-            ];
+            $notificacao->setId($this->notificacaoRepo->criar($notificacao));
+            $this->mailService->enviarDeNotificacao($notificacao);
         }
-
-        return $idsNotificacaoes;
     }
 
     /**
@@ -140,16 +134,15 @@ readonly class AcaoSolicitacao
 
         $idCancelado = $this->concluidaRepo->concluirCancelada($id);
 
-        $notificaco = Notificacao::solicitacaoEnviadaCancelada($solicitacao['tecnico_destino_id'], $idCancelado);
+        $notificacao = Notificacao::solicitacaoEnviadaCancelada($solicitacao['tecnico_destino_id'], $idCancelado);
 
-        $this->notificacaoRepo->criar($notificaco);
-        $this->mailService->enviarDeNotificacao($notificaco);
+        $notificacao->setId($this->notificacaoRepo->criar($notificacao));
+        $this->mailService->enviarDeNotificacao($notificacao);
     }
 
 
     private function getSolicitacoesParaCancelar(array $aceita): array
     {
-
         $sql = <<<SQL
             SELECT s.id
                  , ori.id          as atleta_origem_id
@@ -239,7 +232,7 @@ readonly class AcaoSolicitacao
 
         $idConcluidaAceita = $this->concluidaRepo->concluirAceita($pendente['id']);
 
-        $this->duplaRepo->criarDupla(
+        $idDupla = $this->duplaRepo->criarDupla(
             $pendente['competicao_id'],
             $pendente['atleta_origem_id'],
             $pendente['atleta_destino_id'],
@@ -267,12 +260,19 @@ readonly class AcaoSolicitacao
             }
         }
 
-        $notificacoes[] = Notificacao::solicitacaoEnviadaAceita($pendente['tecnico_origem_id'], $idConcluidaAceita);
-        $notificacoes[] = Notificacao::solicitacaoRecebidaAceita($pendente['tecnico_destino_id'], $idConcluidaAceita);
+        $notificacoes[] = Notificacao::solicitacaoEnviadaAceita(
+            $pendente['tecnico_origem_id'],
+            $idConcluidaAceita,
+            $idDupla
+        );
+        $notificacoes[] = Notificacao::solicitacaoRecebidaAceita(
+            $pendente['tecnico_destino_id'],
+            $idConcluidaAceita,
+            $idDupla
+        );
 
         foreach ($notificacoes as $notificacao) {
-            // Talvez deveria ficar na classe Notificacao, facilitaria e automatizaria, porem teria problemas de mock, testes e transactions
-            $this->notificacaoRepo->criar($notificacao);
+            $notificacao->setId($this->notificacaoRepo->criar($notificacao));
             $this->mailService->enviarDeNotificacao($notificacao);
         }
     }

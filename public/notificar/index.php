@@ -48,10 +48,10 @@ try {
     }
     $enviadas = [];
     $erros = [];
-    $mailer = new Mailer();
 
     foreach ($emails as $email) {
         try {
+            $mailer = new Mailer();
             if ($mailer->sendEmail(
                 $email->toEmail,
                 $email->toName,
@@ -72,7 +72,10 @@ try {
         empty($erros) ? HttpStatus::OK : HttpStatus::INTERNAL_SERVER_ERROR,
         "Envio de email concluído.",
         [
-            'enviadas' => $totalEnviadas,
+            'enviadas' => [
+                'total' => $totalEnviadas,
+                'ids' => $enviadas
+            ],
             'erros' => $erros,
             ...$horario
         ]
